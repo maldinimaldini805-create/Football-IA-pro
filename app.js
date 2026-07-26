@@ -1,6 +1,7 @@
 /**
  * Football AI Pro - Application Principale
  * Gestion de l'interface utilisateur et des interactions
+ * VERSION 2.1 - Améliorée avec détection d'alias
  */
 
 let predictor = new FootballAIPredictor();
@@ -12,7 +13,7 @@ let currentTab = 'home';
 document.addEventListener('DOMContentLoaded', function() {
     loadHistory();
     setupEventListeners();
-    console.log('⚽ Football AI Pro v2.0.0 - Système de prédiction initialisé');
+    console.log('⚽ Football AI Pro v2.1.0 - Système de prédiction initialisé avec détection d\'alias');
 });
 
 /**
@@ -57,7 +58,7 @@ async function analyseMatch() {
     const matchInput = searchInput.value.trim();
 
     if (!matchInput) {
-        showError('Veuillez entrer un match (ex: Real Madrid vs Barcelona)');
+        showError('Veuillez entrer un match (ex: PSG vs Real, Man City vs Liverpool...)');
         return;
     }
 
@@ -75,7 +76,7 @@ async function analyseMatch() {
         const match = predictor.parseMatch(matchInput);
 
         if (!match) {
-            showError('❌ Match non trouvé. Veuillez vérifier les noms des équipes.');
+            showError('❌ Match non trouvé. Vérifiez les noms des équipes. Exemples: PSG vs Barcelona, Man City vs Liverpool, Bayern vs Dortmund');
             analyseBtn.disabled = false;
             analyseBtn.textContent = originalText;
             return;
@@ -173,6 +174,10 @@ function displayTeamComparison(prediction) {
         <div class="team-card">
             <h4>🏠 ${prediction.homeTeam}</h4>
             <div class="team-stat">
+                <span>Ligue:</span>
+                <span>${prediction.homeLeague || 'N/A'}</span>
+            </div>
+            <div class="team-stat">
                 <span>Tirs:</span>
                 <span>${prediction.stats.homeStats.shots}</span>
             </div>
@@ -195,6 +200,10 @@ function displayTeamComparison(prediction) {
         </div>
         <div class="team-card">
             <h4>✈️ ${prediction.awayTeam}</h4>
+            <div class="team-stat">
+                <span>Ligue:</span>
+                <span>${prediction.awayLeague || 'N/A'}</span>
+            </div>
             <div class="team-stat">
                 <span>Tirs:</span>
                 <span>${prediction.stats.awayStats.shots}</span>
