@@ -30,6 +30,42 @@
     <button id="settingsBtn" type="button" aria-label="Paramètres">⚙️ Paramètres</button>
   </nav>
 
+  <!-- Section Recherche d'un match -->
+  <section class="card" role="region" aria-labelledby="search-title">
+    <h2 id="search-title">Recherche d'un match</h2>
+    <input
+      type="text"
+      id="matchInput"
+      placeholder="Exemple : Real Madrid vs Barcelone"
+      aria-label="Entrez le nom du match">
+    <button id="analyzeBtn" type="button" aria-label="Analyser le match">
+      Analyser le match
+    </button>
+  </section>
+
+  <!-- Section Résultats de l'analyse IA -->
+  <section class="card" role="region" aria-labelledby="results-title">
+    <h2 id="results-title">Résultat de l'analyse IA</h2>
+    <div class="result">
+      <p>⚽ Probabilité victoire domicile : <span id="homeWin">-- %</span></p>
+      <p>🤝 Probabilité match nul : <span id="draw">-- %</span></p>
+      <p>⚽ Probabilité victoire extérieur : <span id="awayWin">-- %</span></p>
+      <hr>
+      <p>🥅 Buts attendus : <span id="goals">--</span></p>
+      <p>🎯 Tirs : <span id="shots">--</span></p>
+      <p>🎯 Tirs cadrés : <span id="shotsOnTarget">--</span></p>
+      <p>🚩 Corners : <span id="corners">--</span></p>
+      <p>🟨 Cartons jaunes : <span id="yellowCards">--</span></p>
+      <p>🚨 Fautes : <span id="fouls">--</span></p>
+      <p>📈 Possession : <span id="possession">--</span></p>
+      <p>🌧️ Météo : <span id="weather">--</span></p>
+      <p>👨‍⚖️ Arbitre : <span id="referee">--</span></p>
+      <p>📊 Score probable : <span id="probableScore">--</span></p>
+      <hr>
+      <h3>🤖 Indice de confiance IA : <span id="confidence">-- %</span></h3>
+    </div>
+  </section>
+
   <section class="card" role="region" aria-labelledby="stats-title">
     <h3 id="stats-title">📈 Statistiques analysées</h3>
     <ul class="stats-list">
