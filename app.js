@@ -32,23 +32,29 @@ bouton.addEventListener("click", async () => {
 
     const recherche = document.querySelector("input").value;
 
-    if (recherche === "") {
-        alert("Veuillez entrer un match.");
+    if (recherche.trim() === "") {
+        alert("Veuillez saisir un match.");
         return;
     }
 
-    alert("Analyse de : " + recherche);
+    document.querySelector(".result").innerHTML =
+        "<h3>⏳ Analyse IA en cours...</h3>";
 
-    // Cette partie sera remplacée par la connexion API-FOOTBALL
+    const donnees = await recupererMatchs();
+
+    if (!donnees) {
+        document.querySelector(".result").innerHTML =
+            "<h3>❌ Impossible de récupérer les données.</h3>";
+        return;
+    }
+
     document.querySelector(".result").innerHTML = `
-        <h3>🤖 Analyse IA en cours...</h3>
+        <h2>✅ Football AI Pro connecté</h2>
 
-        <p>Recherche du match...</p>
+        <p>Match recherché : <strong>${recherche}</strong></p>
 
-        <p>Connexion à API-FOOTBALL...</p>
+        <p>📊 Les données API-FOOTBALL ont été récupérées.</p>
 
-        <p>Calcul du modèle IA...</p>
-
-        <p>Veuillez patienter...</p>
+        <p>🤖 Le moteur IA sera ajouté dans la prochaine étape.</p>
     `;
 });
