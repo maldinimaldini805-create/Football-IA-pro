@@ -1,459 +1,51 @@
-<!DOCTYPE html>
-<html lang="fr">
+export default {
+  async fetch(request, env) {
 
-<head>
+    const url = new URL(request.url);
 
-<meta charset="UTF-8">
+    const headers = {
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json"
+    };
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    // Test
+    if (url.pathname === "/") {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Football AI Pro 2.1 API fonctionne"
+        }),
+        { headers }
+      );
+    }
 
-<title>
+    // Matchs
+    if (url.pathname === "/matches") {
 
-⚽ Football AI Pro 2.0
+      const response = await fetch(
+        "https://v3.football.api-sports.io/fixtures?next=20",
+        {
+          headers: {
+            "x-apisports-key": env.SPORTMONKS_API_KEY
+          }
+        }
+      );
 
-</title>
+      const data = await response.text();
 
-<style>
+      return new Response(data, { headers });
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
+    }
+
+    return new Response(
+      JSON.stringify({
+        error: "Route inconnue"
+      }),
+      {
+        status: 404,
+        headers
+      }
+    );
+
+  }
 }
-
-body{
-
-background:#071321;
-
-color:white;
-
-}
-
-header{
-
-background:#0d1b2a;
-
-padding:20px;
-
-text-align:center;
-
-box-shadow:0 0 10px black;
-
-}
-
-header h1{
-
-font-size:34px;
-
-color:#00ff99;
-
-}
-
-header p{
-
-margin-top:10px;
-
-color:#ddd;
-
-}
-
-nav{
-
-display:flex;
-
-justify-content:space-around;
-
-padding:15px;
-
-background:#132238;
-
-}
-
-nav button{
-
-background:none;
-
-border:none;
-
-color:white;
-
-font-size:17px;
-
-}
-
-.container{
-
-padding:20px;
-
-}
-
-.card{
-
-background:#132238;
-
-padding:20px;
-
-margin-top:20px;
-
-border-radius:15px;
-
-}
-
-input{
-
-width:100%;
-
-padding:15px;
-
-border:none;
-
-border-radius:10px;
-
-margin-top:15px;
-
-font-size:16px;
-
-}
-
-.mainButton{
-
-width:100%;
-
-padding:16px;
-
-margin-top:15px;
-
-border:none;
-
-background:#00ff99;
-
-color:black;
-
-font-size:18px;
-
-font-weight:bold;
-
-border-radius:10px;
-
-}
-
-.stat{
-
-display:flex;
-
-justify-content:space-between;
-
-padding:10px;
-
-border-bottom:1px solid #2c3e50;
-
-}
-
-.progress{
-
-width:100%;
-
-height:20px;
-
-background:#222;
-
-border-radius:10px;
-
-margin-top:10px;
-
-overflow:hidden;
-
-}
-
-.progress div{
-
-height:100%;
-
-width:0%;
-
-background:#00ff99;
-
-}
-
-</style>
-
-</head>
-
-<body>
-
-<header>
-
-<h1>
-
-⚽ Football AI Pro 2.0
-
-</h1>
-
-<p>
-
-Robot Intelligent de Prédiction Football
-
-</p>
-
-</header>
-
-<nav>
-
-<button>Accueil</button>
-
-<button>Recherche</button>
-
-<button>Historique</button>
-
-<button>Paramètres</button>
-
-</nav>
-
-<div class="container">
-
-<div class="card">
-
-<h2>
-
-🔍 Rechercher un match
-
-</h2>
-
-<input
-id="search"
-
-placeholder="Exemple : Real Madrid vs Barcelone">
-
-<button
-class="mainButton"
-
-onclick="analyse()">
-
-ANALYSER LE MATCH
-
-</button>
-
-</div>
-
-<div class="card">
-
-<h2>
-
-🤖 Analyse Football AI
-
-</h2>
-
-<div id="analyse">
-
-Aucune analyse.
-
-</div>
-
-</div>
-
-<div class="card">
-
-<h2>
-
-📊 Statistiques IA
-
-</h2>
-
-<div class="stat">
-
-<span>
-
-Probabilité domicile
-
-</span>
-
-<span id="home">
-
---
-
-</span>
-
-</div>
-
-<div class="stat">
-
-<span>
-
-Match nul
-
-</span>
-
-<span id="draw">
-
---
-
-</span>
-
-</div>
-
-<div class="stat">
-
-<span>
-
-Victoire extérieure
-
-</span>
-
-<span id="away">
-
---
-
-</span>
-
-</div>
-
-<div class="stat">
-
-<span>
-
-Score probable
-
-</span>
-
-<span id="score">
-
---
-
-</span>
-
-</div>
-
-<div class="stat">
-
-<span>
-
-Buts
-
-</span>
-
-<span id="goals">
-
---
-
-</span>
-
-</div>
-
-<div class="stat">
-
-<span>
-
-Tirs
-
-</span>
-
-<span id="shots">
-
---
-
-</span>
-
-</div>
-
-<div class="stat">
-
-<span>
-
-Tirs cadrés
-
-</span>
-
-<span id="shotsTarget">
-
---
-
-</span>
-
-</div>
-
-<div class="stat">
-
-<span>
-
-Corners
-
-</span>
-
-<span id="corners">
-
---
-
-</span>
-
-</div>
-
-<div class="stat">
-
-<span>
-
-Cartons
-
-</span>
-
-<span id="cards">
-
---
-
-</span>
-
-</div>
-
-<div class="stat">
-
-<span>
-
-Fautes
-
-</span>
-
-<span id="fouls">
-
---
-
-</span>
-
-</div>
-
-<div class="stat">
-
-<span>
-
-Possession
-
-</span>
-
-<span id="possession">
-
---
-
-</span>
-
-</div>
-
-<h3>
-
-Indice de confiance IA
-
-</h3>
-
-<div class="progress">
-
-<div id="confidenceBar"></div>
-
-</div>
-
-<p
-id="confidence">
-
-0 %
-
-</p>
-
-</div>
