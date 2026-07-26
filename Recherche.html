@@ -1,1 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Recherche de match - Football AI Pro</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header class="header">
+<h1>🔎 Rechercher un match</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<h2>Championnat</h2>
+
+<select id="league">
+<option>Premier League</option>
+<option>Liga</option>
+<option>Serie A</option>
+<option>Bundesliga</option>
+<option>Ligue 1</option>
+<option>CAF Champions League</option>
+</select>
+
+</div>
+
+<div class="card">
+
+<h2>Équipe domicile</h2>
+
+<input
+type="text"
+placeholder="Ex : Manchester City"
+id="homeTeam">
+
+</div>
+
+<div class="card">
+
+<h2>Équipe extérieure</h2>
+
+<input
+type="text"
+placeholder="Ex : Arsenal"
+id="awayTeam">
+
+</div>
+
+<button id="analyseBtn">
+
+🤖 Lancer l'analyse IA
+
+</button>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
