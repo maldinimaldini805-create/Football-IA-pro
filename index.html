@@ -1,95 +1,63 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Football AI Pro — outil de prédiction de matchs de football (version 2.1).">
-  <link rel="icon" href="favicon.ico">
-  <title>Football AI Pro 2.1</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Football AI Pro 2.0</title>
 
-  <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<header class="header" role="banner" aria-label="Football AI Pro en-tête">
-  <h1>⚽ Football AI Pro 2.1</h1>
+<header>
+    <h1>⚽ Football AI Pro 2.0</h1>
+    <p>Le robot intelligent d'analyse des matchs</p>
 </header>
 
-<main class="container" role="main">
+<nav>
+    <a href="index.html">Accueil</a>
+    <a href="recherche.html">Recherche</a>
+    <a href="historique.html">Historique</a>
+    <a href="settings.html">Paramètres</a>
+</nav>
 
-  <section class="card" role="region" aria-labelledby="ia-title">
-    <h2 id="ia-title">🤖 Analyse IA</h2>
-    <p>Le robot analysera les matchs en utilisant les statistiques réelles.</p>
-  </section>
+<div class="container">
 
-  <nav class="menu">
-    <button id="searchBtn" type="button" aria-label="Rechercher un match">🔎 Rechercher un match</button>
-    <button id="todayBtn" type="button" aria-label="Matchs du jour">📅 Matchs du jour</button>
-    <button id="historyBtn" type="button" aria-label="Historique">📊 Historique</button>
-    <button id="settingsBtn" type="button" aria-label="Paramètres">⚙️ Paramètres</button>
-  </nav>
+<div class="card">
 
-  <!-- Section Recherche d'un match -->
-  <section class="card" role="region" aria-labelledby="search-title">
-    <h2 id="search-title">Recherche d'un match</h2>
-    <input
-      type="text"
-      id="matchInput"
-      placeholder="Exemple : Real Madrid vs Barcelone"
-      aria-label="Entrez le nom du match">
-    <button id="analyzeBtn" type="button" aria-label="Analyser le match">
-      Analyser le match
-    </button>
-  </section>
+<h2>🔍 Rechercher un match</h2>
 
-  <!-- Section Résultats de l'analyse IA -->
-  <section class="card" role="region" aria-labelledby="results-title">
-    <h2 id="results-title">Résultat de l'analyse IA</h2>
-    <div class="result">
-      <p>⚽ Probabilité victoire domicile : <span id="homeWin">-- %</span></p>
-      <p>🤝 Probabilité match nul : <span id="draw">-- %</span></p>
-      <p>⚽ Probabilité victoire extérieur : <span id="awayWin">-- %</span></p>
-      <hr>
-      <p>🥅 Buts attendus : <span id="goals">--</span></p>
-      <p>🎯 Tirs : <span id="shots">--</span></p>
-      <p>🎯 Tirs cadrés : <span id="shotsOnTarget">--</span></p>
-      <p>🚩 Corners : <span id="corners">--</span></p>
-      <p>🟨 Cartons jaunes : <span id="yellowCards">--</span></p>
-      <p>🚨 Fautes : <span id="fouls">--</span></p>
-      <p>📈 Possession : <span id="possession">--</span></p>
-      <p>🌧️ Météo : <span id="weather">--</span></p>
-      <p>👨‍⚖️ Arbitre : <span id="referee">--</span></p>
-      <p>📊 Score probable : <span id="probableScore">--</span></p>
-      <hr>
-      <h3>🤖 Indice de confiance IA : <span id="confidence">-- %</span></h3>
-    </div>
-  </section>
+<input
+id="match"
+type="text"
+placeholder="Exemple : PSG vs Marseille">
 
-  <section class="card" role="region" aria-labelledby="stats-title">
-    <h3 id="stats-title">📈 Statistiques analysées</h3>
-    <ul class="stats-list">
-      <li>⚽ Buts</li>
-      <li>🎯 Tirs</li>
-      <li>🥅 Tirs cadrés</li>
-      <li>🚩 Corners</li>
-      <li>🟨 Cartons jaunes</li>
-      <li>🟥 Cartons rouges</li>
-      <li>🚨 Fautes</li>
-      <li>📥 Touches</li>
-      <li>🚫 Hors-jeu</li>
-      <li>⚽ Possession</li>
-      <li>📈 xG</li>
-      <li>⭐ Confiance IA</li>
-    </ul>
-  </section>
+<button id="analyser">
 
-</main>
+Analyser le match
 
-<footer role="contentinfo">
-  © <span id="year"></span> Football AI Pro — Version 2.1
-</footer>
+</button>
 
+</div>
+
+<div class="card">
+
+<h2>📊 Analyse IA</h2>
+
+<div class="result">
+
+Aucune analyse pour le moment.
+
+</div>
+
+</div>
+
+</div>
+
+<script src="api.js"></script>
+<script src="statistiques.js"></script>
+<script src="prediction.js"></script>
 <script src="app.js"></script>
 
 </body>
