@@ -1,144 +1,60 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Football AI Pro — outil de prédiction de matchs de football (version 2.0).">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Football AI Pro — outil de prédiction de matchs de football (version 2.1).">
   <link rel="icon" href="favicon.ico">
-  <title>Football AI Pro 2.0</title>
+  <title>Football AI Pro 2.1</title>
 
-  <style>
-    :root{
-      --bg:#0f172a;
-      --header:#16a34a;
-      --card:#0f172a9a; /* subtle transparent card */
-      --card-contrast:#111827;
-      --button:#16a34a;
-      --button-hover:#15803d;
-      --text:#ffffff;
-    }
-
-    html,body{height:100%;margin:0;}
-    body{
-      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      display:flex;
-      flex-direction:column;
-      min-height:100vh;
-    }
-
-    header{
-      background:var(--header);
-      padding:18px 20px;
-      font-size:1.25rem;
-      font-weight:700;
-      color:white;
-      text-align:center;
-    }
-
-    main.container{
-      flex:1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
-    }
-
-    .card{
-      background:linear-gradient(180deg, rgba(30,41,59,0.9), rgba(17,24,39,0.9));
-      padding:28px;
-      border-radius:14px;
-      max-width:720px;
-      width:100%;
-      box-shadow:0 8px 24px rgba(2,6,23,0.6);
-      text-align:center;
-    }
-
-    h1{margin:0 0 12px;font-size:1.6rem;}
-    h2{margin:0 0 8px;font-size:1.25rem;}
-    p{margin:8px 0;color:#d1d5db;}
-
-    .controls{
-      margin-top:20px;
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      flex-wrap:wrap;
-    }
-
-    button{
-      background:var(--button);
-      color:white;
-      padding:12px 20px;
-      border:none;
-      border-radius:10px;
-      font-size:1rem;
-      cursor:pointer;
-      transition:transform .08s ease, background .12s ease;
-    }
-
-    button:hover{background:var(--button-hover); transform:translateY(-1px);}
-    button:active{transform:translateY(0);}
-    button:focus{outline:3px solid rgba(21,128,61,0.25); outline-offset:2px;}
-    /* reduced motion respect */
-    @media (prefers-reduced-motion:reduce){ button, *{transition:none!important;} }
-
-    footer{
-      padding:12px 16px;
-      text-align:center;
-      font-size:0.85rem;
-      color:#9ca3af;
-    }
-
-    /* responsive */
-    @media (max-width:420px){
-      .card{padding:18px;border-radius:12px;}
-      h1{font-size:1.25rem;}
-      button{width:100%;}
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <header role="banner" aria-label="Football AI Pro en-tête">
-    ⚽ Football AI Pro 2.0
-  </header>
 
-  <main class="container" role="main">
-    <section class="card" role="region" aria-labelledby="welcome-title">
-      <h1 id="welcome-title">Bienvenue</h1>
+<header class="header" role="banner" aria-label="Football AI Pro en-tête">
+  <h1>⚽ Football AI Pro 2.1</h1>
+</header>
 
-      <p>Le robot de prédiction de football est en cours de construction.</p>
-      <p><strong>Version 2.0</strong></p>
+<main class="container" role="main">
 
-      <div class="controls">
-        <button id="analyzeBtn" type="button" aria-label="Analyser un match">Analyser un match</button>
-        <button id="learnMoreBtn" type="button" aria-label="En savoir plus">En savoir plus</button>
-      </div>
-    </section>
-  </main>
+  <section class="card" role="region" aria-labelledby="ia-title">
+    <h2 id="ia-title">🤖 Analyse IA</h2>
+    <p>Le robot analysera les matchs en utilisant les statistiques réelles.</p>
+  </section>
 
-  <footer role="contentinfo">
-    © <span id="year"></span> Football AI Pro — Prototype
-  </footer>
+  <nav class="menu">
+    <button id="searchBtn" type="button" aria-label="Rechercher un match">🔎 Rechercher un match</button>
+    <button id="todayBtn" type="button" aria-label="Matchs du jour">📅 Matchs du jour</button>
+    <button id="historyBtn" type="button" aria-label="Historique">📊 Historique</button>
+    <button id="settingsBtn" type="button" aria-label="Paramètres">⚙️ Paramètres</button>
+  </nav>
 
-  <script>
-    // Small progressive enhancement: placeholder handlers
-    document.getElementById('year').textContent = new Date().getFullYear();
+  <section class="card" role="region" aria-labelledby="stats-title">
+    <h3 id="stats-title">📈 Statistiques analysées</h3>
+    <ul class="stats-list">
+      <li>⚽ Buts</li>
+      <li>🎯 Tirs</li>
+      <li>🥅 Tirs cadrés</li>
+      <li>🚩 Corners</li>
+      <li>🟨 Cartons jaunes</li>
+      <li>🟥 Cartons rouges</li>
+      <li>🚨 Fautes</li>
+      <li>📥 Touches</li>
+      <li>🚫 Hors-jeu</li>
+      <li>⚽ Possession</li>
+      <li>📈 xG</li>
+      <li>⭐ Confiance IA</li>
+    </ul>
+  </section>
 
-    const analyzeBtn = document.getElementById('analyzeBtn');
-    analyzeBtn.addEventListener('click', () => {
-      // placeholder — replace with real logic (API call / modal / navigation)
-      alert("Fonctionnalité 'Analyser un match' à venir. Je peux l'implémenter si vous le souhaitez.");
-    });
+</main>
 
-    document.getElementById('learnMoreBtn').addEventListener('click', () => {
-      // graceful scroll or open a modal in the future
-      alert("Plus d'informations à venir. Voulez-vous que j'ajoute une page 'À propos' ?");
-    });
-  </script>
+<footer role="contentinfo">
+  © <span id="year"></span> Football AI Pro — Version 2.1
+</footer>
+
+<script src="app.js"></script>
+
 </body>
 </html>
