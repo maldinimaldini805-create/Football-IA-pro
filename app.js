@@ -1,60 +1,321 @@
-// Set current year in footer
-document.getElementById('year').textContent = new Date().getFullYear();
+/**
+ * Football AI Pro - Application Principale
+ * Gestion de l'interface utilisateur et des interactions
+ */
 
-// Button event listeners
-const searchBtn = document.getElementById('searchBtn');
-const todayBtn = document.getElementById('todayBtn');
-const historyBtn = document.getElementById('historyBtn');
-const settingsBtn = document.getElementById('settingsBtn');
+let predictor = new FootballAIPredictor();
+let currentTab = 'home';
 
-searchBtn.addEventListener('click', () => {
-  alert('🔎 Fonctionnalité "Rechercher un match" — à venir.');
+/**
+ * Initialise l'application au chargement
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    loadHistory();
+    setupEventListeners();
+    console.log('⚽ Football AI Pro v2.0.0 - Système de prédiction initialisé');
 });
 
-todayBtn.addEventListener('click', () => {
-  alert('📅 Fonctionnalité "Matchs du jour" — à venir.');
-});
+/**
+ * Configure les écouteurs d'événements
+ */
+function setupEventListeners() {
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                analyseMatch();
+            }
+        });
+    }
+}
 
-historyBtn.addEventListener('click', () => {
-  alert('📊 Fonctionnalité "Historique" — à venir.');
-});
+/**
+ * Change d'onglet
+ */
+function switchTab(tab) {
+    currentTab = tab;
 
-settingsBtn.addEventListener('click', () => {
-  alert('⚙️ Fonctionnalité "Paramètres" — à venir.');
-});
+    // Cache tous les onglets
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(t => t.style.display = 'none');
 
-console.log('Football AI Pro 2.1 chargé avec succès');
+    // Affiche l'onglet sélectionné
+    const selectedTab = document.getElementById(tab);
+    if (selectedTab) {
+        selectedTab.style.display = 'block';
+    }
 
-// Bouton de recherche principal
-const bouton = document.querySelector("button");
+    // Scroll vers le haut
+    window.scrollTo(0, 0);
+}
 
-bouton.addEventListener("click", async () => {
+/**
+ * Analyse un match
+ */
+async function analyseMatch() {
+    const searchInput = document.getElementById('search');
+    const matchInput = searchInput.value.trim();
 
-    const recherche = document.querySelector("input").value;
-
-    if (recherche.trim() === "") {
-        alert("Veuillez saisir un match.");
+    if (!matchInput) {
+        showError('Veuillez entrer un match (ex: Real Madrid vs Barcelona)');
         return;
     }
 
-    document.querySelector(".result").innerHTML =
-        "<h3>⏳ Analyse IA en cours...</h3>";
+    // Affiche le spinner de chargement
+    const analyseBtn = document.getElementById('analyseBtn');
+    const originalText = analyseBtn.textContent;
+    analyseBtn.disabled = true;
+    analyseBtn.innerHTML = 'ANALYSE EN COURS' + '<span class="loading"></span>';
 
-    const donnees = await recupererMatchs();
+    try {
+        // Simule un délai d'analyse IA
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-    if (!donnees) {
-        document.querySelector(".result").innerHTML =
-            "<h3>❌ Impossible de récupérer les données.</h3>";
-        return;
+        // Parse le match
+        const match = predictor.parseMatch(matchInput);
+
+        if (!match) {
+            showError('❌ Match non trouvé. Veuillez vérifier les noms des équipes.');
+            analyseBtn.disabled = false;
+            analyseBtn.textContent = originalText;
+            return;
+        }
+
+        // Prédit le match
+        const prediction = predictor.predictMatch(match.home, match.away);
+
+        // Sauvegarde la prédiction
+        predictor.savePrediction(prediction);
+
+        // Affiche les résultats
+        displayResults(prediction);
+
+        // Montre le message de succès
+        showSuccess(`✅ Analyse terminée pour ${prediction.homeTeam} vs ${prediction.awayTeam}`);
+
+        // Réactive le bouton
+        analyseBtn.disabled = false;
+        analyseBtn.textContent = originalText;
+
+        // Réinitialise la barre de recherche après 1 seconde
+        setTimeout(() => {
+            searchInput.value = '';
+        }, 500);
+
+        // Charge l'historique
+        loadHistory();
+
+    } catch (error) {
+        console.error('Erreur lors de l\'analyse:', error);
+        showError('❌ Erreur lors de l\'analyse. Veuillez réessayer.');
+        analyseBtn.disabled = false;
+        analyseBtn.textContent = originalText;
     }
+}
 
-    document.querySelector(".result").innerHTML = `
-        <h2>✅ Football AI Pro connecté</h2>
+/**
+ * Affiche les résultats de la prédiction
+ */
+function displayResults(prediction) {
+    const resultsCard = document.getElementById('resultsCard');
+    const statsCard = document.getElementById('statsCard');
+    const comparisonCard = document.getElementById('comparisonCard');
+    const analyseDiv = document.getElementById('analyse');
 
-        <p>Match recherché : <strong>${recherche}</strong></p>
+    // Affiche la carte de résultats
+    resultsCard.style.display = 'block';
 
-        <p>📊 Les données API-FOOTBALL ont été récupérées.</p>
+    // Génère l'analyse textuelle
+    const analysis = predictor.generateAnalysis(prediction);
+    analyseDiv.innerHTML = `<div class="analyse-text">${analysis}</div>`;
 
-        <p>🤖 Le moteur IA sera ajouté dans la prochaine étape.</p>
+    // Affiche les statistiques
+    statsCard.style.display = 'block';
+
+    // Mise à jour des probabilités
+    document.getElementById('home').textContent = `${prediction.probabilities.home}%`;
+    document.getElementById('draw').textContent = `${prediction.probabilities.draw}%`;
+    document.getElementById('away').textContent = `${prediction.probabilities.away}%`;
+
+    // Mise à jour du score prédit
+    document.getElementById('score').textContent = `${prediction.prediction.home} - ${prediction.prediction.away}`;
+    document.getElementById('goals').textContent = `${prediction.stats.totalGoals} buts`;
+    document.getElementById('shots').textContent = `${prediction.stats.totalShots} tirs`;
+    document.getElementById('shotsTarget').textContent = `${prediction.stats.totalShotsTarget} tirs cadrés`;
+    document.getElementById('corners').textContent = `${prediction.stats.totalCorners} corners`;
+    document.getElementById('cards').textContent = `${prediction.stats.totalCards} cartons`;
+    document.getElementById('fouls').textContent = `${prediction.stats.totalFouls} fautes`;
+    document.getElementById('possession').textContent = `${prediction.stats.possession}% (domicile)`;
+
+    // Mise à jour de la confiance
+    const confidencePercentage = prediction.confidence;
+    document.getElementById('confidenceBar').style.width = `${confidencePercentage}%`;
+    document.getElementById('confidence').textContent = `${confidencePercentage}% de confiance`;
+
+    // Affiche la comparaison des équipes
+    comparisonCard.style.display = 'block';
+    displayTeamComparison(prediction);
+
+    // Scroll vers les résultats
+    setTimeout(() => {
+        resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+}
+
+/**
+ * Affiche la comparaison des équipes
+ */
+function displayTeamComparison(prediction) {
+    const comparisonDiv = document.getElementById('teamComparison');
+
+    let html = '<div class="team-comparison">';
+    html += `
+        <div class="team-card">
+            <h4>🏠 ${prediction.homeTeam}</h4>
+            <div class="team-stat">
+                <span>Tirs:</span>
+                <span>${prediction.stats.homeStats.shots}</span>
+            </div>
+            <div class="team-stat">
+                <span>Tirs Cadrés:</span>
+                <span>${prediction.stats.homeStats.shotsTarget}</span>
+            </div>
+            <div class="team-stat">
+                <span>Corners:</span>
+                <span>${prediction.stats.homeStats.corners}</span>
+            </div>
+            <div class="team-stat">
+                <span>Possession:</span>
+                <span>${prediction.stats.homeStats.possession}%</span>
+            </div>
+            <div class="team-stat">
+                <span>Fautes:</span>
+                <span>${prediction.stats.homeStats.fouls}</span>
+            </div>
+        </div>
+        <div class="team-card">
+            <h4>✈️ ${prediction.awayTeam}</h4>
+            <div class="team-stat">
+                <span>Tirs:</span>
+                <span>${prediction.stats.awayStats.shots}</span>
+            </div>
+            <div class="team-stat">
+                <span>Tirs Cadrés:</span>
+                <span>${prediction.stats.awayStats.shotsTarget}</span>
+            </div>
+            <div class="team-stat">
+                <span>Corners:</span>
+                <span>${prediction.stats.awayStats.corners}</span>
+            </div>
+            <div class="team-stat">
+                <span>Possession:</span>
+                <span>${prediction.stats.awayStats.possession}%</span>
+            </div>
+            <div class="team-stat">
+                <span>Fautes:</span>
+                <span>${prediction.stats.awayStats.fouls}</span>
+            </div>
+        </div>
     `;
-});
+    html += '</div>';
+
+    comparisonDiv.innerHTML = html;
+}
+
+/**
+ * Charge et affiche l'historique
+ */
+function loadHistory() {
+    const history = predictor.getHistory();
+    const historyContainer = document.getElementById('historyContainer');
+
+    if (!historyContainer) return;
+
+    if (history.length === 0) {
+        historyContainer.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Aucune prédiction dans l\'historique</p>';
+        return;
+    }
+
+    let html = '<div style="display: grid; gap: 15px;">';
+
+    history.forEach((pred, index) => {
+        html += `
+            <div class="prediction-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong style="color: #00ff99; font-size: 16px;">
+                        ${pred.homeTeam} <span style="color: #666;">vs</span> ${pred.awayTeam}
+                    </strong>
+                    <span style="color: #666; font-size: 13px;">${pred.timestamp}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+                    <div>
+                        <span style="color: #999;">Résultat:</span><br>
+                        <strong style="color: #00ff99;">${pred.prediction.home} - ${pred.prediction.away}</strong>
+                    </div>
+                    <div>
+                        <span style="color: #999;">Probabilité:</span><br>
+                        <strong style="color: #00ff99;">${pred.probabilities.home}% (Domicile)</strong>
+                    </div>
+                    <div>
+                        <span style="color: #999;">Confiance:</span><br>
+                        <strong style="color: #00ff99;">${pred.confidence}%</strong>
+                    </div>
+                    <div>
+                        <span style="color: #999;">Buts Total:</span><br>
+                        <strong style="color: #00ff99;">${pred.stats.totalGoals}</strong>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+    historyContainer.innerHTML = html;
+}
+
+/**
+ * Efface l'historique
+ */
+function clearHistory() {
+    if (confirm('⚠️ Êtes-vous sûr de vouloir effacer tout l\'historique ?')) {
+        predictor.clearHistory();
+        loadHistory();
+        showSuccess('✅ Historique effacé');
+    }
+}
+
+/**
+ * Affiche une notification d'erreur
+ */
+function showError(message) {
+    const container = document.querySelector('.container');
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error';
+    errorDiv.textContent = message;
+    errorDiv.style.margin = '20px';
+    errorDiv.style.marginTop = '0';
+
+    container.insertBefore(errorDiv, container.firstChild);
+
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 5000);
+}
+
+/**
+ * Affiche une notification de succès
+ */
+function showSuccess(message) {
+    const container = document.querySelector('.container');
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success';
+    successDiv.textContent = message;
+    successDiv.style.margin = '20px';
+    successDiv.style.marginTop = '0';
+
+    container.insertBefore(successDiv, container.firstChild);
+
+    setTimeout(() => {
+        successDiv.remove();
+    }, 4000);
+}
