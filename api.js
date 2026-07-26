@@ -1,10 +1,10 @@
-const API_URL = "https://football-api.maldinimaldini805-4cd.workers.dev/";
+const URL_API = "https://football-api.maldinimaldini805-4cd.workers.dev/";
 const fs = require('fs');
-const path = require('path');
+const chemin = require('path');
 
 async function recupererMatchs() {
     try {
-        const reponse = await fetch(API_URL);
+        const reponse = await fetch(URL_API);
 
         if (!reponse.ok) {
             throw new Error("Impossible de récupérer les données.");
@@ -28,7 +28,7 @@ async function recupererMatchs() {
 // Fonction pour sauvegarder les données dans un fichier
 function sauvegarderDonnees(donnees) {
     try {
-        const cheminFichier = path.join(__dirname, 'donnees_matchs.json');
+        const cheminFichier = chemin.join(__dirname, 'donnees_matchs.json');
         const contenuJSON = JSON.stringify(donnees, null, 2);
         
         fs.writeFileSync(cheminFichier, contenuJSON, 'utf8');
