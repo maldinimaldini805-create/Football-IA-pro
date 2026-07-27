@@ -35,4 +35,40 @@ function analyseMatch() {
 
     document.getElementById("confidence").innerHTML = resultat.confiance;
     document.getElementById("confidenceBar").style.width = resultat.confiance;
-}
+}// =====================================
+// FOOTBALL AI PRO 2.1
+// Chargement automatique des matchs
+// =====================================
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    const matchs = await chargerMatchs();
+
+    console.log("Matchs récupérés :", matchs);
+
+    if (!matchs || matchs.length === 0) {
+        console.log("Aucun match trouvé.");
+        return;
+    }
+
+    const analyse = document.getElementById("analyse");
+
+    let html = "";
+
+    matchs.forEach(match => {
+
+        html += `
+        <div class="prediction-box">
+            <strong>${match.teams.home.name}</strong>
+            vs
+            <strong>${match.teams.away.name}</strong>
+            <br>
+            🏆 ${match.league.name}
+        </div>
+        `;
+
+    });
+
+    analyse.innerHTML = html;
+
+});
