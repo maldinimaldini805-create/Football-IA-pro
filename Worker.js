@@ -23,7 +23,7 @@ export default {
     if (url.pathname === "/matches") {
 
       const response = await fetch(
-        "https://v3.football.api-sports.io/fixtures?next=20",
+        "https://v3.football.api-sports.io/fixtures?live=all",
         {
           headers: {
             "x-apisports-key": env.SPORTMONKS_API_KEY
