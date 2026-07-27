@@ -19,33 +19,36 @@ export default {
       );
     }
 
-    // Matchs
-    if (url.pathname === "/matches") {
+    // if (url.pathname === "/matches") {
 
-      const response = await fetch(
-        "https://v3.football.api-sports.io/fixtures?live=all",
-        {
-          headers: {
-            "x-apisports-key": env.API_FOOTBALL_KEY
-          }
-        }
-      );
+    const cache = caches.default;
+    const cacheKey = new Request(request.url);
 
-      const data = await response.text();
+    let response = await cache.match(cacheKey);
 
-      return new Response(data, { headers });
-
+    if (response) {
+        return response;
     }
 
-    return new Response(
-      JSON.stringify({
-        error: "Route inconnue"
-      }),
-      {
-        status: 404,
-        headers
-      }
+    const apiResponse = await fetch(
+        "https://v3.football.api-sports.io/fixtures?live=all",
+        {
+            headers: {
+                "x-apisports-key": env.API_FOOTBALL_KEY
+            }
+        }
     );
 
-  }
+    const data = await apiResponse.text();
+
+    response = new Response(data, {
+        headers: {
+            ...headers,
+            "Cache-Control": "public, max-age=300"
+        }
+    });
+
+    await cache.put(cacheKey, response.clone());
+
+    return response;
 }
