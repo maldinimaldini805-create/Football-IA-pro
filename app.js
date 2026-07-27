@@ -1,42 +1,38 @@
-document.addEventListener("DOMContentLoaded", chargerMatchs);
+function analyseMatch() {
 
-async function chargerMatchs() {
-    const zoneAnalyse = document.getElementById("analyse");
+    const texte = document.getElementById("search").value;
 
-    zoneAnalyse.innerHTML = "⏳ Chargement des matchs...";
-
-    try {
-        const reponse = await fetch("https://football-api.maldinimaldini805-4cd.workers.dev/matches");
-
-        if (!reponse.ok) {
-            throw new Error("Impossible de récupérer les matchs.");
-        }
-
-        const donnees = await reponse.json();
-
-        if (!donnees || !donnees.response || donnees.response.length === 0) {
-            zoneAnalyse.innerHTML = "⚠️ Aucun match disponible.";
-            return;
-        }
-
-        let html = "";
-
-        donnees.response.forEach(match => {
-            html += `
-                <div style="padding:10px;border-bottom:1px solid #333;">
-                    ⚽ <strong>${match.teams.home.name}</strong>
-                    vs
-                    <strong>${match.teams.away.name}</strong><br>
-                    🏆 ${match.league.name}
-                </div>
-            `;
-        });
-
-        zoneAnalyse.innerHTML = html;
-
-    } catch (erreur) {
-        console.error(erreur);
-        zoneAnalyse.innerHTML = "❌ Erreur de connexion au serveur.";
+    if (texte === "") {
+        alert("Veuillez saisir un match.");
+        return;
     }
+
+    let equipes = texte.split(" vs ");
+
+    if (equipes.length !== 2) {
+        alert("Utilisez le format : PSG vs Marseille");
+        return;
+    }
+
+    let domicile = equipes[0].trim();
+    let exterieur = equipes[1].trim();
+
+    let resultat = predictionIA(domicile, exterieur);
+
+    document.getElementById("home").innerHTML = resultat.domicile;
+    document.getElementById("draw").innerHTML = resultat.nul;
+    document.getElementById("away").innerHTML = resultat.exterieur;
+
+    document.getElementById("score").innerHTML = resultat.score;
+
+    document.getElementById("goals").innerHTML = resultat.buts;
+    document.getElementById("shots").innerHTML = resultat.tirs;
+    document.getElementById("shotsTarget").innerHTML = resultat.tirsCadres;
+    document.getElementById("corners").innerHTML = resultat.corners;
+    document.getElementById("cards").innerHTML = resultat.cartons;
+    document.getElementById("fouls").innerHTML = resultat.fautes;
+    document.getElementById("possession").innerHTML = resultat.possession;
+
+    document.getElementById("confidence").innerHTML = resultat.confiance;
+    document.getElementById("confidenceBar").style.width = resultat.confiance;
 }
- 
