@@ -1,9 +1,6 @@
-// =========================================
-// FOOTBALL AI PRO 2.1
-// CORE ENGINE
-// =========================================
+async function analyserMatch(homeTeamName, awayTeamName) {
 
-function analyserMatch(homeTeamName, awayTeamName) {
+    const matchs = await chargerMatchs();
 
     const home = TEAMS.find(t => t.nom === homeTeamName);
     const away = TEAMS.find(t => t.nom === awayTeamName);
@@ -16,17 +13,30 @@ function analyserMatch(homeTeamName, awayTeamName) {
 
     const prediction = calculerPrediction(home, away);
 
-    const events = predireEvenements(home, away);
+    const miTemps = predictionPremiereMiTemps(home, away);
+
+    const finMatch = predictionFinMatch(home, away);
+
+    const evenements = predireEvenements(home, away);
 
     return {
 
-        equipeDomicile: home.nom,
-        equipeExterieure: away.nom,
+        home,
+
+        away,
 
         prediction,
 
-        events
+        miTemps,
+
+        finMatch,
+
+        evenements,
+
+        matchs
 
     };
 
 }
+
+
