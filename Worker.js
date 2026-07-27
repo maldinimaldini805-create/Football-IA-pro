@@ -26,7 +26,7 @@ export default {
         "https://v3.football.api-sports.io/fixtures?live=all",
         {
           headers: {
-            "x-apisports-key": env.SPORTMONKS_API_KEY
+            "x-apisports-key": env.API_FOOTBALL_KEY
           }
         }
       );
