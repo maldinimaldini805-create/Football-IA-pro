@@ -31,6 +31,4 @@ function comparerEquipes(home,away){
 
         avantage: forceHome-forceAway
 
-    };
-
-}
+    
