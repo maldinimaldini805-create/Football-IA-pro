@@ -3,7 +3,9 @@
 // FOOTBALL AI CORE
 // =====================================
 
-import { chargerMatchs, chargerEquipe } from "./data-engine.js";
+import { chargerEquipe } from "./data-engine.js";
+import PredictionEngine from "./prediction-engine.js";
+import LivePredictionEngine from "./live-prediction-engine.js";
 
 class FootballAICore {
 
@@ -11,41 +13,28 @@ class FootballAICore {
 
         console.log("Analyse du match...");
 
-        const matchs = await chargerMatchs();
+        const statsHome = await chargerEquipe(teamHome);
+        const statsAway = await chargerEquipe(teamAway);
 
-        const domicile = await chargerEquipe(teamHome);
+        const prediction = PredictionEngine.analyser(
+            statsHome,
+            statsAway
+        );
 
-        const exterieur = await chargerEquipe(teamAway);
+        const livePrediction = LivePredictionEngine.analyser(
+            statsHome,
+            statsAway
+        );
 
         return {
 
-            matchs: matchs,
+            equipeDomicile: statsHome,
 
-            equipeDomicile: domicile,
+            equipeExterieure: statsAway,
 
-            equipeExterieure: exterieur,
+            prediction,
 
-            prediction: {
-
-                scoreExact: null,
-
-                miTemps: null,
-
-                confiance: 0,
-
-                premierCorner: null,
-
-                premierTirCadre: null,
-
-                premiereTouche: null,
-
-                premierDegagement: null,
-
-                premiereFaute: null,
-
-                premierCarton: null
-
-            }
+            livePrediction
 
         };
 
