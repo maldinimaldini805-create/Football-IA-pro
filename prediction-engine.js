@@ -1,33 +1,71 @@
-// ======================================
-// FOOTBALL AI PRO 2.1
-// PREDICTION ENGINE V2
-// ======================================
+// =====================================
+// FOOTBALL AI PRO 2.2
+// PREDICTION ENGINE
+// =====================================
 
-function calculerPrediction(home, away) {
+class PredictionEngine {
 
-    const comparaison = comparerEquipes(home, away);
+    analyser(statsHome, statsAway) {
 
-    let homeWin = 45 + comparaison.avantage * 0.6;
+        const prediction = {
 
-    if (homeWin > 90) homeWin = 90;
-    if (homeWin < 10) homeWin = 10;
+            scoreExact: "0-0",
 
-    let draw = 25;
+            miTemps: "0-0",
 
-    let awayWin = 100 - homeWin - draw;
+            confiance: 50,
 
-    return {
+            premierTirCadre: null,
 
-        home: Math.round(homeWin),
+            premiereTouche: null,
 
-        draw: Math.round(draw),
+            premierCorner: null,
 
-        away: Math.round(awayWin),
+            premierDegagement: null,
 
-        confiance: Math.round(
-            Math.abs(comparaison.avantage) + 70
-        )
+            premiereFaute: null,
 
-    };
+            premierCarton: null,
+
+            evenementsRapides: []
+
+        };
+
+        // --------------------------
+        // SCORE EXACT
+        // --------------------------
+
+        const butsHome = statsHome?.goals?.for?.average?.home || 0;
+
+        const butsAway = statsAway?.goals?.for?.average?.away || 0;
+
+        prediction.scoreExact =
+            Math.round(butsHome) +
+            "-" +
+            Math.round(butsAway);
+
+        // --------------------------
+        // MI-TEMPS
+        // --------------------------
+
+        prediction.miTemps =
+            Math.round(butsHome / 2) +
+            "-" +
+            Math.round(butsAway / 2);
+
+        // --------------------------
+        // CONFIANCE
+        // --------------------------
+
+        prediction.confiance = Math.min(
+            95,
+            50 + Math.abs(butsHome - butsAway) * 10
+        );
+
+        return prediction;
+
+    }
 
 }
+
+export default new PredictionEngine();
