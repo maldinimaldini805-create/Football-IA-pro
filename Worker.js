@@ -20,7 +20,28 @@ export default {
     }
 
     // if (url.pathname === "/matches") {
+// =====================================
+// TEAM STATISTICS
+// =====================================
 
+if (url.pathname === "/team-statistics") {
+
+    const team = url.searchParams.get("team");
+
+    const response = await fetch(
+        `https://v3.football.api-sports.io/teams/statistics?league=39&season=2026&team=${team}`,
+        {
+            headers: {
+                "x-apisports-key": env.API_FOOTBALL_KEY
+            }
+        }
+    );
+
+    const data = await response.text();
+
+    return new Response(data, { headers });
+
+}
     const cache = caches.default;
     const cacheKey = new Request(request.url);
 
