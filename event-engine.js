@@ -1,34 +1,39 @@
 // =====================================
-// FOOTBALL AI PRO 2.1
-// EVENT ENGINE
+// FOOTBALL AI PRO 3.0
+// EVENT AI ENGINE
 // =====================================
 
-function predireEvenements(home, away) {
+class EventAIEngine {
 
-    return {
+    analyser(home, away) {
 
-        premierBut: home.nom,
+        return {
 
-        premierTir: home.nom,
+            premierTirCadre:
+                home.attaque > away.attaque ? "Domicile" : "Extérieur",
 
-        premierTirCadre: home.nom,
+            premiereTouche:
+                home.possession > away.possession ? "Domicile" : "Extérieur",
 
-        premierCorner: home.nom,
+            premierCorner:
+                home.corners > away.corners ? "Domicile" : "Extérieur",
 
-        premiereTouche: away.nom,
+            premierDegagement:
+                home.degagements > away.degagements ? "Domicile" : "Extérieur",
 
-        premierDegagement: away.nom,
+            premiereFaute:
+                home.fautes > away.fautes ? "Domicile" : "Extérieur",
 
-        premiereFaute: away.nom,
+            premierCarton:
+                home.cartons > away.cartons ? "Domicile" : "Extérieur",
 
-        premierCartonJaune: away.nom,
+            premierBut:
+                home.xG > away.xG ? "Domicile" : "Extérieur"
 
-        premierCartonRouge: away.nom,
+        };
 
-        premierHorsJeu: home.nom,
-
-        premierArretGardien: away.nom
-
-    };
+    }
 
 }
+
+export default new EventAIEngine();
