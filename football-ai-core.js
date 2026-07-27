@@ -1,42 +1,56 @@
-async function analyserMatch(homeTeamName, awayTeamName) {
+// =====================================
+// FOOTBALL AI PRO 2.2
+// FOOTBALL AI CORE
+// =====================================
 
-    const matchs = await chargerMatchs();
+import { chargerMatchs, chargerEquipe } from "./data-engine.js";
 
-    const home = TEAMS.find(t => t.nom === homeTeamName);
-    const away = TEAMS.find(t => t.nom === awayTeamName);
+class FootballAICore {
 
-    if (!home || !away) {
+    async analyserMatch(teamHome, teamAway) {
+
+        console.log("Analyse du match...");
+
+        const matchs = await chargerMatchs();
+
+        const domicile = await chargerEquipe(teamHome);
+
+        const exterieur = await chargerEquipe(teamAway);
+
         return {
-            erreur: "Equipe introuvable."
+
+            matchs: matchs,
+
+            equipeDomicile: domicile,
+
+            equipeExterieure: exterieur,
+
+            prediction: {
+
+                scoreExact: null,
+
+                miTemps: null,
+
+                confiance: 0,
+
+                premierCorner: null,
+
+                premierTirCadre: null,
+
+                premiereTouche: null,
+
+                premierDegagement: null,
+
+                premiereFaute: null,
+
+                premierCarton: null
+
+            }
+
         };
+
     }
-
-    const prediction = calculerPrediction(home, away);
-
-    const miTemps = predictionPremiereMiTemps(home, away);
-
-    const finMatch = predictionFinMatch(home, away);
-
-    const evenements = predireEvenements(home, away);
-
-    return {
-
-        home,
-
-        away,
-
-        prediction,
-
-        miTemps,
-
-        finMatch,
-
-        evenements,
-
-        matchs
-
-    };
 
 }
 
-
+export default new FootballAICore();
