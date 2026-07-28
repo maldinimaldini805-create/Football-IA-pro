@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 3.1
+// FOOTBALL AI PRO 3.2
 // FOOTBALL AI SERVICE
 // =====================================
 
@@ -16,6 +16,14 @@ class FootballAIService {
             const fixtures =
                 await apiFootballService.getTodayMatches();
 
+            if (!fixtures || fixtures.length === 0) {
+
+                console.log("Aucun match aujourd'hui.");
+
+                return [];
+
+            }
+
             const analyses = [];
 
             for (const fixture of fixtures) {
@@ -23,21 +31,25 @@ class FootballAIService {
                 const home = fixture.teams.home;
                 const away = fixture.teams.away;
 
-                // Données temporaires
-                // Elles seront remplacées par les vraies
-                // statistiques API dans l'étape suivante.
+                // ===========================
+                // PROFIL DOMICILE
+                // ===========================
 
                 const homeProfile =
                     dataNormalizer.createAIProfile({
 
                         attack: {
+
                             goals: 2,
                             shots: 14,
                             shotsOnTarget: 6
+
                         },
 
                         defense: {
+
                             goalsConceded: 1
+
                         },
 
                         possession: 58,
@@ -48,20 +60,28 @@ class FootballAIService {
                     });
 
                 homeProfile.name = home.name;
+                homeProfile.id = home.id;
                 homeProfile.elo = 1700;
-                homeProfile.possession = 58;
+
+                // ===========================
+                // PROFIL EXTERIEUR
+                // ===========================
 
                 const awayProfile =
                     dataNormalizer.createAIProfile({
 
                         attack: {
+
                             goals: 1,
                             shots: 10,
                             shotsOnTarget: 4
+
                         },
 
                         defense: {
+
                             goalsConceded: 2
+
                         },
 
                         possession: 42,
@@ -72,14 +92,31 @@ class FootballAIService {
                     });
 
                 awayProfile.name = away.name;
+                awayProfile.id = away.id;
                 awayProfile.elo = 1650;
-                awayProfile.possession = 42;
+
+                // ===========================
+                // PREDICTION IA
+                // ===========================
 
                 const prediction =
                     await predictionEngine.predict({
 
                         home: homeProfile,
-                        away: awayProfile
+
+                        away: awayProfile,
+
+                        context: {
+
+                            fixtureId: fixture.fixture.id,
+
+                            referee: fixture.fixture.referee || "Inconnu",
+
+                            league: fixture.league?.name || "",
+
+                            season: fixture.league?.season || ""
+
+                        }
 
                     });
 
@@ -87,9 +124,16 @@ class FootballAIService {
 
                     fixtureId: fixture.fixture.id,
 
+                    league:
+                        fixture.league?.name,
+
+                    date:
+                        fixture.fixture.date,
+
                     match: {
 
                         homeTeam: home.name,
+
                         awayTeam: away.name
 
                     },
@@ -107,8 +151,9 @@ class FootballAIService {
         catch (error) {
 
             console.error(
-                "Football AI Service :",
-                error
+
+                "Football AI Service :", error
+
             );
 
             return [];
