@@ -1,26 +1,35 @@
-// ===========================
-// FOOTBALL AI PRO 2.1
-// MODE LIVE IA
-// ===========================
+// =====================================
+// FOOTBALL AI PRO 3.1
+// LIVE.JS
+// =====================================
 
-function afficherEvenementsRapides(resultat) {
+import FootballAIService from "./football-ai-service.js";
 
-    return [
+class LiveModule {
 
-        "🥅 Premier tir cadré : " + resultat.premierTirCadre,
+    async demarrer() {
 
-        "🔄 Première touche : " + resultat.premiereTouche,
+        console.log("Football AI Pro Live démarré...");
 
-        "🦶 Premier dégagement : " + resultat.premierDegagement,
+        const analyses =
+            await FootballAIService.analyserTousLesMatchs();
 
-        "🚩 Premier corner : " + resultat.premierCorner,
+        console.log(analyses);
 
-        "⚽ Premier but : " + resultat.premierBut,
+        return analyses;
 
-        "❌ Première faute : " + resultat.premiereFaute,
+    }
 
-        "🟨 Premier carton : " + resultat.premierCarton
+    async actualiser() {
 
-    ];
+        return await this.demarrer();
+
+    }
 
 }
+
+const Live = new LiveModule();
+
+Live.demarrer();
+
+export default Live;
