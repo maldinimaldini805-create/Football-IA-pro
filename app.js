@@ -1,38 +1,75 @@
 // =====================================
-// FOOTBALL AI PRO 3.2
+// FOOTBALL AI PRO 4.0
 // APP.JS
 // =====================================
 
-import footballAIService from "./football-ai-service.js";
+import footballAIService from "./services/football-ai-service.js";
 
-async function startFootballAI() {
+class FootballAIApp {
 
-    console.log("⚽ Football AI Pro 3.2");
+    async start() {
 
-    try {
+        console.log("⚽ Football AI Pro 4.0");
+        console.log("Initialisation...");
 
-        const analyses =
-            await footballAIService.analyzeTodayMatches();
+        try {
 
-        console.log("Analyses :", analyses);
+            const analyses =
+                await footballAIService.analyzeTodayMatches();
 
-        return analyses;
+            console.log(
+                "Matchs analysés :",
+                analyses.length
+            );
 
-    }
+            analyses.forEach(match => {
 
-    catch (error) {
+                console.log("--------------------------------");
 
-        console.error(
-            "Erreur Football AI :",
-            error
-        );
+                console.log(
+                    match.match.homeTeam +
+                    " vs " +
+                    match.match.awayTeam
+                );
 
-        return [];
+                console.log(
+                    "Score prévu :",
+                    match.prediction.scoreExact
+                );
+
+                console.log(
+                    "Vainqueur :",
+                    match.prediction.winner
+                );
+
+                console.log(
+                    "Confiance :",
+                    match.prediction.confiance + "%"
+                );
+
+            });
+
+            return analyses;
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Erreur Football AI Pro :",
+                error
+            );
+
+            return [];
+
+        }
 
     }
 
 }
 
-startFootballAI();
+const app = new FootballAIApp();
 
-export default startFootballAI;
+app.start();
+
+export default app;
