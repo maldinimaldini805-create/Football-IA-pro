@@ -1,8 +1,7 @@
 // =====================================
-// FOOTBALL AI PRO 3.0
+// FOOTBALL AI PRO 3.1
 // PREDICTION ENGINE
 // =====================================
-
 
 import poisson from "./models/poisson.js";
 import elo from "./models/elo.js";
@@ -11,18 +10,13 @@ import cornerModel from "./models/corner-model.js";
 import cardsModel from "./models/cards-model.js";
 import ensemble from "./models/ensemble.js";
 
-
-
 class PredictionEngine {
-
-
 
     // ==============================
     // ANALYSE COMPLETE DU MATCH
     // ==============================
 
     async predict(matchData) {
-
 
         const {
 
@@ -31,8 +25,6 @@ class PredictionEngine {
             context = {}
 
         } = matchData;
-
-
 
         // --------------------------
         // MODELE BUTS
@@ -44,8 +36,6 @@ class PredictionEngine {
                 away
             );
 
-
-
         // --------------------------
         // FORCE DES EQUIPES
         // --------------------------
@@ -55,8 +45,6 @@ class PredictionEngine {
                 home,
                 away
             );
-
-
 
         // --------------------------
         // XG
@@ -68,8 +56,6 @@ class PredictionEngine {
                 away
             );
 
-
-
         // --------------------------
         // CORNERS
         // --------------------------
@@ -79,8 +65,6 @@ class PredictionEngine {
                 home,
                 away
             );
-
-
 
         // --------------------------
         // CARTONS
@@ -92,8 +76,6 @@ class PredictionEngine {
                 away,
                 context.referee
             );
-
-
 
         // --------------------------
         // FUSION IA
@@ -119,10 +101,11 @@ class PredictionEngine {
 
             });
 
-
+        // ==============================
+        // RESULTAT FINAL
+        // ==============================
 
         return {
-
 
             match: {
 
@@ -134,80 +117,77 @@ class PredictionEngine {
 
             },
 
-
-            score:
-
+            scoreExact:
                 finalPrediction.score,
 
-
+            scoreMiTemps:
+                "0 - 0",
 
             winner:
-
                 finalPrediction.winner,
 
+            confiance:
+                finalPrediction.confidence,
 
+            confidence:
+                finalPrediction.confidence,
 
-            markets: {
+            btts:
+                finalPrediction.btts + "%",
 
+            over25:
+                finalPrediction.over25 + "%",
 
-                over25:
+            corners:
+                cornersPrediction.total,
 
-                    finalPrediction.over25,
+            cartons:
+                cardsPrediction.yellowCards,
 
+            fautes:
+                cardsPrediction.totalFouls,
 
+            events: {
 
-                btts:
+                premierCorner:
+                    cornersPrediction.firstCorner,
 
-                    finalPrediction.btts,
+                premierCarton:
+                    cardsPrediction.firstCard,
 
+                premiereFaute:
+                    cardsPrediction.firstCard,
 
+                premierTirCadre:
+                    xgPrediction.dominance,
 
-                corners:
-
-                    cornersPrediction,
-
-
-
-                cards:
-
-                    cardsPrediction
-
+                premiereTouche:
+                    "HOME"
 
             },
 
-
-
-            confidence:
-
-                finalPrediction.confidence,
-
-
-
             details: {
-
 
                 poisson:
                     goalsPrediction,
 
-
                 elo:
                     eloPrediction,
 
-
                 xg:
-                    xgPrediction
+                    xgPrediction,
 
+                corners:
+                    cornersPrediction,
+
+                cards:
+                    cardsPrediction
 
             }
 
-
         };
 
-
     }
-
-
-
 
     // ==============================
     // MODE LIVE
@@ -217,42 +197,31 @@ class PredictionEngine {
         liveData
     ) {
 
+        return await this.predict({
 
-        return await this.predict(
-            {
+            home:
+                liveData.home,
 
-                home:
-                    liveData.home,
+            away:
+                liveData.away,
 
+            context: {
 
-                away:
-                    liveData.away,
+                minute:
+                    liveData.minute,
 
+                score:
+                    liveData.score,
 
-                context: {
-
-                    minute:
-                        liveData.minute,
-
-
-                    score:
-                        liveData.score
-
-                }
-
+                referee:
+                    liveData.referee
 
             }
-        );
 
+        });
 
     }
 
-
-
-
-
 }
-
-
 
 export default new PredictionEngine();
