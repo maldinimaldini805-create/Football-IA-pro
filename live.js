@@ -1,35 +1,46 @@
 // =====================================
 // FOOTBALL AI PRO 3.1
-// LIVE.JS
+// LIVE ENGINE
 // =====================================
 
-import FootballAIService from "./football-ai-service.js";
+import footballAIService from "./football-ai-service.js";
 
-class LiveModule {
-
-    async demarrer() {
-
-        console.log("Football AI Pro Live démarré...");
-
-        const analyses =
-            await FootballAIService.analyserTousLesMatchs();
-
-        console.log(analyses);
-
-        return analyses;
-
-    }
+class Live {
 
     async actualiser() {
 
-        return await this.demarrer();
+        try {
+
+            const analyses =
+                await footballAIService.analyzeTodayMatches();
+
+            return analyses.map(analyse => ({
+
+                data: {
+
+                    match: analyse.match,
+
+                    prediction: analyse.prediction
+
+                }
+
+            }));
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Live Engine :",
+                error
+            );
+
+            return [];
+
+        }
 
     }
 
 }
 
-const Live = new LiveModule();
-
-Live.demarrer();
-
-export default Live;
+export default new Live();
