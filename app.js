@@ -1,44 +1,69 @@
-async function analyseMatch() {
+// =====================================
+// FOOTBALL AI PRO 3.0
+// APP.JS
+// =====================================
 
-    const texte = document.getElementById("search").value;
+import SuperAIEngine from "./super-ai-engine.js";
 
-    if (!texte) {
-        alert("Saisissez un match (ex : PSG vs Real Madrid)");
-        return;
-    }
+async function analyserMatch() {
 
-    const equipes = texte.split(" vs ");
+    const data = {
 
-    if (equipes.length !== 2) {
-        alert("Utilisez le format : Equipe A vs Equipe B");
-        return;
-    }
+        homeAttack: 2.1,
+        awayAttack: 1.4,
 
-    const resultat = await analyserMatch(
-        equipes[0].trim(),
-        equipes[1].trim()
-    );
+        homeElo: 1850,
+        awayElo: 1785,
 
-    if (resultat.erreur) {
-        alert(resultat.erreur);
-        return;
-    }
+        homeXG: 2.05,
+        awayXG: 1.12,
 
-    document.getElementById("home").innerHTML =
-        resultat.prediction.home + "%";
+        homeOdd: 1.85,
+        drawOdd: 3.45,
+        awayOdd: 4.10,
 
-    document.getElementById("draw").innerHTML =
-        resultat.prediction.draw + "%";
+        lastMatchesHome: [],
+        h2hMatches: [],
 
-    document.getElementById("away").innerHTML =
-        resultat.prediction.away + "%";
+        injuries: [],
 
-    document.getElementById("score").innerHTML =
-        resultat.finMatch.scoreFinal;
+        lineup: [],
+        bench: [],
 
-    document.getElementById("confidence").innerHTML =
-        resultat.prediction.confiance + "%";
+        weather: "Soleil",
 
-    document.getElementById("confidenceBar").style.width =
-        resultat.prediction.confiance + "%";
+        referee: {},
+
+        homeStats: {
+            attaque: 82,
+            possession: 60,
+            corners: 7,
+            degagements: 18,
+            fautes: 10,
+            cartons: 2,
+            xG: 2.05
+        },
+
+        awayStats: {
+            attaque: 70,
+            possession: 40,
+            corners: 4,
+            degagements: 22,
+            fautes: 13,
+            cartons: 3,
+            xG: 1.12
+        }
+
+    };
+
+    const prediction = SuperAIEngine.analyser(data);
+
+    console.log(prediction);
+
+    return prediction;
+
 }
+
+analyserMatch();
+
+export default analyserMatch;
