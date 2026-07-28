@@ -1,66 +1,127 @@
 // =====================================
-// FOOTBALL AI PRO 3.0
+// FOOTBALL AI PRO 3.1
 // APP.JS
 // =====================================
 
 import SuperAIEngine from "./super-ai-engine.js";
+import MatchAnalyzer from "./match-analyzer.js";
+
+const API_URL = "https://football-ai-pro-2.maldinimaldini805-4cd.workers.dev";
+
+// =====================================
+// CHARGER LES MATCHS
+// =====================================
+
+async function chargerMatchs() {
+
+    try {
+
+        const response = await fetch(API_URL + "/matches");
+
+        if (!response.ok) {
+            throw new Error("Impossible de récupérer les matchs.");
+        }
+
+        const json = await response.json();
+
+        return json.response || [];
+
+    } catch (e) {
+
+        console.error("Erreur :", e);
+
+        return [];
+
+    }
+
+}
+
+// =====================================
+// ANALYSE DES MATCHS
+// =====================================
 
 async function analyserMatch() {
 
-    const data = {
+    const matchs = await chargerMatchs();
 
-        homeAttack: 2.1,
-        awayAttack: 1.4,
+    if (matchs.length === 0) {
 
-        homeElo: 1850,
-        awayElo: 1785,
+        console.log("Aucun match disponible.");
 
-        homeXG: 2.05,
-        awayXG: 1.12,
+        return [];
 
-        homeOdd: 1.85,
-        drawOdd: 3.45,
-        awayOdd: 4.10,
+    }
 
-        lastMatchesHome: [],
-        h2hMatches: [],
+    const resultats = [];
 
-        injuries: [],
+    for (const match of matchs) {
 
-        lineup: [],
-        bench: [],
+        const infos = MatchAnalyzer.analyser(match);
 
-        weather: "Soleil",
+        const data = {
 
-        referee: {},
+            homeAttack: 2.1,
+            awayAttack: 1.4,
 
-        homeStats: {
-            attaque: 82,
-            possession: 60,
-            corners: 7,
-            degagements: 18,
-            fautes: 10,
-            cartons: 2,
-            xG: 2.05
-        },
+            homeElo: 1850,
+            awayElo: 1785,
 
-        awayStats: {
-            attaque: 70,
-            possession: 40,
-            corners: 4,
-            degagements: 22,
-            fautes: 13,
-            cartons: 3,
-            xG: 1.12
-        }
+            homeXG: 2.05,
+            awayXG: 1.12,
 
-    };
+            homeOdd: 1.85,
+            drawOdd: 3.45,
+            awayOdd: 4.10,
 
-    const prediction = SuperAIEngine.analyser(data);
+            lastMatchesHome: [],
+            h2hMatches: [],
 
-    console.log(prediction);
+            injuries: [],
 
-    return prediction;
+            lineup: [],
+            bench: [],
+
+            weather: "Soleil",
+
+            referee: {},
+
+            homeStats: {
+                attaque: 82,
+                possession: 60,
+                corners: 7,
+                degagements: 18,
+                fautes: 10,
+                cartons: 2,
+                xG: 2.05
+            },
+
+            awayStats: {
+                attaque: 70,
+                possession: 40,
+                corners: 4,
+                degagements: 22,
+                fautes: 13,
+                cartons: 3,
+                xG: 1.12
+            }
+
+        };
+
+        const prediction = SuperAIEngine.analyser(data);
+
+        resultats.push({
+
+            match: infos,
+
+            prediction
+
+        });
+
+    }
+
+    console.log(resultats);
+
+    return resultats;
 
 }
 
