@@ -5,7 +5,7 @@
 
 import apiFootballService from "./api-football-service.js";
 import dataNormalizer from "./data-normalizer.js";
-import predictionEngine from "../ai-engine/prediction-engine.js";
+import predictionEngine from "./ai-engine/prediction-engine.js";
 
 class FootballAIService {
 
@@ -38,10 +38,16 @@ class FootballAIService {
                 const homeProfile =
                     dataNormalizer.createAIProfile({
 
+                        id: home.id,
+
+                        name: home.name,
+
                         attack: {
 
                             goals: 2,
+
                             shots: 14,
+
                             shotsOnTarget: 6
 
                         },
@@ -53,15 +59,16 @@ class FootballAIService {
                         },
 
                         possession: 58,
+
                         corners: 6,
+
                         fouls: 12,
-                        yellowCards: 2
+
+                        yellowCards: 2,
+
+                        elo: 1700
 
                     });
-
-                homeProfile.name = home.name;
-                homeProfile.id = home.id;
-                homeProfile.elo = 1700;
 
                 // ===========================
                 // PROFIL EXTERIEUR
@@ -70,10 +77,16 @@ class FootballAIService {
                 const awayProfile =
                     dataNormalizer.createAIProfile({
 
+                        id: away.id,
+
+                        name: away.name,
+
                         attack: {
 
                             goals: 1,
+
                             shots: 10,
+
                             shotsOnTarget: 4
 
                         },
@@ -85,15 +98,16 @@ class FootballAIService {
                         },
 
                         possession: 42,
+
                         corners: 4,
+
                         fouls: 14,
-                        yellowCards: 3
+
+                        yellowCards: 3,
+
+                        elo: 1650
 
                     });
-
-                awayProfile.name = away.name;
-                awayProfile.id = away.id;
-                awayProfile.elo = 1650;
 
                 // ===========================
                 // PREDICTION IA
@@ -110,11 +124,11 @@ class FootballAIService {
 
                             fixtureId: fixture.fixture.id,
 
-                            referee: fixture.fixture.referee || "Inconnu",
+                            referee: fixture.fixture.referee || null,
 
-                            league: fixture.league?.name || "",
+                            league: fixture.league?.name,
 
-                            season: fixture.league?.season || ""
+                            season: fixture.league?.season
 
                         }
 
@@ -124,44 +138,6 @@ class FootballAIService {
 
                     fixtureId: fixture.fixture.id,
 
-                    league:
-                        fixture.league?.name,
+                    league: fixture.league?.name,
 
                     date:
-                        fixture.fixture.date,
-
-                    match: {
-
-                        homeTeam: home.name,
-
-                        awayTeam: away.name
-
-                    },
-
-                    prediction
-
-                });
-
-            }
-
-            return analyses;
-
-        }
-
-        catch (error) {
-
-            console.error(
-
-                "Football AI Service :", error
-
-            );
-
-            return [];
-
-        }
-
-    }
-
-}
-
-export default new FootballAIService();
