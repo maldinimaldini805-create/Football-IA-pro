@@ -1,0 +1,116 @@
+/* ===================================== */
+/* FOOTBALL AI PRO 3.1 */
+/* DASHBOARD */
+/* ===================================== */
+
+body{
+
+    margin:0;
+
+    padding:20px;
+
+    background:#0d1117;
+
+    color:white;
+
+    font-family:Arial,sans-serif;
+
+}
+
+h1{
+
+    text-align:center;
+
+    color:#00ff88;
+
+}
+
+#matches{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+}
+
+.match-card{
+
+    background:#161b22;
+
+    border-radius:15px;
+
+    padding:20px;
+
+    border:1px solid #30363d;
+
+    box-shadow:0 0 15px rgba(0,255,136,.15);
+
+}
+
+.match-card h2{
+
+    margin-top:0;
+
+    color:#00ff88;
+
+}
+
+.match-card p{
+
+    margin:8px 0;
+
+}
+
+.confidence{
+
+    height:12px;
+
+    background:#30363d;
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+}
+
+.confidence-value{
+
+    height:100%;
+
+    background:#00ff88;
+
+    width:0%;
+
+    transition:1s;
+
+}
+
+.live{
+
+    display:inline-block;
+
+    padding:5px 10px;
+
+    background:red;
+
+    color:white;
+
+    border-radius:20px;
+
+    font-weight:bold;
+
+    animation:blink 1s infinite;
+
+}
+
+@keyframes blink{
+
+    50%{
+
+        opacity:.4;
+
+    }
+
+}
