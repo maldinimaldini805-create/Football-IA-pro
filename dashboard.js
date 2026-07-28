@@ -1,68 +1,41 @@
 // =====================================
-// FOOTBALL AI PRO 3.2
+// FOOTBALL AI PRO 4.0
 // DASHBOARD
 // =====================================
 
-import Live from "./live.js";
+import footballAIService from "./services/football-ai-service.js";
 
 class Dashboard {
 
-    async afficher() {
+    async load() {
+
+        const container =
+            document.getElementById("matches");
+
+        if (!container) {
+
+            console.error("Conteneur introuvable.");
+
+            return;
+
+        }
+
+        container.innerHTML =
+            "<p>⏳ Analyse des matchs...</p>";
 
         try {
 
             const analyses =
-                await Live.actualiser();
+                await footballAIService.analyzeTodayMatches();
 
-            if (!analyses || analyses.length === 0) {
+            if (analyses.length === 0) {
 
-                console.log("Aucun match disponible.");
+                container.innerHTML =
+                    "<p>Aucun match aujourd'hui.</p>";
 
                 return;
 
             }
-
-            const resultat =
-                analyses[0].data;
-
-            document.getElementById("matchTitle").textContent =
-                `${resultat.match.homeTeam} VS ${resultat.match.awayTeam}`;
-
-            document.getElementById("scorePrediction").textContent =
-                resultat.prediction.scoreExact;
-
-            document.getElementById("halfTimePrediction").textContent =
-                resultat.prediction.scoreMiTemps;
-
-            document.getElementById("cornerPrediction").textContent =
-                resultat.prediction.corners;
-
-            document.getElementById("cardsPrediction").textContent =
-                resultat.prediction.cartons;
-
-            document.getElementById("foulsPrediction").textContent =
-                resultat.prediction.fautes;
-
-            document.getElementById("bttsPrediction").textContent =
-                resultat.prediction.btts;
-
-            const confidenceBar =
-                document.getElementById("confidenceBar");
-
-            if (confidenceBar) {
-
-                confidenceBar.style.width =
-                    resultat.prediction.confiance + "%";
-
-                confidenceBar.textContent =
-                    resultat.prediction.confiance + "%";
-
-            }
-
-            const container =
-                document.getElementById("matchesContainer");
-
-            if (!container) return;
 
             container.innerHTML = "";
 
@@ -75,17 +48,25 @@ class Dashboard {
 
                 card.innerHTML = `
 
-                    <h3>${match.data.match.homeTeam} VS ${match.data.match.awayTeam}</h3>
+                    <h2>
+                        ${match.match.homeTeam}
+                        vs
+                        ${match.match.awayTeam}
+                    </h2>
 
-                    <p><strong>🎯 Score :</strong> ${match.data.prediction.scoreExact}</p>
+                    <p><strong>🏆 Ligue :</strong> ${match.league}</p>
 
-                    <p><strong>📊 Confiance :</strong> ${match.data.prediction.confiance}%</p>
+                    <p><strong>⚽ Score prévu :</strong> ${match.prediction.scoreExact}</p>
 
-                    <p><strong>🚩 Corners :</strong> ${match.data.prediction.corners}</p>
+                    <p><strong>🥇 Vainqueur :</strong> ${match.prediction.winner}</p>
 
-                    <p><strong>🟨 Cartons :</strong> ${match.data.prediction.cartons}</p>
+                    <p><strong>📊 Confiance :</strong> ${match.prediction.confiance}%</p>
 
-                    <p><strong>❌ Fautes :</strong> ${match.data.prediction.fautes}</p>
+                    <p><strong>🚩 Corners :</strong> ${match.prediction.corners}</p>
+
+                    <p><strong>🟨 Cartons :</strong> ${match.prediction.cartons}</p>
+
+                    <p><strong>❌ Fautes :</strong> ${match.prediction.fautes}</p>
 
                 `;
 
@@ -97,7 +78,10 @@ class Dashboard {
 
         catch (error) {
 
-            console.error("Dashboard :", error);
+            console.error(error);
+
+            container.innerHTML =
+                "<p>❌ Erreur lors du chargement.</p>";
 
         }
 
@@ -107,6 +91,6 @@ class Dashboard {
 
 const dashboard = new Dashboard();
 
-dashboard.afficher();
+dashboard.load();
 
 export default dashboard;
