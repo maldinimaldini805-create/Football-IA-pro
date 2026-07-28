@@ -5,7 +5,7 @@
 
 class CornerModel {
 
-    predict(home, away) {
+    calculate(home, away) {
 
         const homeAttack = home.attackRating || 50;
         const awayAttack = away.attackRating || 50;
@@ -16,17 +16,25 @@ class CornerModel {
         const homeShots = home.shots || 10;
         const awayShots = away.shots || 10;
 
+        const homeShotsOnTarget = home.shotsOnTarget || 4;
+        const awayShotsOnTarget = away.shotsOnTarget || 4;
+
         const homeCorners = Math.round(
-            (homeAttack * 0.05) +
-            (homePossession * 0.04) +
-            (homeShots * 0.30)
+            (homeAttack * 0.04) +
+            (homePossession * 0.03) +
+            (homeShots * 0.35) +
+            (homeShotsOnTarget * 0.60)
         );
 
         const awayCorners = Math.round(
-            (awayAttack * 0.05) +
-            (awayPossession * 0.04) +
-            (awayShots * 0.30)
+            (awayAttack * 0.04) +
+            (awayPossession * 0.03) +
+            (awayShots * 0.35) +
+            (awayShotsOnTarget * 0.60)
         );
+
+        const totalCorners =
+            homeCorners + awayCorners;
 
         return {
 
@@ -34,12 +42,18 @@ class CornerModel {
 
             away: awayCorners,
 
-            total: homeCorners + awayCorners,
+            total: totalCorners,
 
             firstCorner:
                 homeAttack >= awayAttack
                     ? "HOME"
-                    : "AWAY"
+                    : "AWAY",
+
+            confidence:
+                Math.min(
+                    95,
+                    60 + Math.round(totalCorners / 2)
+                )
 
         };
 
