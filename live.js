@@ -1,57 +1,29 @@
 // =====================================
-// FOOTBALL AI PRO 3.2
-// LIVE ENGINE
+// FOOTBALL AI PRO 4.0
+// LIVE.JS
 // =====================================
 
-import footballAIService from "./football-ai-service.js";
+import footballAIService from "./services/football-ai-service.js";
 
-class Live {
+class LiveEngine {
 
-    async actualiser() {
+    async refresh() {
 
         try {
 
             const analyses =
                 await footballAIService.analyzeTodayMatches();
 
-            if (!analyses || analyses.length === 0) {
-
-                console.warn("Aucune analyse disponible.");
-
-                return [];
-
-            }
-
-            return analyses.map(analyse => ({
-
-                data: {
-
-                    fixtureId:
-                        analyse.fixtureId,
-
-                    league:
-                        analyse.league,
-
-                    date:
-                        analyse.date,
-
-                    match:
-                        analyse.match,
-
-                    prediction:
-                        analyse.prediction
-
-                }
-
-            }));
+            return analyses;
 
         }
 
         catch (error) {
 
             console.error(
-                "Live Engine :",
-                error
+
+                "Erreur Live :", error
+
             );
 
             return [];
@@ -60,6 +32,20 @@ class Live {
 
     }
 
+    start(interval = 60000) {
+
+        this.refresh();
+
+        setInterval(() => {
+
+            this.refresh();
+
+        }, interval);
+
+    }
+
 }
 
-export default new Live();
+const liveEngine = new LiveEngine();
+
+export default liveEngine;
