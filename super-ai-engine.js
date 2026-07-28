@@ -1,11 +1,9 @@
 // =====================================
-// FOOTBALL AI PRO 3.0
+// FOOTBALL AI PRO 3.1
 // SUPER AI ENGINE
 // =====================================
 
-import PoissonEngine from "./poisson-engine.js";
-import EloEngine from "./elo-engine.js";
-import XGEngine from "./xg-engine.js";
+import predictionEngine from "./prediction-engine.js";
 import OddsEngine from "./odds-engine.js";
 import FormEngine from "./form-engine.js";
 import H2HEngine from "./h2h-engine.js";
@@ -18,25 +16,22 @@ import EventAIEngine from "./event-ai-engine.js";
 
 class SuperAIEngine {
 
-    analyser(data) {
+    async analyser(data) {
 
-        const poisson =
-            PoissonEngine.calculer(
-                data.homeAttack,
-                data.awayAttack
-            );
+        const prediction =
+            await predictionEngine.predict({
 
-        const elo =
-            EloEngine.calculer(
-                data.homeElo,
-                data.awayElo
-            );
+                home: data.home,
 
-        const xg =
-            XGEngine.calculer(
-                data.homeXG,
-                data.awayXG
-            );
+                away: data.away,
+
+                context: {
+
+                    referee: data.referee
+
+                }
+
+            });
 
         const odds =
             OddsEngine.analyser(
@@ -105,13 +100,32 @@ class SuperAIEngine {
 
         return {
 
-            scoreExact: poisson.scoreExact,
+            scoreExact:
+                prediction.scoreExact,
 
-            confiance: confidence,
+            scoreMiTemps:
+                prediction.scoreMiTemps,
 
-            elo,
+            confiance:
+                prediction.confiance,
 
-            xg,
+            winner:
+                prediction.winner,
+
+            over25:
+                prediction.over25,
+
+            btts:
+                prediction.btts,
+
+            corners:
+                prediction.corners,
+
+            cartons:
+                prediction.cartons,
+
+            fautes:
+                prediction.fautes,
 
             odds,
 
