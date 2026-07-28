@@ -4,6 +4,8 @@
 // =====================================
 
 const API_URL = "https://v3.football.api-sports.io";
+
+// Remplace par ta vraie clé API
 const API_KEY = "VOTRE_API_KEY_ICI";
 
 class ApiFootballService {
@@ -15,9 +17,33 @@ class ApiFootballService {
             "x-apisports-host": "v3.football.api-sports.io"
         };
 
+        // Cache des requêtes
+        this.cache = {};
+
+        // Durée du cache : 60 secondes
+        this.cacheDuration = 60000;
+
     }
 
+    // ==============================
+    // REQUÊTE API AVEC CACHE
+    // ==============================
+
     async request(endpoint) {
+
+        const now = Date.now();
+
+        // Vérifie si la réponse est déjà en cache
+        if (
+            this.cache[endpoint] &&
+            (now - this.cache[endpoint].time) < this.cacheDuration
+        ) {
+
+            console.log("📦 Données récupérées depuis le cache :", endpoint);
+
+            return this.cache[endpoint].data;
+
+        }
 
         try {
 
@@ -39,14 +65,33 @@ class ApiFootballService {
 
             const json = await response.json();
 
-            return json.response || [];
+            // Gestion des erreurs renvoyées par l'API
+            if (json.errors && Object.keys(json.errors).length > 0) {
+
+                console.error("API FOOTBALL :", json.errors);
+
+                return [];
+
+            }
+
+            const data = json.response || [];
+
+            // Sauvegarde dans le cache
+            this.cache[endpoint] = {
+
+                data,
+                time: now
+
+            };
+
+            return data;
 
         }
 
         catch (error) {
 
             console.error(
-                "API Football :",
+                "API FOOTBALL ERROR :",
                 error
             );
 
@@ -86,7 +131,7 @@ class ApiFootballService {
     }
 
     // ==============================
-    // STATISTIQUES
+    // STATISTIQUES EQUIPE
     // ==============================
 
     async getTeamStatistics(team, league, season) {
