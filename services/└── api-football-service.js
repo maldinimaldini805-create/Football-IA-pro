@@ -1,23 +1,21 @@
 // =====================================
-// FOOTBALL AI PRO 3.0
+// FOOTBALL AI PRO 3.1
 // API FOOTBALL SERVICE
 // =====================================
 
 const API_URL = "https://v3.football.api-sports.io";
-
 const API_KEY = "VOTRE_API_KEY_ICI";
-
 
 class ApiFootballService {
 
     constructor() {
 
         this.headers = {
-            "x-apisports-key": API_KEY
+            "x-apisports-key": API_KEY,
+            "x-apisports-host": "v3.football.api-sports.io"
         };
 
     }
-
 
     async request(endpoint) {
 
@@ -31,25 +29,24 @@ class ApiFootballService {
                 }
             );
 
-
             if (!response.ok) {
 
                 throw new Error(
-                    "Erreur API Football"
+                    `Erreur API (${response.status})`
                 );
 
             }
 
+            const json = await response.json();
 
-            const data = await response.json();
+            return json.response || [];
 
-            return data.response;
+        }
 
-
-        } catch(error) {
+        catch (error) {
 
             console.error(
-                "API FOOTBALL ERROR:",
+                "API Football :",
                 error
             );
 
@@ -59,8 +56,6 @@ class ApiFootballService {
 
     }
 
-
-
     // ==============================
     // MATCHS DU JOUR
     // ==============================
@@ -69,9 +64,8 @@ class ApiFootballService {
 
         const today =
             new Date()
-            .toISOString()
-            .split("T")[0];
-
+                .toISOString()
+                .split("T")[0];
 
         return await this.request(
             `/fixtures?date=${today}`
@@ -79,17 +73,11 @@ class ApiFootballService {
 
     }
 
-
-
-
     // ==============================
     // CLASSEMENT
     // ==============================
 
-    async getStandings(
-        league,
-        season
-    ) {
+    async getStandings(league, season) {
 
         return await this.request(
             `/standings?league=${league}&season=${season}`
@@ -97,19 +85,11 @@ class ApiFootballService {
 
     }
 
-
-
-
     // ==============================
-    // STATISTIQUES EQUIPE
+    // STATISTIQUES
     // ==============================
 
-    async getTeamStatistics(
-        team,
-        league,
-        season
-    ) {
-
+    async getTeamStatistics(team, league, season) {
 
         return await this.request(
             `/teams/statistics?team=${team}&league=${league}&season=${season}`
@@ -117,19 +97,11 @@ class ApiFootballService {
 
     }
 
-
-
-
-
     // ==============================
     // DERNIERS MATCHS
     // ==============================
 
-    async getLastMatches(
-        team,
-        limit = 10
-    ) {
-
+    async getLastMatches(team, limit = 10) {
 
         return await this.request(
             `/fixtures?team=${team}&last=${limit}`
@@ -137,19 +109,11 @@ class ApiFootballService {
 
     }
 
-
-
-
-
     // ==============================
     // H2H
     // ==============================
 
-    async getH2H(
-        team1,
-        team2
-    ) {
-
+    async getH2H(team1, team2) {
 
         return await this.request(
             `/fixtures/headtohead?h2h=${team1}-${team2}`
@@ -157,18 +121,11 @@ class ApiFootballService {
 
     }
 
-
-
-
-
     // ==============================
     // BLESSURES
     // ==============================
 
-    async getInjuries(
-        fixture
-    ) {
-
+    async getInjuries(fixture) {
 
         return await this.request(
             `/injuries?fixture=${fixture}`
@@ -176,18 +133,11 @@ class ApiFootballService {
 
     }
 
-
-
-
-
     // ==============================
     // COMPOSITIONS
     // ==============================
 
-    async getLineups(
-        fixture
-    ) {
-
+    async getLineups(fixture) {
 
         return await this.request(
             `/fixtures/lineups?fixture=${fixture}`
@@ -195,18 +145,11 @@ class ApiFootballService {
 
     }
 
-
-
-
-
     // ==============================
-    // COTES BOOKMAKERS
+    // COTES
     // ==============================
 
-    async getOdds(
-        fixture
-    ) {
-
+    async getOdds(fixture) {
 
         return await this.request(
             `/odds?fixture=${fixture}`
@@ -214,18 +157,11 @@ class ApiFootballService {
 
     }
 
-
-
-
-
     // ==============================
     // ARBITRE
     // ==============================
 
-    async getReferee(
-        fixture
-    ) {
-
+    async getReferee(fixture) {
 
         return await this.request(
             `/fixtures?id=${fixture}`
@@ -233,10 +169,6 @@ class ApiFootballService {
 
     }
 
-
-
-
 }
-
 
 export default new ApiFootballService();
