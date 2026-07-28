@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 3.1
+// FOOTBALL AI PRO 3.2
 // ENSEMBLE MODEL
 // =====================================
 
@@ -17,48 +17,37 @@ class EnsembleModel {
 
         } = models;
 
+        const winner =
+            elo.winner;
 
-        const homeWin =
-            elo.probabilities.home;
+        const over25 =
+            xg.totalXG >= 2.5 ? 75 : 45;
 
-        const draw =
-            elo.probabilities.draw;
+        const btts =
+            (goals.homeGoals > 0 &&
+             goals.awayGoals > 0)
+                ? 80
+                : 40;
 
-        const awayWin =
-            elo.probabilities.away;
+        const confidence = Math.min(
 
+            95,
 
-        let winner = "DRAW";
+            Math.round(
 
-        if (homeWin > awayWin && homeWin > draw) {
+                (
 
-            winner = "HOME";
+                    over25 +
 
-        }
+                    btts +
 
-        else if (awayWin > homeWin && awayWin > draw) {
+                    cards.confidence
 
-            winner = "AWAY";
+                ) / 3
 
-        }
-
-
-        const confidence = Math.round(
-
-            (
-
-                homeWin +
-
-                goals.over25 +
-
-                goals.btts +
-
-                (xg.total * 10)
-
-            ) / 4
+            )
 
         );
-
 
         return {
 
@@ -67,18 +56,11 @@ class EnsembleModel {
             score:
                 goals.score,
 
-            over25:
-                goals.over25,
+            over25,
 
-            btts:
-                goals.btts,
+            btts,
 
-            confidence:
-
-                Math.min(
-                    confidence,
-                    99
-                ),
+            confidence,
 
             xg,
 
