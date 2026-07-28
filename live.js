@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 3.1
+// FOOTBALL AI PRO 3.2
 // LIVE ENGINE
 // =====================================
 
@@ -14,13 +14,32 @@ class Live {
             const analyses =
                 await footballAIService.analyzeTodayMatches();
 
+            if (!analyses || analyses.length === 0) {
+
+                console.warn("Aucune analyse disponible.");
+
+                return [];
+
+            }
+
             return analyses.map(analyse => ({
 
                 data: {
 
-                    match: analyse.match,
+                    fixtureId:
+                        analyse.fixtureId,
 
-                    prediction: analyse.prediction
+                    league:
+                        analyse.league,
+
+                    date:
+                        analyse.date,
+
+                    match:
+                        analyse.match,
+
+                    prediction:
+                        analyse.prediction
 
                 }
 
