@@ -1,11 +1,9 @@
 // =====================================
-// FOOTBALL AI PRO 3.0
+// FOOTBALL AI PRO 3.1
 // DATA NORMALIZER
 // =====================================
 
-
 class DataNormalizer {
-
 
     // ==============================
     // NORMALISATION EQUIPE
@@ -13,13 +11,28 @@ class DataNormalizer {
 
     normalizeTeamStats(rawStats) {
 
-
         if (!rawStats) {
 
-            return {};
+            return {
+
+                attack: {
+                    shots: 0,
+                    shotsOnTarget: 0,
+                    goals: 0
+                },
+
+                defense: {
+                    goalsConceded: 0
+                },
+
+                possession: 0,
+                corners: 0,
+                fouls: 0,
+                yellowCards: 0
+
+            };
 
         }
-
 
         return {
 
@@ -36,7 +49,6 @@ class DataNormalizer {
 
             },
 
-
             defense: {
 
                 goalsConceded:
@@ -44,40 +56,29 @@ class DataNormalizer {
 
             },
 
-
             possession:
                 rawStats.possession || 0,
-
 
             corners:
                 rawStats.corners?.total || 0,
 
-
             fouls:
                 rawStats.fouls?.committed || 0,
 
-
             yellowCards:
                 rawStats.cards?.yellow || 0
-
 
         };
 
     }
 
-
-
-
-
     // ==============================
-    // FORMATION DES DONNEES MATCH
+    // NORMALISATION MATCH
     // ==============================
 
     normalizeMatch(home, away) {
 
-
         return {
-
 
             homeTeam: {
 
@@ -87,9 +88,7 @@ class DataNormalizer {
                 id:
                     home.team?.id || null
 
-
             },
-
 
             awayTeam: {
 
@@ -101,7 +100,6 @@ class DataNormalizer {
 
             },
 
-
             goals: {
 
                 home:
@@ -112,14 +110,12 @@ class DataNormalizer {
 
             },
 
-
             statistics: {
 
                 home:
                     this.normalizeTeamStats(
                         home.statistics
                     ),
-
 
                 away:
                     this.normalizeTeamStats(
@@ -128,132 +124,90 @@ class DataNormalizer {
 
             }
 
-
         };
-
 
     }
 
-
-
-
-
     // ==============================
-    // CALCUL PERFORMANCE OFFENSIVE
+    // PUISSANCE OFFENSIVE
     // ==============================
 
     calculateAttackPower(stats) {
 
-
-        if (!stats) return 0;
-
-
+        if (!stats) return 50;
 
         let power = 0;
 
-
-        power +=
-            stats.shotsOnTarget * 5;
-
-
-        power +=
-            stats.goals * 10;
-
-
+        power += stats.shots * 2;
+        power += stats.shotsOnTarget * 5;
+        power += stats.goals * 10;
 
         return Math.min(
-            power,
+            Math.round(power),
             100
         );
 
-
     }
 
-
-
-
-
     // ==============================
-    // CALCUL DEFENSE
+    // PUISSANCE DEFENSIVE
     // ==============================
 
     calculateDefensePower(stats) {
 
-
-        if (!stats) return 0;
-
+        if (!stats) return 50;
 
         let value = 100;
 
-
-        value -=
-            stats.goalsConceded * 10;
-
-
+        value -= stats.goalsConceded * 10;
 
         return Math.max(
-            value,
+            Math.round(value),
             0
         );
 
-
     }
 
-
-
-
-
     // ==============================
-    // CREATION PROFIL IA
+    // PROFIL IA
     // ==============================
 
     createAIProfile(teamStats) {
 
-
         return {
-
 
             attackRating:
                 this.calculateAttackPower(
                     teamStats.attack
                 ),
 
-
             defenseRating:
                 this.calculateDefensePower(
                     teamStats.defense
                 ),
 
-
-
             shots:
                 teamStats.attack.shots,
-
 
             shotsOnTarget:
                 teamStats.attack.shotsOnTarget,
 
+            possession:
+                teamStats.possession,
 
             corners:
                 teamStats.corners,
 
-
-            cards:
+            yellowCards:
                 teamStats.yellowCards,
-
 
             fouls:
                 teamStats.fouls
 
-
         };
-
 
     }
 
-
-
 }
-
 
 export default new DataNormalizer();
