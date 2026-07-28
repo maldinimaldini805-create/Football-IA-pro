@@ -8,156 +8,47 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>Football AI Pro 3.1</title>
+<title>Football AI Pro 4.0</title>
 
-<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-<header class="top-bar">
+<header>
 
-    <div class="logo">
+<h1>⚽ Football AI Pro 4.0</h1>
 
-        ⚽ Football AI Pro 3.1
-
-    </div>
-
-    <div class="live-badge">
-
-        🔴 LIVE
-
-    </div>
+<p>
+L'intelligence artificielle pour analyser les matchs de football.
+</p>
 
 </header>
 
-<main class="container">
+<main>
 
-<section class="match-card">
+<section id="coach">
 
-<h2 id="matchTitle">
+<h2>🤖 Football AI Coach</h2>
 
-Chargement des matchs...
+<p id="coachMessage">
 
-</h2>
+Bonjour Maldini 👋
 
-<div class="confidence">
-
-<p>Confiance IA</p>
-
-<div class="progress">
-
-<div
-id="confidenceBar"
-class="progress-value"
-style="width:0%;">
-
-0%
-
-</div>
-
-</div>
-
-</div>
-
-<div class="prediction-grid">
-
-<div class="box">
-
-<h3>🎯 Score exact</h3>
-
-<p id="scorePrediction">
-
--
+Préparation des analyses du jour...
 
 </p>
-
-</div>
-
-<div class="box">
-
-<h3>⏱️ Mi-temps</h3>
-
-<p id="halfTimePrediction">
-
--
-
-</p>
-
-</div>
-
-<div class="box">
-
-<h3>🚩 Corners</h3>
-
-<p id="cornerPrediction">
-
--
-
-</p>
-
-</div>
-
-<div class="box">
-
-<h3>🟨 Cartons</h3>
-
-<p id="cardsPrediction">
-
--
-
-</p>
-
-</div>
-
-<div class="box">
-
-<h3>❌ Fautes</h3>
-
-<p id="foulsPrediction">
-
--
-
-</p>
-
-</div>
-
-<div class="box">
-
-<h3>⚽ BTTS</h3>
-
-<p id="bttsPrediction">
-
--
-
-</p>
-
-</div>
-
-</div>
 
 </section>
 
 <section>
 
-<h2>
+<h2>📅 Matchs du jour</h2>
 
-📅 Matchs du jour
+<div id="matches">
 
-</h2>
-
-<div id="matchesContainer">
-
-</div>
-
-<div id="loadingMessage">
-
-⏳ Chargement des analyses Football AI Pro...
-
-</div>
-
-<div id="errorContainer">
+Chargement...
 
 </div>
 
@@ -165,7 +56,22 @@ style="width:0%;">
 
 </main>
 
-<script type="module" src="js/dashboard.js"></script>
+<footer>
+
+<p>
+
+Football AI Pro 4.0
+
+© 2026
+
+</p>
+
+</footer>
+
+<script type="module"
+src="./js/dashboard.js">
+
+</script>
 
 </body>
 
