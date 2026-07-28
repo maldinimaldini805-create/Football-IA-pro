@@ -7,6 +7,7 @@ import predictionEngine from "./ai-engine/prediction-engine.js";
 import playerPredictionEngine from "./ai-engine/player-prediction-engine.js";
 import smartBetBuilder from "./ai-engine/smart-bet-builder.js";
 import valueBetEngine from "./ai-engine/value-bet-engine.js";
+import aiLearningEngine from "./ai-engine/ai-learning-engine.js";
 
 class FootballAICore {
 
@@ -41,10 +42,27 @@ class FootballAICore {
 
             value,
 
+            learning:
+
+                aiLearningEngine.getStatistics(),
+
             generatedAt:
+
                 new Date().toISOString()
 
         };
+
+    }
+
+    saveResult(prediction, result) {
+
+        aiLearningEngine.savePrediction(
+
+            prediction,
+
+            result
+
+        );
 
     }
 
