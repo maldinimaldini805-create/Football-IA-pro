@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 3.1
+// FOOTBALL AI PRO 3.2
 // PREDICTION ENGINE
 // =====================================
 
@@ -12,63 +12,25 @@ import ensemble from "./models/ensemble.js";
 
 class PredictionEngine {
 
-    // ==============================
-    // ANALYSE COMPLETE DU MATCH
-    // ==============================
-
     async predict(matchData) {
 
         const {
-
             home,
             away,
             context = {}
-
         } = matchData;
 
-        // --------------------------
-        // MODELE BUTS
-        // --------------------------
-
         const goalsPrediction =
-            poisson.calculate(
-                home,
-                away
-            );
-
-        // --------------------------
-        // FORCE DES EQUIPES
-        // --------------------------
+            poisson.calculate(home, away);
 
         const eloPrediction =
-            elo.calculate(
-                home,
-                away
-            );
-
-        // --------------------------
-        // XG
-        // --------------------------
+            elo.calculate(home, away);
 
         const xgPrediction =
-            xgModel.calculate(
-                home,
-                away
-            );
-
-        // --------------------------
-        // CORNERS
-        // --------------------------
+            xgModel.calculate(home, away);
 
         const cornersPrediction =
-            cornerModel.calculate(
-                home,
-                away
-            );
-
-        // --------------------------
-        // CARTONS
-        // --------------------------
+            cornerModel.calculate(home, away);
 
         const cardsPrediction =
             cardsModel.calculate(
@@ -77,54 +39,39 @@ class PredictionEngine {
                 context.referee
             );
 
-        // --------------------------
-        // FUSION IA
-        // --------------------------
-
         const finalPrediction =
             ensemble.combine({
 
-                goals:
-                    goalsPrediction,
+                goals: goalsPrediction,
 
-                elo:
-                    eloPrediction,
+                elo: eloPrediction,
 
-                xg:
-                    xgPrediction,
+                xg: xgPrediction,
 
-                corners:
-                    cornersPrediction,
+                corners: cornersPrediction,
 
-                cards:
-                    cardsPrediction
+                cards: cardsPrediction
 
             });
-
-        // ==============================
-        // RESULTAT FINAL
-        // ==============================
 
         return {
 
             match: {
 
-                home:
-                    home.name,
+                home: home.name,
 
-                away:
-                    away.name
+                away: away.name
 
             },
 
             scoreExact:
-                finalPrediction.score,
+                goalsPrediction.score,
 
             scoreMiTemps:
                 "0 - 0",
 
             winner:
-                finalPrediction.winner,
+                eloPrediction.winner,
 
             confiance:
                 finalPrediction.confidence,
@@ -133,13 +80,13 @@ class PredictionEngine {
                 finalPrediction.confidence,
 
             btts:
-                finalPrediction.btts + "%",
+                finalPrediction.btts,
 
             over25:
-                finalPrediction.over25 + "%",
+                finalPrediction.over25,
 
             corners:
-                cornersPrediction.total,
+                cornersPrediction.totalCorners,
 
             cartons:
                 cardsPrediction.yellowCards,
@@ -150,19 +97,25 @@ class PredictionEngine {
             events: {
 
                 premierCorner:
-                    cornersPrediction.firstCorner,
+                    cornersPrediction.homeCorners >
+                    cornersPrediction.awayCorners
+                        ? home.name
+                        : away.name,
 
                 premierCarton:
-                    cardsPrediction.firstCard,
+                    "À déterminer",
 
                 premiereFaute:
-                    cardsPrediction.firstCard,
+                    "À déterminer",
 
                 premierTirCadre:
-                    xgPrediction.dominance,
+                    xgPrediction.homeXG >
+                    xgPrediction.awayXG
+                        ? home.name
+                        : away.name,
 
                 premiereTouche:
-                    "HOME"
+                    home.name
 
             },
 
@@ -189,32 +142,21 @@ class PredictionEngine {
 
     }
 
-    // ==============================
-    // MODE LIVE
-    // ==============================
-
-    async livePrediction(
-        liveData
-    ) {
+    async livePrediction(liveData) {
 
         return await this.predict({
 
-            home:
-                liveData.home,
+            home: liveData.home,
 
-            away:
-                liveData.away,
+            away: liveData.away,
 
             context: {
 
-                minute:
-                    liveData.minute,
+                minute: liveData.minute,
 
-                score:
-                    liveData.score,
+                score: liveData.score,
 
-                referee:
-                    liveData.referee
+                referee: liveData.referee
 
             }
 
