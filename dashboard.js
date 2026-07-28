@@ -9,168 +9,131 @@ class Dashboard {
 
     async afficher() {
 
+        const loading =
+            document.getElementById("loadingMessage");
+
+        const error =
+            document.getElementById("errorContainer");
+
         try {
 
-            const analyses = await Live.actualiser();
+            const analyses =
+                await Live.actualiser();
+
+            if (loading) {
+
+                loading.style.display = "none";
+
+            }
+
+            if (!analyses.length) {
+
+                if (error) {
+
+                    error.innerHTML =
+                        "❌ Aucun match disponible.";
+
+                }
+
+                return;
+
+            }
+
+            const resultat =
+                analyses[0].data;
+
+            document.getElementById("matchTitle").textContent =
+                resultat.match.homeTeam +
+                " VS " +
+                resultat.match.awayTeam;
+
+            document.getElementById("scorePrediction").textContent =
+                resultat.prediction.scoreExact;
+
+            document.getElementById("halfTimePrediction").textContent =
+                resultat.prediction.scoreMiTemps;
+
+            document.getElementById("cornerPrediction").textContent =
+                resultat.prediction.corners;
+
+            document.getElementById("cardsPrediction").textContent =
+                resultat.prediction.cartons;
+
+            document.getElementById("foulsPrediction").textContent =
+                resultat.prediction.fautes;
+
+            document.getElementById("bttsPrediction").textContent =
+                resultat.prediction.btts;
+
+            const confiance =
+                resultat.prediction.confiance;
+
+            document.getElementById("confidenceBar").style.width =
+                confiance + "%";
+
+            document.getElementById("confidenceBar").textContent =
+                confiance + "%";
 
             const container =
                 document.getElementById("matchesContainer");
 
-            if (container) {
+            container.innerHTML = "";
 
-                container.innerHTML = "";
+            analyses.forEach(match => {
 
-            }
+                const card =
+                    document.createElement("div");
 
-            analyses.forEach(resultat => {
+                card.className =
+                    "match-card";
 
-                const match =
-                    resultat.data.match;
+                card.innerHTML = `
 
-                const prediction =
-                    resultat.data.prediction;
+                    <h3>
+                        ${match.data.match.homeTeam}
+                        VS
+                        ${match.data.match.awayTeam}
+                    </h3>
 
-                // ==========================
-                // MISE À JOUR DU TABLEAU PRINCIPAL
-                // ==========================
+                    <p><strong>🎯 Score :</strong>
+                    ${match.data.prediction.scoreExact}</p>
 
-                const titre =
-                    document.getElementById("matchTitle");
+                    <p><strong>📊 Confiance :</strong>
+                    ${match.data.prediction.confiance}%</p>
 
-                if (titre) {
+                    <p><strong>🚩 Corners :</strong>
+                    ${match.data.prediction.corners}</p>
 
-                    titre.textContent =
-                        match.homeTeam +
-                        " VS " +
-                        match.awayTeam;
+                    <p><strong>🟨 Cartons :</strong>
+                    ${match.data.prediction.cartons}</p>
 
-                }
+                    <p><strong>❌ Fautes :</strong>
+                    ${match.data.prediction.fautes}</p>
 
-                const score =
-                    document.getElementById("scorePrediction");
+                `;
 
-                if (score) {
-
-                    score.textContent =
-                        prediction.scoreExact;
-
-                }
-
-                const miTemps =
-                    document.getElementById("halfTimePrediction");
-
-                if (miTemps && prediction.scoreMiTemps) {
-
-                    miTemps.textContent =
-                        prediction.scoreMiTemps;
-
-                }
-
-                const corners =
-                    document.getElementById("cornerPrediction");
-
-                if (corners && prediction.corners) {
-
-                    corners.textContent =
-                        prediction.corners;
-
-                }
-
-                const cartons =
-                    document.getElementById("cardsPrediction");
-
-                if (cartons && prediction.cartons) {
-
-                    cartons.textContent =
-                        prediction.cartons;
-
-                }
-
-                const fautes =
-                    document.getElementById("foulsPrediction");
-
-                if (fautes && prediction.fautes) {
-
-                    fautes.textContent =
-                        prediction.fautes;
-
-                }
-
-                const btts =
-                    document.getElementById("bttsPrediction");
-
-                if (btts && prediction.btts) {
-
-                    btts.textContent =
-                        prediction.btts;
-
-                }
-
-                const barre =
-                    document.querySelector(".progress-value");
-
-                if (barre) {
-
-                    barre.style.width =
-                        prediction.confiance + "%";
-
-                    barre.textContent =
-                        prediction.confiance + "%";
-
-                }
-
-                // ==========================
-                // CARTE DU MATCH
-                // ==========================
-
-                if (container) {
-
-                    const carte =
-                        document.createElement("div");
-
-                    carte.className =
-                        "match-card";
-
-                    carte.innerHTML = `
-
-                        <h3>${match.homeTeam} VS ${match.awayTeam}</h3>
-
-                        <p>🎯 Score : ${prediction.scoreExact}</p>
-
-                        <p>📊 Confiance : ${prediction.confiance}%</p>
-
-                        <p>🚩 Premier corner : ${prediction.events.premierCorner}</p>
-
-                        <p>🟨 Premier carton : ${prediction.events.premierCarton}</p>
-
-                        <p>❌ Première faute : ${prediction.events.premiereFaute}</p>
-
-                    `;
-
-                    container.appendChild(carte);
-
-                }
-
-                // ==========================
-                // CONSOLE (DEBUG)
-                // ==========================
-
-                console.log("=================================");
-                console.log(match.homeTeam + " VS " + match.awayTeam);
-                console.log("Score :", prediction.scoreExact);
-                console.log("Confiance :", prediction.confiance + "%");
-                console.log("=================================");
+                container.appendChild(card);
 
             });
 
         }
 
-        catch (erreur) {
+        catch (e) {
 
-            console.error(
-                "Erreur Dashboard :",
-                erreur
-            );
+            console.error(e);
+
+            if (loading) {
+
+                loading.style.display = "none";
+
+            }
+
+            if (error) {
+
+                error.innerHTML =
+                    "❌ Erreur lors du chargement des analyses.";
+
+            }
 
         }
 
