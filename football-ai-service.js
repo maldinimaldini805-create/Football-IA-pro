@@ -1,55 +1,119 @@
 // =====================================
 // FOOTBALL AI PRO 3.1
-// SERVICE
+// FOOTBALL AI SERVICE
 // =====================================
 
-import FootballAIController from "./football-ai-controller.js";
-
-const API_URL =
-"https://football-ai-pro-2.maldinimaldini805-4cd.workers.dev";
+import apiFootballService from "./api-football-service.js";
+import dataNormalizer from "./data-normalizer.js";
+import predictionEngine from "../ai-engine/prediction-engine.js";
 
 class FootballAIService {
 
-    async getMatches() {
+    async analyzeTodayMatches() {
 
         try {
 
-            const response = await fetch(API_URL + "/matches");
+            const fixtures =
+                await apiFootballService.getTodayMatches();
 
-            if (!response.ok) {
-                throw new Error("Impossible de récupérer les matchs.");
+            const analyses = [];
+
+            for (const fixture of fixtures) {
+
+                const home = fixture.teams.home;
+                const away = fixture.teams.away;
+
+                // Données temporaires
+                // Elles seront remplacées par les vraies
+                // statistiques API dans l'étape suivante.
+
+                const homeProfile =
+                    dataNormalizer.createAIProfile({
+
+                        attack: {
+                            goals: 2,
+                            shots: 14,
+                            shotsOnTarget: 6
+                        },
+
+                        defense: {
+                            goalsConceded: 1
+                        },
+
+                        possession: 58,
+                        corners: 6,
+                        fouls: 12,
+                        yellowCards: 2
+
+                    });
+
+                homeProfile.name = home.name;
+                homeProfile.elo = 1700;
+                homeProfile.possession = 58;
+
+                const awayProfile =
+                    dataNormalizer.createAIProfile({
+
+                        attack: {
+                            goals: 1,
+                            shots: 10,
+                            shotsOnTarget: 4
+                        },
+
+                        defense: {
+                            goalsConceded: 2
+                        },
+
+                        possession: 42,
+                        corners: 4,
+                        fouls: 14,
+                        yellowCards: 3
+
+                    });
+
+                awayProfile.name = away.name;
+                awayProfile.elo = 1650;
+                awayProfile.possession = 42;
+
+                const prediction =
+                    await predictionEngine.predict({
+
+                        home: homeProfile,
+                        away: awayProfile
+
+                    });
+
+                analyses.push({
+
+                    fixtureId: fixture.fixture.id,
+
+                    match: {
+
+                        homeTeam: home.name,
+                        awayTeam: away.name
+
+                    },
+
+                    prediction
+
+                });
+
             }
 
-            const json = await response.json();
+            return analyses;
 
-            return json.response || [];
+        }
 
-        } catch (e) {
+        catch (error) {
 
-            console.error(e);
+            console.error(
+                "Football AI Service :",
+                error
+            );
 
             return [];
 
         }
-
-    }
-
-    async analyserTousLesMatchs() {
-
-        const matchs = await this.getMatches();
-
-        const analyses = [];
-
-        for (const match of matchs) {
-
-            const resultat =
-                await FootballAIController.analyser(match, {});
-
-            analyses.push(resultat);
-
-        }
-
-        return analyses;
 
     }
 
