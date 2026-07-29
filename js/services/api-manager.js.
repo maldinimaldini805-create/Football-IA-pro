@@ -1,84 +1,21 @@
-// =====================================
-// FOOTBALL AI PRO 4.1
-// API MANAGER
-// =====================================
+// js/services/api-manager.js
+import apiFootballService from './api-football-service.js';
 
-class APIManager {
+export class APIManager {
+    async getMatchDataForPrediction(fixtureId, homeTeamId, awayTeamId) {
+        console.log(`📡 Récupération des données pour le match ID: ${fixtureId}...`);
 
-    constructor() {
-
-        this.providers = [
-
-            {
-                name: "API-FOOTBALL",
-                enabled: true,
-                baseUrl: "https://v3.football.api-sports.io"
-            },
-
-            {
-                name: "FOOTBALL-DATA",
-                enabled: false,
-                baseUrl: "https://api.football-data.org/v4"
-            },
-
-            {
-                name: "SPORTMONKS",
-                enabled: false,
-                baseUrl: "https://api.sportmonks.com/v3/football"
-            }
-
-        ];
-
-    }
-
-    getAvailableProvider() {
-
-        return this.providers.find(
-            provider => provider.enabled
-        );
-
-    }
-
-    setProvider(name) {
-
-        this.providers.forEach(provider => {
-
-            provider.enabled =
-                provider.name === name;
-
-        });
-
-    }
-
-    getCurrentProvider() {
-
-        return this.getAvailableProvider();
-
-    }
-
-    async fetch(endpoint) {
-
-        const provider =
-            this.getAvailableProvider();
-
-        if (!provider) {
-
-            throw new Error(
-                "Aucun fournisseur API disponible."
-            );
-
-        }
+        // Appel parallèle pour optimiser le temps de réponse
+        const [h2h, odds] = await Promise.all([
+            apiFootballService.getH2H(homeTeamId, awayTeamId),
+            apiFootballService.getMatchOdds(fixtureId)
+        ]);
 
         return {
-
-            provider: provider.name,
-
-            url: provider.baseUrl + endpoint
-
+            h2hData: h2h,
+            oddsData: odds
         };
-
     }
-
 }
 
 export default new APIManager();
