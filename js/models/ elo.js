@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 3.2
+// FOOTBALL AI PRO 4.1
 // ELO MODEL
 // =====================================
 
@@ -7,18 +7,30 @@ class EloModel {
 
     calculate(home, away) {
 
-        const homeElo = home.elo || 1500;
-        const awayElo = away.elo || 1500;
+        const homeElo =
+            home.elo ?? 1500;
 
-        const difference = homeElo - awayElo;
+        const awayElo =
+            away.elo ?? 1500;
+
+        const difference =
+            homeElo - awayElo;
+
+        const expectedHomeWin =
+            1 / (1 + Math.pow(10, (awayElo - homeElo) / 400));
+
+        const expectedAwayWin =
+            1 - expectedHomeWin;
 
         let winner = "Draw";
 
-        if (difference > 50) {
+        if (expectedHomeWin >= 0.55) {
 
             winner = home.name;
 
-        } else if (difference < -50) {
+        }
+
+        else if (expectedAwayWin >= 0.55) {
 
             winner = away.name;
 
@@ -31,6 +43,12 @@ class EloModel {
             awayElo,
 
             difference,
+
+            expectedHomeWin:
+                Number((expectedHomeWin * 100).toFixed(1)),
+
+            expectedAwayWin:
+                Number((expectedAwayWin * 100).toFixed(1)),
 
             winner
 
