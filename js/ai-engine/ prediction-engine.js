@@ -1,14 +1,14 @@
 // =====================================
-// FOOTBALL AI PRO 3.2
+// FOOTBALL AI PRO 4.1
 // PREDICTION ENGINE
 // =====================================
 
-import poisson from "./models/poisson.js";
-import elo from "./models/elo.js";
-import xgModel from "./models/xg-model.js";
-import cornerModel from "./models/corner-model.js";
-import cardsModel from "./models/cards-model.js";
-import ensemble from "./models/ensemble.js";
+import poisson from "../models/poisson.js";
+import elo from "../models/elo.js";
+import xgModel from "../models/xg-model.js";
+import cornerModel from "../models/corner-model.js";
+import cardsModel from "../models/cards-model.js";
+import ensemble from "../models/ensemble.js";
 
 class PredictionEngine {
 
