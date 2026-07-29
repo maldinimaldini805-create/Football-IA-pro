@@ -1,75 +1,121 @@
+// =====================================
+// FOOTBALL AI PRO 4.1
+// CLOUDFLARE WORKER
+// =====================================
+
+const API_KEY = "TA_CLE_API_ICI";
+const BASE_URL = "https://v3.football.api-sports.io";
+
 export default {
-  async fetch(request, env) {
+
+  async fetch(request) {
 
     const url = new URL(request.url);
 
-    const headers = {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json"
-    };
+    const endpoint = url.searchParams.get("endpoint");
 
-    // Test
-    if (url.pathname === "/") {
+    if (!endpoint) {
+
       return new Response(
+
         JSON.stringify({
-          success: true,
-          message: "Football AI Pro 2.1 API fonctionne"
+
+          success: false,
+
+          error: "Endpoint manquant"
+
         }),
-        { headers }
+
+        {
+
+          status: 400,
+
+          headers: {
+
+            "Content-Type": "application/json",
+
+            "Access-Control-Allow-Origin": "*"
+
+          }
+
+        }
+
       );
+
     }
 
-    // if (url.pathname === "/matches") {
-// =====================================
-// TEAM STATISTICS
-// =====================================
+    try {
 
-if (url.pathname === "/team-statistics") {
+      const response = await fetch(
 
-    const team = url.searchParams.get("team");
+        `${BASE_URL}${endpoint}`,
 
-    const response = await fetch(
-        `https://v3.football.api-sports.io/teams/statistics?league=39&season=2026&team=${team}`,
         {
-            headers: {
-                "x-apisports-key": env.API_FOOTBALL_KEY
-            }
+
+          headers: {
+
+            "x-apisports-key": API_KEY
+
+          }
+
         }
-    );
 
-    const data = await response.text();
+      );
 
-    return new Response(data, { headers });
+      const data = await response.text();
 
-}
-    const cache = caches.default;
-    const cacheKey = new Request(request.url);
+      return new Response(
 
-    let response = await cache.match(cacheKey);
+        data,
 
-    if (response) {
-        return response;
+        {
+
+          status: response.status,
+
+          headers: {
+
+            "Content-Type": "application/json",
+
+            "Access-Control-Allow-Origin": "*"
+
+          }
+
+        }
+
+      );
+
     }
 
-    const apiResponse = await fetch(
-        "https://v3.football.api-sports.io/fixtures?live=all",
+    catch (error) {
+
+      return new Response(
+
+        JSON.stringify({
+
+          success: false,
+
+          error: error.message
+
+        }),
+
         {
-            headers: {
-                "x-apisports-key": env.API_FOOTBALL_KEY
-            }
+
+          status: 500,
+
+          headers: {
+
+            "Content-Type": "application/json",
+
+            "Access-Control-Allow-Origin": "*"
+
+          }
+
         }
-    );
 
-    const data = await apiResponse.text();
+      );
 
-    response = new Response(data, {
-        headers: {
-            ...headers,
-            "Cache-Control": "public, max-age=300"
-        }
-    });
+    }
 
-    await cache.put(cacheKey, response.clone());
+  }
 
-    return response;
-}
+};
