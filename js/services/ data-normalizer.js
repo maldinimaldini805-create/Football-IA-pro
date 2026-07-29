@@ -1,51 +1,82 @@
 // =====================================
-// FOOTBALL AI PRO 3.2
+// FOOTBALL AI PRO 4.1
 // DATA NORMALIZER
 // =====================================
 
 class DataNormalizer {
 
-    normalizeTeam(team) {
+    createAIProfile(data) {
 
         return {
 
-            id: team.id,
+            id: data.id,
 
-            name: team.name,
+            name: data.name,
 
             attack: {
 
-                goals: team.goals || 0,
+                goals:
+                    data.attack?.goals ?? 0,
 
-                shots: team.shots || 0,
+                shots:
+                    data.attack?.shots ?? 0,
 
-                shotsOnTarget: team.shotsOnTarget || 0
+                shotsOnTarget:
+                    data.attack?.shotsOnTarget ?? 0
 
             },
 
             defense: {
 
-                goalsConceded: team.goalsConceded || 0
+                goalsConceded:
+                    data.defense?.goalsConceded ?? 0
 
             },
 
-            possession: team.possession || 50,
+            possession:
+                data.possession ?? 50,
 
-            corners: team.corners || 0,
+            corners:
+                data.corners ?? 0,
 
-            yellowCards: team.yellowCards || 0,
+            fouls:
+                data.fouls ?? 0,
 
-            fouls: team.fouls || 0,
+            yellowCards:
+                data.yellowCards ?? 0,
 
-            elo: team.elo || 1500
+            redCards:
+                data.redCards ?? 0,
+
+            elo:
+                data.elo ?? 1500,
+
+            form:
+                data.form ?? [],
+
+            injuries:
+                data.injuries ?? [],
+
+            lineup:
+                data.lineup ?? [],
+
+            statistics: {
+
+                wins:
+                    data.statistics?.wins ?? 0,
+
+                draws:
+                    data.statistics?.draws ?? 0,
+
+                losses:
+                    data.statistics?.losses ?? 0,
+
+                cleanSheets:
+                    data.statistics?.cleanSheets ?? 0
+
+            }
 
         };
-
-    }
-
-    createAIProfile(team) {
-
-        return this.normalizeTeam(team);
 
     }
 
