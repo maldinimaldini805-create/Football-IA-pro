@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 4.1
+// FOOTBALL AI PRO 4.2
 // FOOTBALL AI SERVICE
 // =====================================
 
@@ -16,9 +16,7 @@ class FootballAIService {
             const fixtures =
                 await apiFootballService.getTodayMatches();
 
-            if (!fixtures || fixtures.length === 0) {
-
-                console.log("Aucun match aujourd'hui.");
+            if (!fixtures.length) {
 
                 return [];
 
@@ -35,23 +33,7 @@ class FootballAIService {
                     dataNormalizer.createAIProfile({
 
                         id: home.id,
-                        name: home.name,
-
-                        attack: {
-                            goals: 2,
-                            shots: 14,
-                            shotsOnTarget: 6
-                        },
-
-                        defense: {
-                            goalsConceded: 1
-                        },
-
-                        possession: 58,
-                        corners: 6,
-                        fouls: 12,
-                        yellowCards: 2,
-                        elo: 1700
+                        name: home.name
 
                     });
 
@@ -59,23 +41,7 @@ class FootballAIService {
                     dataNormalizer.createAIProfile({
 
                         id: away.id,
-                        name: away.name,
-
-                        attack: {
-                            goals: 1,
-                            shots: 10,
-                            shotsOnTarget: 4
-                        },
-
-                        defense: {
-                            goalsConceded: 2
-                        },
-
-                        possession: 42,
-                        corners: 4,
-                        fouls: 14,
-                        yellowCards: 3,
-                        elo: 1650
+                        name: away.name
 
                     });
 
@@ -90,11 +56,11 @@ class FootballAIService {
 
                             fixtureId: fixture.fixture.id,
 
-                            referee: fixture.fixture.referee || null,
+                            league: fixture.league.name,
 
-                            league: fixture.league?.name,
+                            season: fixture.league.season,
 
-                            season: fixture.league?.season
+                            referee: fixture.fixture.referee
 
                         }
 
@@ -104,7 +70,7 @@ class FootballAIService {
 
                     fixtureId: fixture.fixture.id,
 
-                    league: fixture.league?.name,
+                    league: fixture.league.name,
 
                     date: fixture.fixture.date,
 
@@ -128,9 +94,7 @@ class FootballAIService {
 
         catch (error) {
 
-            console.error(
-                "Football AI Service :", error
-            );
+            console.error(error);
 
             return [];
 
