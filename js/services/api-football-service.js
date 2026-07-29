@@ -1,7 +1,7 @@
 // js/services/api-football-service.js
 
 // 🔑 Clé API correctement configurée
-const API_KEY = 'Valeur chiffrée';
+const API_KEY = 'adc6cbf2126fd9262c74e51cfbb12cfb';
 
 class APIFootballService {
     constructor() {
