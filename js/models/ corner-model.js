@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 3.2
+// FOOTBALL AI PRO 4.1
 // CORNER MODEL
 // =====================================
 
@@ -8,13 +8,21 @@ class CornerModel {
     calculate(home, away) {
 
         const homeCorners =
-            home.corners || 0;
+            home.corners ?? 0;
 
         const awayCorners =
-            away.corners || 0;
+            away.corners ?? 0;
 
         const totalCorners =
             homeCorners + awayCorners;
+
+        let prediction = "Moins de 9.5 corners";
+
+        if (totalCorners >= 10) {
+
+            prediction = "Plus de 9.5 corners";
+
+        }
 
         return {
 
@@ -24,11 +32,18 @@ class CornerModel {
 
             totalCorners,
 
-            prediction:
+            averageCorners:
+                Number((totalCorners / 2).toFixed(1)),
 
-                totalCorners >= 10
-                    ? "Plus de 9.5 corners"
-                    : "Moins de 9.5 corners"
+            prediction,
+
+            firstCorner:
+
+                homeCorners >= awayCorners
+
+                    ? home.name
+
+                    : away.name
 
         };
 
