@@ -1,10 +1,4 @@
-// =====================================
-// FOOTBALL AI PRO 4.0
-// API FOOTBALL SERVICE
-// =====================================
-
-const BASE_URL = "https://v3.football.api-sports.io";
-const API_KEY = "adc6cbf2126fd9262c74e51cfbb12cfb";
+cbf2126fd9262c74e51cfbb12cfb";
 
 class ApiFootballService {
 
