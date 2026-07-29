@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 3.1
+// FOOTBALL AI PRO 4.1
 // SUPER AI ENGINE
 // =====================================
 
@@ -100,32 +100,23 @@ class SuperAIEngine {
 
         return {
 
-            scoreExact:
-                prediction.scoreExact,
+            scoreExact: prediction.scoreExact,
 
-            scoreMiTemps:
-                prediction.scoreMiTemps,
+            scoreMiTemps: prediction.scoreMiTemps,
 
-            confiance:
-                prediction.confiance,
+            confiance: confidence,
 
-            winner:
-                prediction.winner,
+            winner: prediction.winner,
 
-            over25:
-                prediction.over25,
+            over25: prediction.over25,
 
-            btts:
-                prediction.btts,
+            btts: prediction.btts,
 
-            corners:
-                prediction.corners,
+            corners: prediction.corners,
 
-            cartons:
-                prediction.cartons,
+            cartons: prediction.cartons,
 
-            fautes:
-                prediction.fautes,
+            fautes: prediction.fautes,
 
             odds,
 
