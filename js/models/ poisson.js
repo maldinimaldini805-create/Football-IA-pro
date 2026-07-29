@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 3.2
+// FOOTBALL AI PRO 4.1
 // POISSON MODEL
 // =====================================
 
@@ -7,11 +7,23 @@ class PoissonModel {
 
     calculate(home, away) {
 
+        const homeAttack =
+            home.attack?.goals ?? 0;
+
+        const awayAttack =
+            away.attack?.goals ?? 0;
+
+        const homeDefense =
+            home.defense?.goalsConceded ?? 0;
+
+        const awayDefense =
+            away.defense?.goalsConceded ?? 0;
+
         const homeGoals =
             Math.max(
                 0,
                 Math.round(
-                    (home.attack.goals + away.defense.goalsConceded) / 2
+                    (homeAttack + awayDefense) / 2
                 )
             );
 
@@ -19,7 +31,7 @@ class PoissonModel {
             Math.max(
                 0,
                 Math.round(
-                    (away.attack.goals + home.defense.goalsConceded) / 2
+                    (awayAttack + homeDefense) / 2
                 )
             );
 
@@ -29,7 +41,17 @@ class PoissonModel {
 
             awayGoals,
 
-            score: `${homeGoals}-${awayGoals}`
+            score: `${homeGoals}-${awayGoals}`,
+
+            totalGoals:
+                homeGoals + awayGoals,
+
+            over25:
+                homeGoals + awayGoals > 2,
+
+            btts:
+                homeGoals > 0 &&
+                awayGoals > 0
 
         };
 
