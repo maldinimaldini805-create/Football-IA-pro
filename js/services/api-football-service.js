@@ -1,7 +1,7 @@
 // js/services/api-football-service.js
 
-// 🔑 Remplacer 'VOTRE_CLE_ICI' par votre vraie clé d'API
-const API_KEY = 'adc6cbf2126fd9262c74e51cfbb12cfb; 
+// 🔑 Clé API correctement configurée
+const API_KEY = 'adc6cbf2126fd9262c74e51cfbb12cfb';
 
 class APIFootballService {
     constructor() {
