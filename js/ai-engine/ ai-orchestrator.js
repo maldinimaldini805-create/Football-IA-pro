@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 3.1
+// FOOTBALL AI PRO 4.1
 // AI ORCHESTRATOR
 // =====================================
 
@@ -10,9 +10,11 @@ class AIOrchestrator {
 
     async analyser(match, data) {
 
-        const infos = MatchAnalyzer.analyser(match);
+        const infos =
+            MatchAnalyzer.analyser(match);
 
-        const prediction = SuperAIEngine.analyser(data);
+        const prediction =
+            await SuperAIEngine.analyser(data);
 
         return {
 
@@ -20,9 +22,11 @@ class AIOrchestrator {
 
             prediction,
 
-            generatedAt: new Date().toISOString(),
+            generatedAt:
+                new Date().toISOString(),
 
-            version: "Football AI Pro 3.1"
+            version:
+                "Football AI Pro 4.1"
 
         };
 
