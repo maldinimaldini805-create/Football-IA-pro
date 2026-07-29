@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 3.1
+// FOOTBALL AI PRO 4.1
 // MAIN CONTROLLER
 // =====================================
 
@@ -11,23 +11,32 @@ class FootballAIController {
 
         try {
 
-            const resultat = await AIOrchestrator.analyser(
-                match,
-                data
-            );
+            const resultat =
+                await AIOrchestrator.analyser(
+                    match,
+                    data
+                );
 
             return {
+
                 success: true,
+
                 data: resultat
+
             };
 
-        } catch (erreur) {
+        }
+
+        catch (erreur) {
 
             console.error(erreur);
 
             return {
+
                 success: false,
+
                 error: erreur.message
+
             };
 
         }
