@@ -1,60 +1,62 @@
-// =====================================
-// FOOTBALL AI PRO 4.2
-// API FOOTBALL SERVICE (Cloudflare)
-// =====================================
+// js/services/api-football-service.js
 
-const WORKER_URL =
-"https://football-ai-worker.maldinimaldini805-4cd.workers.dev";
+// 🔑 Remplacer 'VOTRE_CLE_ICI' par votre vraie clé d'API
+const API_KEY = 'adc6cbf2126fd9262c74e51cfbb12cfb; 
 
-class ApiFootballService {
+class APIFootballService {
+    constructor() {
+        this.apiKey = API_KEY;
+        this.baseUrl = 'https://v3.football.api-sports.io';
+        this.headers = {
+            'x-rapidapi-host': 'v3.football.api-sports.io',
+            'x-rapidapi-key': this.apiKey
+        };
+    }
 
-    async request(endpoint) {
-
-        const response = await fetch(
-
-            `${WORKER_URL}?endpoint=${encodeURIComponent(endpoint)}`
-
-        );
-
-        if (!response.ok) {
-
-            throw new Error(
-
-                `Erreur Cloudflare (${response.status})`
-
-            );
-
+    // Récupère les matchs d'une date donnée (ex: "2026-07-29")
+    async getFixturesByDate(dateStr) {
+        try {
+            const response = await fetch(`${this.baseUrl}/fixtures?date=${dateStr}`, {
+                method: 'GET',
+                headers: this.headers
+            });
+            const data = await response.json();
+            return data.response || [];
+        } catch (error) {
+            console.error("Erreur lors de la récupération des matchs :", error);
+            return [];
         }
-
-        const data = await response.json();
-
-        return data.response || [];
-
     }
 
-    async getTodayMatches() {
-
-        const today =
-            new Date().toISOString().split("T")[0];
-
-        return this.request(
-
-            `/fixtures?date=${today}`
-
-        );
-
+    // Récupère le face-à-face entre deux équipes
+    async getH2H(teamAId, teamBId) {
+        try {
+            const response = await fetch(`${this.baseUrl}/fixtures/headtohead?h2h=${teamAId}-${teamBId}`, {
+                method: 'GET',
+                headers: this.headers
+            });
+            const data = await response.json();
+            return data.response || [];
+        } catch (error) {
+            console.error("Erreur H2H :", error);
+            return [];
+        }
     }
 
-    async getFixture(id) {
-
-        return this.request(
-
-            `/fixtures?id=${id}`
-
-        );
-
+    // Récupère les cotes des bookmakers
+    async getMatchOdds(fixtureId) {
+        try {
+            const response = await fetch(`${this.baseUrl}/odds?fixture=${fixtureId}`, {
+                method: 'GET',
+                headers: this.headers
+            });
+            const data = await response.json();
+            return data.response || null;
+        } catch (error) {
+            console.error("Erreur Cotes :", error);
+            return null;
+        }
     }
-
 }
 
-export default new ApiFootballService();
+export default new APIFootballService();
