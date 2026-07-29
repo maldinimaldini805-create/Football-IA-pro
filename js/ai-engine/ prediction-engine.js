@@ -1,5 +1,5 @@
 // =====================================
-// FOOTBALL AI PRO 4.1
+// FOOTBALL AI PRO 4.2
 // PREDICTION ENGINE
 // =====================================
 
@@ -14,13 +14,9 @@ class PredictionEngine {
 
     async predict(matchData) {
 
-        const {
-            home,
-            away,
-            context = {}
-        } = matchData;
+        const { home, away, context = {} } = matchData;
 
-        const goalsPrediction =
+        const goals =
             poisson.calculate(home, away);
 
         const eloPrediction =
@@ -39,126 +35,17 @@ class PredictionEngine {
                 context.referee
             );
 
-        const finalPrediction =
-            ensemble.combine({
+        return ensemble.combine({
 
-                goals: goalsPrediction,
+            goals,
 
-                elo: eloPrediction,
+            elo: eloPrediction,
 
-                xg: xgPrediction,
+            xg: xgPrediction,
 
-                corners: cornersPrediction,
+            corners: cornersPrediction,
 
-                cards: cardsPrediction
-
-            });
-
-        return {
-
-            match: {
-
-                home: home.name,
-
-                away: away.name
-
-            },
-
-            scoreExact:
-                goalsPrediction.score,
-
-            scoreMiTemps:
-                "0 - 0",
-
-            winner:
-                eloPrediction.winner,
-
-            confiance:
-                finalPrediction.confidence,
-
-            confidence:
-                finalPrediction.confidence,
-
-            btts:
-                finalPrediction.btts,
-
-            over25:
-                finalPrediction.over25,
-
-            corners:
-                cornersPrediction.totalCorners,
-
-            cartons:
-                cardsPrediction.yellowCards,
-
-            fautes:
-                cardsPrediction.totalFouls,
-
-            events: {
-
-                premierCorner:
-                    cornersPrediction.homeCorners >
-                    cornersPrediction.awayCorners
-                        ? home.name
-                        : away.name,
-
-                premierCarton:
-                    "À déterminer",
-
-                premiereFaute:
-                    "À déterminer",
-
-                premierTirCadre:
-                    xgPrediction.homeXG >
-                    xgPrediction.awayXG
-                        ? home.name
-                        : away.name,
-
-                premiereTouche:
-                    home.name
-
-            },
-
-            details: {
-
-                poisson:
-                    goalsPrediction,
-
-                elo:
-                    eloPrediction,
-
-                xg:
-                    xgPrediction,
-
-                corners:
-                    cornersPrediction,
-
-                cards:
-                    cardsPrediction
-
-            }
-
-        };
-
-    }
-
-    async livePrediction(liveData) {
-
-        return await this.predict({
-
-            home: liveData.home,
-
-            away: liveData.away,
-
-            context: {
-
-                minute: liveData.minute,
-
-                score: liveData.score,
-
-                referee: liveData.referee
-
-            }
+            cards: cardsPrediction
 
         });
 
