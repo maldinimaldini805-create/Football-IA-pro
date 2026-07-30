@@ -1,24 +1,59 @@
-{
-  "name": "Football IA Pro",
-  "short_name": "Football IA",
-  "description": "Robot d'analyse et de prédiction de matchs de football",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "orientation": "portrait",
-  "icons": [
-    {
-      "src": "./logo.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
-}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football IA Pro</title>
+    
+    <!-- Feuilles de style -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    
+    <!-- Configuration PWA pour iPhone -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Football IA">
+</head>
+<body style="background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 15px; min-height: 100vh;">
+
+    <!-- 🏆 EN-TÊTE AVEC LE LOGO NÉON IA -->
+    <header style="text-align: center; padding: 20px 0 15px 0;">
+        <div style="display: inline-block; filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.5)); margin-bottom: 5px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="80" height="80">
+              <defs>
+                <linearGradient id="neonGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="100%" stop-color="#10b981" />
+                </linearGradient>
+              </defs>
+              <!-- Bouclier de fond -->
+              <path d="M100 15 L160 45 V105 C160 145 100 180 100 180 C100 180 40 145 40 105 V45 Z" 
+                    fill="#0f172a" stroke="url(#neonGlow)" stroke-width="6" stroke-linejoin="round"/>
+              <!-- Structure Robot / Ballon -->
+              <polygon points="100,55 125,75 115,105 85,105 75,75" fill="none" stroke="url(#neonGlow)" stroke-width="4"/>
+              <!-- Yeux Lumineux -->
+              <circle cx="80" cy="88" r="6" fill="#38bdf8" />
+              <circle cx="120" cy="88" r="6" fill="#10b981" />
+              <!-- Circuit bouche -->
+              <path d="M85 125 Q100 135 115 125" fill="none" stroke="url(#neonGlow)" stroke-width="4" stroke-linecap="round"/>
+              <line x1="100" y1="135" x2="100" y2="150" stroke="url(#neonGlow)" stroke-width="4"/>
+            </svg>
+        </div>
+        
+        <h1 style="margin: 8px 0 4px 0; font-size: 1.9rem; font-weight: 800; background: linear-gradient(135deg, #38bdf8, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Football IA Pro
+        </h1>
+        
+        <p id="total-matches" style="margin: 0; color: #94a3b8; font-size: 0.9rem; font-weight: 500;">
+            Initialisation du moteur IA...
+        </p>
+    </header>
+
+    <!-- ⚽ LISTE DES MATCHS ET ANALYSES -->
+    <main id="matches-container" style="max-width: 480px; margin: 0 auto; padding-bottom: 30px;"></main>
+
+    <!-- Chargement du script principal -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
