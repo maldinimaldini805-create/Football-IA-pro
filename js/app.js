@@ -1,28 +1,33 @@
 // js/app.js
 import aiOrchestrator from './ai-engine/ai-orchestrator.js';
 
-// Base de données des divisions par pays
 const divisionsData = {
-    "ENG": ["Premier League (D1)", "Championship (D2)", "League One (D3)", "League Two (D4)", "National League (D5)", "FA Cup"],
-    "ESP": ["La Liga (D1)", "La Liga 2 / Segunda (D2)", "Primera RFEF (D3)", "Copa del Rey"],
-    "ITA": ["Serie A (D1)", "Serie B (D2)", "Serie C (D3)", "Coppa Italia"],
-    "FRA": ["Ligue 1 (D1)", "Ligue 2 (D2)", "National 1 (D3)", "Coupe de France"],
-    "POR": ["Liga Portugal (D1)", "Liga Portugal 2 (D2)"],
-    "NED": ["Eredivisie (D1)", "Eerste Divisie (D2)"],
-    "GER": ["Bundesliga (D1)", "2. Bundesliga (D2)", "3. Liga (D3)"],
-    "BEL": ["Jupiler Pro League (D1)", "Challenger Pro League (D2)"],
-    "BRA": ["Série A (D1)", "Série B (D2)"],
-    "ARG": ["Liga Profesional (D1)", "Primera Nacional (D2)"],
+    "ENG": ["Premier League (D1)", "Championship (D2)", "League One (D3)", "FA Cup"],
+    "ESP": ["La Liga (D1)", "La Liga 2 (D2)", "Copa del Rey"],
+    "ITA": ["Serie A (D1)", "Serie B (D2)", "Coppa Italia"],
+    "FRA": ["Ligue 1 (D1)", "Ligue 2 (D2)", "Coupe de France"],
+    "POR": ["Liga Portugal (D1)"],
+    "NED": ["Eredivisie (D1)"],
+    "GER": ["Bundesliga (D1)", "2. Bundesliga (D2)"],
+    "BEL": ["Jupiler Pro League (D1)"],
+    "BRA": ["Série A (D1)"],
+    "ARG": ["Liga Profesional (D1)"],
     "AFR": ["CAF Champions League", "Botola Pro", "Ligue 1 Côte d'Ivoire"],
     "INT": ["UEFA Champions League", "UEFA Europa League"]
 };
 
-// Base de données complète enrichie (Météo, H2H, Dropping Odds, Joueurs)
+// Base de données enrichie avec Cartons, Touches, Fautes et Dégagements
 const mockMatches = [
     { 
         id: 201, country: "ESP", league: "La Liga (D1)", home: "Real Madrid", away: "FC Barcelone", 
         confidence: 88, status: "LIVE", homeScore: 2, awayScore: 1, elapsed: 64,
-        weather: { temp: "18°C", cond: "🌧️ Pluie Modérée", pitch: "Glissant", impact: "⚠️ -10% de buts, +20% de fauchages" },
+        stats: {
+            yellowCards: { home: 2, away: 3, total: 5, pred: "+4.5 Cartons (Cote 1.70)" },
+            throwIns: { home: 18, away: 15, total: 33, pred: "+32.5 Touches (Cote 1.85)" },
+            fouls: { home: 12, away: 14, total: 26, pred: "+23.5 Fautes (Cote 1.65)" },
+            clearances: { home: 8, away: 11, total: 19, pred: "+16.5 Dégagements (Cote 1.75)" }
+        },
+        weather: { temp: "18°C", cond: "🌧️ Pluie Modérée", pitch: "Glissant", impact: "⚠️ +20% de fautes et glissades" },
         droppingOdds: { initial: 2.20, current: 1.65, dropPercent: -25, reason: "🔥 Gros flux de parieurs sur Real Madrid" },
         h2h: ["Real 2-1 Barca", "Barca 1-3 Real", "Real 0-1 Barca", "Barca 2-2 Real", "Real 4-1 Barca"],
         playerProps: [
@@ -34,9 +39,15 @@ const mockMatches = [
     { 
         id: 202, country: "ENG", league: "Premier League (D1)", home: "Arsenal", away: "Liverpool", 
         confidence: 82, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0,
-        weather: { temp: "11°C", cond: "🌬️ Vent Fort (40km/h)", pitch: "Excellent", impact: "🎯 Tirs de loin favorisés" },
+        stats: {
+            yellowCards: { home: 0, away: 0, total: 0, pred: "Moins de 4.5 Cartons" },
+            throwIns: { home: 0, away: 0, total: 0, pred: "+36.5 Touches attendues" },
+            fouls: { home: 0, away: 0, total: 0, pred: "18 à 22 Fautes estimées" },
+            clearances: { home: 0, away: 0, total: 0, pred: "+14.5 Dégagements" }
+        },
+        weather: { temp: "11°C", cond: "🌬️ Vent Fort (40km/h)", pitch: "Excellent", impact: "🎯 Trajectoires de balle modifiées" },
         droppingOdds: { initial: 2.80, current: 2.15, dropPercent: -23, reason: "🚑 Blessure du gardien adverse" },
-        h2h: ["Arsenal 2-2 Liverpool", "Liverpool 1-1 Arsenal", "Arsenal 3-1 Liverpool", "Liverpool 0-2 Arsenal", "Arsenal 1-1 Liverpool"],
+        h2h: ["Arsenal 2-2 Liverpool", "Liverpool 1-1 Arsenal", "Arsenal 3-1 Liverpool", "Liverpool 0-2 Arsenal"],
         playerProps: [
             { player: "Bukayo Saka", team: "Arsenal", market: "Passeur ou Buteur", odds: 1.90, prob: 68 },
             { player: "Mohamed Salah", team: "Liverpool", market: "Buteur", odds: 2.10, prob: 60 }
@@ -45,22 +56,18 @@ const mockMatches = [
     { 
         id: 203, country: "ITA", league: "Serie A (D1)", home: "Inter Milan", away: "Juventus", 
         confidence: 84, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0,
-        weather: { temp: "22°C", cond: "☀️ Ensoleillé", pitch: "Parfait", impact: "⚡ Jeu rapide & contre-attaques" },
+        stats: {
+            yellowCards: { home: 0, away: 0, total: 0, pred: "+5.5 Cartons (Derby tendu)" },
+            throwIns: { home: 0, away: 0, total: 0, pred: "+34.5 Touches" },
+            fouls: { home: 0, away: 0, total: 0, pred: "+26.5 Fautes estimées" },
+            clearances: { home: 0, away: 0, total: 0, pred: "+18.5 Dégagements" }
+        },
+        weather: { temp: "22°C", cond: "☀️ Ensoleillé", pitch: "Parfait", impact: "⚡ Rythme rapide" },
         droppingOdds: null,
-        h2h: ["Inter 1-0 Juve", "Juve 1-1 Inter", "Inter 2-1 Juve", "Juve 0-1 Inter", "Inter 0-0 Juve"],
+        h2h: ["Inter 1-0 Juve", "Juve 1-1 Inter", "Inter 2-1 Juve"],
         playerProps: [
             { player: "Lautaro Martínez", team: "Inter Milan", market: "Buteur", odds: 2.20, prob: 58 },
             { player: "Nicolò Barella", team: "Inter Milan", market: "Carton Jaune", odds: 2.50, prob: 52 }
-        ]
-    },
-    { 
-        id: 204, country: "FRA", league: "Ligue 2 (D2)", home: "Auxerre", away: "Saint-Étienne", 
-        confidence: 78, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0,
-        weather: { temp: "14°C", cond: "☁️ Nuageux", pitch: "Bon", impact: "Match équilibré" },
-        droppingOdds: { initial: 2.45, current: 1.95, dropPercent: -20, reason: "📉 Suspension de 2 titulaires" },
-        h2h: ["Auxerre 1-1 ASSE", "ASSE 0-2 Auxerre", "Auxerre 1-0 ASSE", "ASSE 2-1 Auxerre", "Auxerre 0-0 ASSE"],
-        playerProps: [
-            { player: "Gauthier Hein", team: "Auxerre", market: "+1.5 Tirs", odds: 1.55, prob: 80 }
         ]
     }
 ];
@@ -76,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!container) return;
 
-    // Actualiser le sous-menu des divisions
     function updateDivisionOptions(countryCode) {
         divisionSelect.innerHTML = `<option value="ALL">⚽ Toutes les divisions de ce pays</option>`;
         if (countryCode !== "ALL" && divisionsData[countryCode]) {
@@ -89,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Afficher les matchs principaux
     function renderMatches() {
         const selectedCountry = countrySelect.value;
         const selectedDivision = divisionSelect.value;
@@ -112,12 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = '';
 
         if (filtered.length === 0) {
-            container.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 30px 10px;">🔍 Aucun match ne correspond à vos filtres.</div>`;
+            container.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 30px 10px;">🔍 Aucun match trouvé.</div>`;
             return;
         }
 
         filtered.forEach(match => {
             const isLive = match.status === "LIVE";
+            const s = match.stats;
             const card = document.createElement('div');
             card.style.cssText = "background: #1e293b; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; color: white;";
 
@@ -131,13 +137,50 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${match.home} <span style="color: #38bdf8;">vs</span> ${match.away}
                 </div>
 
-                <!-- 🌧️ ANALYSEUR MÉTÉO -->
-                <div style="background: #0f172a; padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                <!-- 📊 BLOC MÉTRIQUES : CARTONS, TOUCHES, FAUTES, DÉGAGEMENTS -->
+                <div style="background: #0f172a; padding: 10px; border-radius: 10px; border: 1px solid #334155; margin: 10px 0;">
+                    <div style="font-size: 0.75rem; font-weight: bold; color: #38bdf8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        📈 Stats & Marchés Spéciaux (Direct / IA)
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem;">
+                        <!-- CARTONS JAUNES -->
+                        <div style="background: #1e293b; padding: 8px; border-radius: 6px; border-left: 3px solid #f59e0b;">
+                            <div style="color: #f59e0b; font-weight: bold;">🟨 Cartons Jaunes</div>
+                            <div>${isLive ? `Live: <strong>${s.yellowCards.home} - ${s.yellowCards.away}</strong> (${s.yellowCards.total})` : 'En attente'}</div>
+                            <div style="color: #10b981; font-size: 0.7rem; margin-top: 2px;">🎯 ${s.yellowCards.pred}</div>
+                        </div>
+
+                        <!-- TOUCHES -->
+                        <div style="background: #1e293b; padding: 8px; border-radius: 6px; border-left: 3px solid #38bdf8;">
+                            <div style="color: #38bdf8; font-weight: bold;">🤾 Touches</div>
+                            <div>${isLive ? `Live: <strong>${s.throwIns.home} - ${s.throwIns.away}</strong> (${s.throwIns.total})` : 'En attente'}</div>
+                            <div style="color: #10b981; font-size: 0.7rem; margin-top: 2px;">🎯 ${s.throwIns.pred}</div>
+                        </div>
+
+                        <!-- FAUTES -->
+                        <div style="background: #1e293b; padding: 8px; border-radius: 6px; border-left: 3px solid #ef4444;">
+                            <div style="color: #ef4444; font-weight: bold;">⚠️ Fautes Commises</div>
+                            <div>${isLive ? `Live: <strong>${s.fouls.home} - ${s.fouls.away}</strong> (${s.fouls.total})` : 'En attente'}</div>
+                            <div style="color: #10b981; font-size: 0.7rem; margin-top: 2px;">🎯 ${s.fouls.pred}</div>
+                        </div>
+
+                        <!-- DÉGAGEMENTS / 6 METRES -->
+                        <div style="background: #1e293b; padding: 8px; border-radius: 6px; border-left: 3px solid #10b981;">
+                            <div style="color: #10b981; font-weight: bold;">🧤 Dégagements</div>
+                            <div>${isLive ? `Live: <strong>${s.clearances.home} - ${s.clearances.away}</strong> (${s.clearances.total})` : 'En attente'}</div>
+                            <div style="color: #10b981; font-size: 0.7rem; margin-top: 2px;">🎯 ${s.clearances.pred}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🌤️ MÉTÉO -->
+                <div style="background: #0f172a; padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; font-size: 0.75rem; display: flex; justify-content: space-between;">
                     <span>🌤️ ${match.weather.cond} (${match.weather.temp})</span>
                     <span style="color: #f59e0b; font-size: 0.7rem;">${match.weather.impact}</span>
                 </div>
 
-                <!-- BOUTONS D'ACTION (H2H + SIMULATION) -->
+                <!-- ACTIONS -->
                 <div style="display: flex; gap: 6px; margin-top: 10px;">
                     <button onclick="toggleH2H(${match.id})" style="flex: 1; padding: 8px; background: #334155; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.75rem;">
                         ⚔️ H2H (Historique)
@@ -162,7 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Render Dropping Odds
     function renderDroppingOdds() {
         if (!droppingContainer) return;
         droppingContainer.innerHTML = '';
@@ -180,15 +222,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="font-size: 0.75rem; color: #cbd5e1; margin-top: 4px;">
                     Cote initiale: <del>${d.initial}</del> ➔ Cote actuelle: <strong style="color:#10b981;">${d.current}</strong>
                 </div>
-                <div style="font-size: 0.7rem; color: #f59e0b; margin-top: 4px;">
-                    💡 Motif : ${d.reason}
-                </div>
+                <div style="font-size: 0.7rem; color: #f59e0b; margin-top: 4px;">💡 Motif : ${d.reason}</div>
             `;
             droppingContainer.appendChild(div);
         });
     }
 
-    // Render Players Props
     function renderPlayersProps() {
         if (!playersContainer) return;
         playersContainer.innerHTML = '';
@@ -230,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPlayersProps();
 });
 
-// Toggle H2H Block
 window.toggleH2H = (matchId) => {
     const block = document.getElementById(`h2h-block-${matchId}`);
     if (block) {
@@ -238,7 +276,6 @@ window.toggleH2H = (matchId) => {
     }
 };
 
-// Run IA Simulation
 window.runAnalysis = (matchId, home, away) => {
     const target = document.getElementById(`prediction-${matchId}`);
     if (!target) return;
@@ -247,15 +284,19 @@ window.runAnalysis = (matchId, home, away) => {
     setTimeout(() => {
         target.innerHTML = `
             <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #10b981; margin-top: 8px; font-size: 0.78rem;">
-                <span style="color: #10b981; font-weight: bold;">📊 Diagnostic IA :</span><br>
+                <span style="color: #10b981; font-weight: bold;">📊 Diagnostic Détaillé IA :</span><br>
                 Victoire ${home}: <strong>52%</strong> | Nul: <strong>25%</strong> | Victoire ${away}: <strong>23%</strong><br>
-                <span style="color: #38bdf8;">💡 Pari recommandé : Plus de 1.5 buts</span>
+                <div style="margin-top: 4px; color: #cbd5e1;">
+                    • 🟨 Cartons : <strong>+4.5 (68% proba)</strong><br>
+                    • 🤾 Touches : <strong>+32.5 (75% proba)</strong><br>
+                    • ⚠️ Fautes : <strong>+22.5 (81% proba)</strong><br>
+                    • 🧤 Dégagements : <strong>+16.5 (70% proba)</strong>
+                </div>
             </div>
         `;
     }, 300);
 };
 
-// 🔍 SCANNER DE TICKET PERSONNEL
 window.addScannerRow = () => {
     const container = document.getElementById('ticket-scanner-inputs');
     const div = document.createElement('div');
@@ -286,7 +327,7 @@ window.analyzeUserTicket = () => {
     });
 
     const realProb = (100 / (totalOdds * 1.25)).toFixed(1);
-    const weakest = items[items.length - 1]; // Le dernier ou le plus coté
+    const weakest = items[items.length - 1];
 
     resultDiv.innerHTML = `
         <div style="background: #0f172a; padding: 12px; border-radius: 10px; border: 1px solid #f59e0b; color: white; font-size: 0.8rem;">
@@ -300,13 +341,11 @@ window.analyzeUserTicket = () => {
     `;
 };
 
-// TEST NOTIFICATION PUSH WHATSAPP
 window.testPushNotification = () => {
-    const shareText = `🚨 *ALERTE LIVE FOOTBALL IA*%0A%0A🔥 *Real Madrid vs FC Barcelone (64 min)*%0AIndicateur de pression : *88%*%0A%0A👉 *Conseil IA :* Pariez sur 'But Avant la 75e minute' (Cote 1.75)`;
+    const shareText = `🚨 *ALERTE LIVE FOOTBALL IA*%0A%0A🔥 *Real Madrid vs FC Barcelone (64 min)*%0A🟨 Cartons: 5 | ⚠️ Fautes: 26 | 🤾 Touches: 33%0A%0A👉 *Conseil IA :* Pariez sur '+5.5 Cartons' (Cote 1.80)`;
     window.open(`https://wa.me/?text=${shareText}`, '_blank');
 };
 
-// GENERATEUR TICKET AUTOMATIQUE
 window.generateTicket = (type) => {
     const resultDiv = document.getElementById('ticket-result');
     resultDiv.innerHTML = `<div style="color:#38bdf8;">Calcul du combiné optimisé...</div>`;
@@ -315,8 +354,8 @@ window.generateTicket = (type) => {
             <div style="text-align:left;">
                 <h4 style="color:#10b981; margin:0 0 6px 0;">🎟️ Ticket Optimisé (Cote 2.45)</h4>
                 <div style="font-size:0.75rem; color:#cbd5e1;">
-                    • Real Madrid vs Barca ➔ +1.5 Buts (1.25)<br>
-                    • Arsenal vs Liverpool ➔ Arsenal ou Nul (1.30)<br>
+                    • Real Madrid vs Barca ➔ +4.5 Cartons Jaunes (1.70)<br>
+                    • Arsenal vs Liverpool ➔ +32.5 Touches (1.80)<br>
                     • Mbappé ➔ +0.5 tirs cadrés (1.50)
                 </div>
             </div>
