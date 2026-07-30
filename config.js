@@ -1,2 +1,2 @@
 // Ton fichier de configuration privé
-const API_KEY = "adc6cbf2126fd9262c74e51cfbb12cfb";
+const API_KEY = "4038a7be81c382ec4679f49f9cf5bf5f";
