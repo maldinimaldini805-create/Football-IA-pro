@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Football IA Pro</title>
+    <title>Football IA Pro - World Edition</title>
     
     <!-- Feuilles de style -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="dashboard.css">
     
-    <!-- Configuration PWA pour iPhone -->
+    <!-- Configuration PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,10 +17,10 @@
 </head>
 <body style="background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 15px 15px 95px 15px; min-height: 100vh;">
 
-    <!-- 🏆 EN-TÊTE AVEC LOGO NÉON IA -->
-    <header style="text-align: center; padding: 35px 0 10px 0;">
+    <!-- 🏆 EN-TÊTE DU ROBOT -->
+    <header style="text-align: center; padding: 25px 0 10px 0;">
         <div style="display: inline-block; filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.5)); margin-bottom: 5px;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="70" height="70">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="60" height="60">
               <defs>
                 <linearGradient id="neonGlow" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#38bdf8" />
@@ -32,48 +32,66 @@
               <circle cx="80" cy="88" r="6" fill="#38bdf8" />
               <circle cx="120" cy="88" r="6" fill="#10b981" />
               <path d="M85 125 Q100 135 115 125" fill="none" stroke="url(#neonGlow)" stroke-width="4" stroke-linecap="round"/>
-              <line x1="100" y1="135" x2="100" y2="150" stroke="url(#neonGlow)" stroke-width="4"/>
             </svg>
         </div>
         
-        <h1 style="margin: 4px 0; font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #38bdf8, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        <h1 style="margin: 2px 0; font-size: 1.7rem; font-weight: 800; background: linear-gradient(135deg, #38bdf8, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Football IA Pro
         </h1>
         
-        <p id="total-matches" style="margin: 0; color: #94a3b8; font-size: 0.85rem; font-weight: 500;">
-            Initialisation du moteur IA...
+        <p id="total-matches" style="margin: 0; color: #94a3b8; font-size: 0.8rem; font-weight: 500;">
+            Analyse mondiale en cours...
         </p>
     </header>
 
-    <!-- 📱 VUES DU MENU DE NAVIGATION -->
+    <!-- 📱 APPLICATION PRINCIPALE -->
     <main style="max-width: 480px; margin: 0 auto;">
         
-        <!-- SECTION 1 : LISTE DES MATCHS ET CHAMPIONNATS -->
+        <!-- SECTION MATCHS & FILTRES DE DIVISIONS -->
         <section id="tab-matches" class="app-tab">
-            <div style="margin: 10px 0 10px 0;">
-                <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe ou un pays..." 
-                       style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 0.9rem; box-sizing: border-box; outline: none;">
+            
+            <!-- 🔍 RECHERCHE UNIVERSELLE -->
+            <div style="margin: 10px 0 12px 0;">
+                <input type="text" id="search-input" placeholder="🔍 Rechercher équipe, ligue ou pays (ex: Portugal, D2, Serie B)..." 
+                       style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 0.85rem; box-sizing: border-box; outline: none;">
             </div>
 
-            <!-- 🌍 SÉLECTEUR DE CHAMPIONNATS (BARRE DÉROULANTE HORIZONTALE) -->
-            <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; scrollbar-width: none;">
-                <button class="league-btn active-league" onclick="filterByLeague('ALL', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #38bdf8; background: #38bdf8; color: #0f172a; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🌍 Tous</button>
-                <button class="league-btn" onclick="filterByLeague('UEFA Champions League', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🏆 Champions League</button>
-                <button class="league-btn" onclick="filterByLeague('Premier League', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🇬🇧 Premier League</button>
-                <button class="league-btn" onclick="filterByLeague('La Liga', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🇪🇸 La Liga</button>
-                <button class="league-btn" onclick="filterByLeague('Ligue 1', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🇫🇷 Ligue 1</button>
-                <button class="league-btn" onclick="filterByLeague('Serie A', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🇮🇹 Serie A</button>
-                <button class="league-btn" onclick="filterByLeague('Bundesliga', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🇩🇪 Bundesliga</button>
+            <!-- 🌍 FILTRE MONDIAL (PAYS & DIVISIONS) -->
+            <div style="background: #1e293b; padding: 12px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;">
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <!-- SÉLECTEUR DE PAYS -->
+                    <select id="country-select" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #38bdf8; font-weight: bold; font-size: 0.8rem; outline: none;">
+                        <option value="ALL">🌐 Tous les pays & Coupes</option>
+                        <option value="ENG">🇬🇧 Angleterre (D1 à D5)</option>
+                        <option value="ESP">🇪🇸 Espagne (D1 à D3)</option>
+                        <option value="ITA">🇮🇹 Italie (D1 à D3)</option>
+                        <option value="FRA">🇫🇷 France (D1 à D3)</option>
+                        <option value="POR">🇵🇹 Portugal (D1, D2)</option>
+                        <option value="NED">🇳🇱 Pays-Bas (D1, D2)</option>
+                        <option value="GER">🇩🇪 Allemagne (D1, D2, D3)</option>
+                        <option value="BEL">🇧🇪 Belgique (D1, D2)</option>
+                        <option value="BRA">🇧🇷 Brésil (Série A, B)</option>
+                        <option value="ARG">🇦🇷 Argentine (D1, D2)</option>
+                        <option value="AFR">🌍 Afrique & CAF</option>
+                        <option value="INT">🏆 UEFA / FIFA</option>
+                    </select>
+                </div>
+
+                <!-- SÉLECTEUR DE DIVISION DYNAMIQUE -->
+                <select id="division-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.8rem; outline: none;">
+                    <option value="ALL">⚽ Toutes les divisions du pays sélectionné</option>
+                </select>
             </div>
 
+            <!-- LISTE DES MATCHS FILTRÉS -->
             <div id="matches-container"></div>
         </section>
 
-        <!-- SECTION 2 : GÉNÉRATEUR DE TICKETS AUTOMATIQUES -->
+        <!-- SECTION 2 : GÉNÉRATEUR DE TICKETS -->
         <section id="tab-ticket" class="app-tab" style="display: none;">
             <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
-                <h3 style="color: #38bdf8; margin-top: 0;">🎟️ Générateur de Ticket IA</h3>
-                <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px;">Sélectionnez un profil pour générer un combiné optimisé :</p>
+                <h3 style="color: #38bdf8; margin-top: 0;">🎟️ Générateur Multiligues IA</h3>
+                <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px;">Combinaisons intelligentes incluant toutes les divisions :</p>
                 
                 <div style="display: flex; gap: 8px; margin-bottom: 15px;">
                     <button onclick="generateTicket('safe')" style="flex: 1; padding: 10px 5px; background: #059669; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🛡️ Sécurisé</button>
@@ -82,15 +100,15 @@
                 </div>
 
                 <div id="ticket-result" style="background: #0f172a; padding: 14px; border-radius: 10px; border: 1px dashed #38bdf8; min-height: 80px; text-align: center; color: #cbd5e1; font-size: 0.85rem;">
-                    Sélectionnez un mode ci-dessus pour composer un ticket.
+                    Sélectionnez un mode pour générer votre combiné.
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 3 : TOP VALUE BETS & BILAN IA -->
+        <!-- SECTION 3 : BILAN IA -->
         <section id="tab-value" class="app-tab" style="display: none;">
             <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 15px; border-radius: 12px; border: 1px solid #10b981; margin-bottom: 15px;">
-                <h3 style="color: #10b981; margin: 0 0 10px 0; font-size: 1rem;">📊 Bilan des Pronostics Robot</h3>
+                <h3 style="color: #10b981; margin: 0 0 10px 0; font-size: 1rem;">📊 Bilan Global du Moteur</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center;">
                     <div style="background: #0f172a; padding: 8px; border-radius: 8px;">
                         <span style="font-size: 0.7rem; color: #94a3b8;">Taux Réussite</span><br>
@@ -106,51 +124,23 @@
                     </div>
                 </div>
             </div>
-
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;">
-                <h3 style="color: #10b981; margin-top: 0;">🔥 Pépite IA de la Journée</h3>
-                <div style="background: #0f172a; padding: 12px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-                    <span style="background: #f59e0b; color: black; font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;">PÉPITE 88%</span>
-                    <p style="margin: 5px 0 2px 0; font-weight: bold; color: white;">Real Madrid vs Man City</p>
-                    <span style="font-size: 0.8rem; color: #38bdf8;">🎯 Conseil IA : Plus de 2.5 Buts (Cote estimée: 1.65)</span>
-                </div>
-            </div>
         </section>
 
-        <!-- SECTION 4 : MOTEUR IA & MACHINE LEARNING -->
+        <!-- SECTION 4 : REGISTRE IA -->
         <section id="tab-ml" class="app-tab" style="display: none;">
             <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
-                <h3 style="color: #38bdf8; margin-top: 0;">🧠 Centre d'Apprentissage IA</h3>
-                <p style="font-size: 0.85rem; color: #cbd5e1;">Pondération domicile : <strong style="color:#10b981;">1.15</strong></p>
-                <p style="font-size: 0.85rem; color: #cbd5e1;">Recalibration automatique : <strong style="color:#f59e0b;">Toutes les 2 semaines</strong></p>
+                <h3 style="color: #38bdf8; margin-top: 0;">🧠 Couverture Mondiale des Championnats</h3>
+                <p style="font-size: 0.8rem; color: #cbd5e1;">• <strong>Plus de 120 ligues couvertes</strong> dans +50 pays.</p>
+                <p style="font-size: 0.8rem; color: #cbd5e1;">• Intégration des données statistiques pour D1, D2, D3 et championnats nationaux.</p>
             </div>
         </section>
 
-        <!-- SECTION 5 : GESTION DE BANKROLL & CALCULATEUR VALUE -->
+        <!-- SECTION 5 : OUTILS BANKROLL -->
         <section id="tab-bankroll" class="app-tab" style="display: none;">
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px; margin-bottom: 15px;">
-                <h3 style="color: #f59e0b; margin-top: 0;">💰 Calculateur de Mise</h3>
-                <label style="font-size: 0.85rem; color: #94a3b8;">Capital Total (€) :</label>
-                <input type="number" id="bankroll-input" value="100" style="width: 100%; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; box-sizing: border-box;">
-                <p style="font-size: 0.85rem; color: #cbd5e1;">Mise conseillée par pari (3%) : <strong id="recommended-stake" style="color:#10b981;">3.00 €</strong></p>
-            </div>
-
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #38bdf8;">
-                <h3 style="color: #38bdf8; margin-top: 0;">🔀 Calculateur de Valeur (Value Bet)</h3>
-                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                    <div style="flex: 1;">
-                        <label style="font-size: 0.75rem; color: #94a3b8;">Cote Bookmaker :</label>
-                        <input type="number" step="0.01" id="bookmaker-odds" placeholder="Ex: 2.10" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; margin-top: 4px; box-sizing: border-box;">
-                    </div>
-                    <div style="flex: 1;">
-                        <label style="font-size: 0.75rem; color: #94a3b8;">Probabilité IA (%) :</label>
-                        <input type="number" id="ai-prob" placeholder="Ex: 55" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; margin-top: 4px; box-sizing: border-box;">
-                    </div>
-                </div>
-                <button onclick="calculateValueBet()" style="width: 100%; padding: 10px; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                    ⚡ Calculer l'Avantage
-                </button>
-                <div id="value-result" style="margin-top: 10px; font-size: 0.85rem; color: #cbd5e1;"></div>
+            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
+                <h3 style="color: #f59e0b; margin-top: 0;">💰 Calculateur de Stake (3%)</h3>
+                <input type="number" id="bankroll-input" value="100" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; box-sizing: border-box;">
+                <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 10px;">Mise recommandée : <strong id="recommended-stake" style="color:#10b981;">3.00 €</strong></p>
             </div>
         </section>
 
@@ -175,7 +165,6 @@
         </button>
     </nav>
 
-    <!-- SCRIPT DU MENU -->
     <script>
         function switchTab(tabName) {
             document.querySelectorAll('.app-tab').forEach(tab => tab.style.display = 'none');
@@ -193,7 +182,6 @@
         });
     </script>
 
-    <!-- Chargement du script principal -->
     <script type="module" src="js/app.js"></script>
 </body>
 </html>
