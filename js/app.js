@@ -16,11 +16,18 @@ const divisionsData = {
     "INT": ["UEFA Champions League", "UEFA Europa League"]
 };
 
-// Base de données enrichie avec Cartons, Touches, Fautes et Dégagements
+// Base de données enrichie avec section Buts complète + Métriques
 const mockMatches = [
     { 
         id: 201, country: "ESP", league: "La Liga (D1)", home: "Real Madrid", away: "FC Barcelone", 
         confidence: 88, status: "LIVE", homeScore: 2, awayScore: 1, elapsed: 64,
+        goalsData: {
+            totalGoals: "3 buts inscrits",
+            overUnderPred: "+3.5 Buts dans le match (Cote 1.80)",
+            btts: "Les 2 équipes marquent : OUI (Validé ✅)",
+            nextGoalWindow: "🔥 85% de chance d'un but entre la 65' et 80'",
+            topScorers: "K. Mbappé (42'), R. Lewandowski (55'), V. Junior (18')"
+        },
         stats: {
             yellowCards: { home: 2, away: 3, total: 5, pred: "+4.5 Cartons (Cote 1.70)" },
             throwIns: { home: 18, away: 15, total: 33, pred: "+32.5 Touches (Cote 1.85)" },
@@ -39,6 +46,13 @@ const mockMatches = [
     { 
         id: 202, country: "ENG", league: "Premier League (D1)", home: "Arsenal", away: "Liverpool", 
         confidence: 82, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0,
+        goalsData: {
+            totalGoals: "0 but (Avant-match)",
+            overUnderPred: "+2.5 Buts recommandés (Cote 1.65 - 78% proba)",
+            btts: "Les 2 équipes marquent : OUI (Cote 1.55)",
+            nextGoalWindow: "⏱️ Premier but estimé entre 15' et 30'",
+            topScorers: "B. Saka, M. Salah (Favoris pour marquer)"
+        },
         stats: {
             yellowCards: { home: 0, away: 0, total: 0, pred: "Moins de 4.5 Cartons" },
             throwIns: { home: 0, away: 0, total: 0, pred: "+36.5 Touches attendues" },
@@ -56,6 +70,13 @@ const mockMatches = [
     { 
         id: 203, country: "ITA", league: "Serie A (D1)", home: "Inter Milan", away: "Juventus", 
         confidence: 84, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0,
+        goalsData: {
+            totalGoals: "0 but (Avant-match)",
+            overUnderPred: "Moins de 2.5 Buts (Cote 1.90 - Match fermé)",
+            btts: "Les 2 équipes marquent : NON (Cote 1.85)",
+            nextGoalWindow: "⏱️ But tardif possible (70'-90')",
+            topScorers: "L. Martínez (Principale menace)"
+        },
         stats: {
             yellowCards: { home: 0, away: 0, total: 0, pred: "+5.5 Cartons (Derby tendu)" },
             throwIns: { home: 0, away: 0, total: 0, pred: "+34.5 Touches" },
@@ -124,51 +145,64 @@ document.addEventListener('DOMContentLoaded', () => {
         filtered.forEach(match => {
             const isLive = match.status === "LIVE";
             const s = match.stats;
+            const g = match.goalsData;
             const card = document.createElement('div');
             card.style.cssText = "background: #1e293b; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; color: white;";
 
             card.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <span style="font-size: 0.8rem; color: #38bdf8; font-weight: bold;">🏆 ${match.league}</span>
-                    ${isLive ? `<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">🔴 LIVE ${match.elapsed}' [${match.homeScore}-${match.awayScore}]</span>` : `<span style="color: #94a3b8; font-size: 0.75rem;">📅 À venir</span>`}
+                    ${isLive ? `<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">🔴 LIVE ${match.elapsed}'</span>` : `<span style="color: #94a3b8; font-size: 0.75rem;">📅 À venir</span>`}
                 </div>
 
-                <div style="font-size: 1.1rem; font-weight: bold; text-align: center; margin: 8px 0;">
-                    ${match.home} <span style="color: #38bdf8;">vs</span> ${match.away}
+                <!-- AFFICHAGE SCORE DE MATCH GRAND FORMAT -->
+                <div style="background: #0f172a; border-radius: 10px; padding: 12px; text-align: center; margin: 8px 0; border: 1px solid #38bdf8;">
+                    <div style="font-size: 1.1rem; font-weight: bold;">
+                        ${match.home} <span style="color: #10b981; font-size: 1.4rem; font-weight: 900; margin: 0 6px;">${isLive ? `${match.homeScore} - ${match.awayScore}` : 'VS'}</span> ${match.away}
+                    </div>
+                </div>
+
+                <!-- ⚽ NOUVEAU BLOC DÉDIÉ AUX BUTS & PRÉDICTIONS D'OFFENSE -->
+                <div style="background: #0f172a; padding: 10px; border-radius: 10px; border-left: 4px solid #10b981; margin: 10px 0;">
+                    <div style="font-size: 0.78rem; font-weight: bold; color: #10b981; margin-bottom: 6px;">
+                        ⚽ ANNONCES & MARCHE BUTS (IA)
+                    </div>
+                    <div style="font-size: 0.75rem; color: #f8fafc; line-height: 1.5;">
+                        <div>• 🎯 <strong>Nombre de Buts :</strong> <span style="color: #38bdf8;">${g.overUnderPred}</span></div>
+                        <div>• 🥅 <strong>Les 2 Équipes Marquent :</strong> ${g.btts}</div>
+                        <div>• ⏱️ <strong>Créneau Prochain But :</strong> ${g.nextGoalWindow}</div>
+                        <div>• 👟 <strong>Buteurs / Réalisateurs :</strong> <span style="color: #f59e0b;">${g.topScorers}</span></div>
+                    </div>
                 </div>
 
                 <!-- 📊 BLOC MÉTRIQUES : CARTONS, TOUCHES, FAUTES, DÉGAGEMENTS -->
                 <div style="background: #0f172a; padding: 10px; border-radius: 10px; border: 1px solid #334155; margin: 10px 0;">
-                    <div style="font-size: 0.75rem; font-weight: bold; color: #38bdf8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
-                        📈 Stats & Marchés Spéciaux (Direct / IA)
+                    <div style="font-size: 0.75rem; font-weight: bold; color: #38bdf8; margin-bottom: 8px; text-transform: uppercase;">
+                        📈 Autres Métriques Spéciales
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem;">
-                        <!-- CARTONS JAUNES -->
                         <div style="background: #1e293b; padding: 8px; border-radius: 6px; border-left: 3px solid #f59e0b;">
                             <div style="color: #f59e0b; font-weight: bold;">🟨 Cartons Jaunes</div>
-                            <div>${isLive ? `Live: <strong>${s.yellowCards.home} - ${s.yellowCards.away}</strong> (${s.yellowCards.total})` : 'En attente'}</div>
+                            <div>${isLive ? `Live: <strong>${s.yellowCards.home} - ${s.yellowCards.away}</strong>` : 'À venir'}</div>
                             <div style="color: #10b981; font-size: 0.7rem; margin-top: 2px;">🎯 ${s.yellowCards.pred}</div>
                         </div>
 
-                        <!-- TOUCHES -->
                         <div style="background: #1e293b; padding: 8px; border-radius: 6px; border-left: 3px solid #38bdf8;">
                             <div style="color: #38bdf8; font-weight: bold;">🤾 Touches</div>
-                            <div>${isLive ? `Live: <strong>${s.throwIns.home} - ${s.throwIns.away}</strong> (${s.throwIns.total})` : 'En attente'}</div>
+                            <div>${isLive ? `Live: <strong>${s.throwIns.home} - ${s.throwIns.away}</strong>` : 'À venir'}</div>
                             <div style="color: #10b981; font-size: 0.7rem; margin-top: 2px;">🎯 ${s.throwIns.pred}</div>
                         </div>
 
-                        <!-- FAUTES -->
                         <div style="background: #1e293b; padding: 8px; border-radius: 6px; border-left: 3px solid #ef4444;">
                             <div style="color: #ef4444; font-weight: bold;">⚠️ Fautes Commises</div>
-                            <div>${isLive ? `Live: <strong>${s.fouls.home} - ${s.fouls.away}</strong> (${s.fouls.total})` : 'En attente'}</div>
+                            <div>${isLive ? `Live: <strong>${s.fouls.home} - ${s.fouls.away}</strong>` : 'À venir'}</div>
                             <div style="color: #10b981; font-size: 0.7rem; margin-top: 2px;">🎯 ${s.fouls.pred}</div>
                         </div>
 
-                        <!-- DÉGAGEMENTS / 6 METRES -->
                         <div style="background: #1e293b; padding: 8px; border-radius: 6px; border-left: 3px solid #10b981;">
                             <div style="color: #10b981; font-weight: bold;">🧤 Dégagements</div>
-                            <div>${isLive ? `Live: <strong>${s.clearances.home} - ${s.clearances.away}</strong> (${s.clearances.total})` : 'En attente'}</div>
+                            <div>${isLive ? `Live: <strong>${s.clearances.home} - ${s.clearances.away}</strong>` : 'À venir'}</div>
                             <div style="color: #10b981; font-size: 0.7rem; margin-top: 2px;">🎯 ${s.clearances.pred}</div>
                         </div>
                     </div>
@@ -284,13 +318,13 @@ window.runAnalysis = (matchId, home, away) => {
     setTimeout(() => {
         target.innerHTML = `
             <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #10b981; margin-top: 8px; font-size: 0.78rem;">
-                <span style="color: #10b981; font-weight: bold;">📊 Diagnostic Détaillé IA :</span><br>
+                <span style="color: #10b981; font-weight: bold;">📊 Diagnostic Buts & Scenarios :</span><br>
                 Victoire ${home}: <strong>52%</strong> | Nul: <strong>25%</strong> | Victoire ${away}: <strong>23%</strong><br>
                 <div style="margin-top: 4px; color: #cbd5e1;">
+                    • ⚽ Projection Buts : <strong>+2.5 Buts (78% proba)</strong><br>
+                    • 🥅 Les 2 Équipes Marquent : <strong>OUI (65% proba)</strong><br>
                     • 🟨 Cartons : <strong>+4.5 (68% proba)</strong><br>
-                    • 🤾 Touches : <strong>+32.5 (75% proba)</strong><br>
-                    • ⚠️ Fautes : <strong>+22.5 (81% proba)</strong><br>
-                    • 🧤 Dégagements : <strong>+16.5 (70% proba)</strong>
+                    • 🤾 Touches : <strong>+32.5 (75% proba)</strong>
                 </div>
             </div>
         `;
@@ -335,14 +369,14 @@ window.analyzeUserTicket = () => {
             <div>Cote Totale Bookmaker : <strong style="color:#38bdf8;">${totalOdds.toFixed(2)}</strong></div>
             <div>Probabilité Réelle IA : <strong style="color:#10b981;">${realProb}%</strong></div>
             <div style="margin-top: 6px; color: #ef4444; background: #1e293b; padding: 6px; border-radius: 6px;">
-                ⚠️ <strong>Maillon Faible Détecté :</strong> ${weakest.match} (${weakest.pick}) - Conseil : Sécurisez en Cashout ou Marge Nulle.
+                ⚠️ <strong>Maillon Faible Détecté :</strong> ${weakest.match} (${weakest.pick}) - Conseil : Sécurisez en Cashout.
             </div>
         </div>
     `;
 };
 
 window.testPushNotification = () => {
-    const shareText = `🚨 *ALERTE LIVE FOOTBALL IA*%0A%0A🔥 *Real Madrid vs FC Barcelone (64 min)*%0A🟨 Cartons: 5 | ⚠️ Fautes: 26 | 🤾 Touches: 33%0A%0A👉 *Conseil IA :* Pariez sur '+5.5 Cartons' (Cote 1.80)`;
+    const shareText = `🚨 *ALERTE LIVE FOOTBALL IA*%0A%0A🔥 *Real Madrid vs FC Barcelone (64 min)*%0AScore : 2-1 (Total 3 Buts)%0A%0A👉 *Conseil IA :* Pariez sur '+3.5 Buts' (Cote 1.80)`;
     window.open(`https://wa.me/?text=${shareText}`, '_blank');
 };
 
@@ -354,9 +388,9 @@ window.generateTicket = (type) => {
             <div style="text-align:left;">
                 <h4 style="color:#10b981; margin:0 0 6px 0;">🎟️ Ticket Optimisé (Cote 2.45)</h4>
                 <div style="font-size:0.75rem; color:#cbd5e1;">
-                    • Real Madrid vs Barca ➔ +4.5 Cartons Jaunes (1.70)<br>
-                    • Arsenal vs Liverpool ➔ +32.5 Touches (1.80)<br>
-                    • Mbappé ➔ +0.5 tirs cadrés (1.50)
+                    • Real Madrid vs Barca ➔ +2.5 Buts dans le match (1.65)<br>
+                    • Arsenal vs Liverpool ➔ Les 2 équipes marquent (1.55)<br>
+                    • Mbappé ➔ Buteur (1.85)
                 </div>
             </div>
         `;
