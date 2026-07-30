@@ -1,311 +1,209 @@
 // js/app.js
 import aiOrchestrator from './ai-engine/ai-orchestrator.js';
 
-let selectedLeague = "ALL";
+// Base de données des divisions par pays
+const divisionsData = {
+    "ENG": ["Premier League (D1)", "Championship (D2)", "League One (D3)", "League Two (D4)", "National League (D5)", "FA Cup / League Cup"],
+    "ESP": ["La Liga (D1)", "La Liga 2 / Segunda (D2)", "Primera RFEF (D3)", "Copa del Rey"],
+    "ITA": ["Serie A (D1)", "Serie B (D2)", "Serie C - Groupe A/B/C (D3)", "Coppa Italia"],
+    "FRA": ["Ligue 1 (D1)", "Ligue 2 (D2)", "National 1 (D3)", "Coupe de France"],
+    "POR": ["Liga Portugal / Primeira (D1)", "Liga Portugal 2 (D2)", "Taça de Portugal"],
+    "NED": ["Eredivisie (D1)", "Eerste Divisie (D2)", "KNVB Beker"],
+    "GER": ["Bundesliga (D1)", "2. Bundesliga (D2)", "3. Liga (D3)", "DFB Pokal"],
+    "BEL": ["Jupiler Pro League (D1)", "Challenger Pro League (D2)"],
+    "BRA": ["Série A (D1)", "Série B (D2)", "Copa do Brasil"],
+    "ARG": ["Liga Profesional (D1)", "Primera Nacional (D2)"],
+    "AFR": ["CAF Champions League", "Coupe de la Confédération", "Ligue 1 Côte d'Ivoire", "Botola Pro Maroc", "Ligue 1 Sénégal"],
+    "INT": ["UEFA Champions League", "UEFA Europa League", "UEFA Conference League", "Éliminatoires Coupe du Monde"]
+};
 
-document.addEventListener('DOMContentLoaded', async () => {
+// Base de matchs exemple couvrant de nombreuses divisions mondiales
+const mockMatches = [
+    // 🇬🇧 ANGLETERRE
+    { id: 101, country: "ENG", league: "Premier League (D1)", home: "Arsenal", away: "Liverpool", confidence: 82, status: "NS" },
+    { id: 102, country: "ENG", league: "Championship (D2)", home: "Leicester City", away: "Leeds United", confidence: 78, status: "NS" },
+    { id: 103, country: "ENG", league: "League One (D3)", home: "Bolton", away: "Portsmouth", confidence: 75, status: "NS" },
+
+    // 🇪🇸 ESPAGNE
+    { id: 104, country: "ESP", league: "La Liga (D1)", home: "Real Madrid", away: "FC Barcelone", confidence: 89, status: "LIVE", homeScore: 2, awayScore: 1, elapsed: 68 },
+    { id: 105, country: "ESP", league: "La Liga 2 / Segunda (D2)", home: "Espanyol", away: "Real Zaragoza", confidence: 76, status: "NS" },
+
+    // 🇮🇹 ITALIE
+    { id: 106, country: "ITA", league: "Serie A (D1)", home: "Inter Milan", away: "Juventus", confidence: 84, status: "NS" },
+    { id: 107, country: "ITA", league: "Serie B (D2)", home: "Parma", away: "Palermo", confidence: 74, status: "NS" },
+    { id: 108, country: "ITA", league: "Serie C - Groupe A/B/C (D3)", home: "Cesena", away: "Torres", confidence: 71, status: "NS" },
+
+    // 🇫🇷 FRANCE
+    { id: 109, country: "FRA", league: "Ligue 1 (D1)", home: "PSG", away: "Marseille", confidence: 86, status: "NS" },
+    { id: 110, country: "FRA", league: "Ligue 2 (D2)", home: "Auxerre", away: "Saint-Étienne", confidence: 77, status: "NS" },
+    { id: 111, country: "FRA", league: "National 1 (D3)", home: "Red Star", away: "Niort", confidence: 72, status: "NS" },
+
+    // 🇵🇹 PORTUGAL
+    { id: 112, country: "POR", league: "Liga Portugal / Primeira (D1)", home: "Benfica", away: "Sporting CP", confidence: 85, status: "NS" },
+    { id: 113, country: "POR", league: "Liga Portugal 2 (D2)", home: "Santa Clara", away: "AVS", confidence: 73, status: "NS" },
+
+    // 🇳🇱 PAYS-BAS
+    { id: 114, country: "NED", league: "Eredivisie (D1)", home: "PSV Eindhoven", away: "Ajax", confidence: 83, status: "NS" },
+    { id: 115, country: "NED", league: "Eerste Divisie (D2)", home: "Willem II", away: "Roda JC", confidence: 75, status: "NS" },
+
+    // 🌍 AFRIQUE
+    { id: 116, country: "AFR", league: "CAF Champions League", home: "Al Ahly", away: "Mamelodi Sundowns", confidence: 80, status: "NS" },
+    { id: 117, country: "AFR", league: "Ligue 1 Côte d'Ivoire", home: "ASEC Mimosas", away: "Stella Club", confidence: 76, status: "NS" }
+];
+
+document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('matches-container');
-    const totalMatchesElem = document.getElementById('total-matches');
+    const countrySelect = document.getElementById('country-select');
+    const divisionSelect = document.getElementById('division-select');
     const searchInput = document.getElementById('search-input');
+    const totalMatchesElem = document.getElementById('total-matches');
 
     if (!container) return;
 
-    // Matches de différents championnats du monde
-    const mockMatches = [
-        { 
-            fixture: { id: 201, status: "LIVE", elapsed: 34 }, 
-            league: { name: "UEFA Champions League" }, 
-            teams: { 
-                home: { id: 1, name: "Real Madrid", form: ["W", "W", "D", "W", "W"] }, 
-                away: { id: 2, name: "Man City", form: ["W", "L", "W", "W", "D"] } 
-            }, 
-            score: { home: 1, away: 0 },
-            confidence: 88,
-            referee: { name: "Daniele Orsato", avgCards: 4.8 },
-            liveMomentum: { home: 75, away: 25, alert: "🔥 BUT IMMINENT (Real Madrid)" }
-        },
-        { 
-            fixture: { id: 202, status: "NS", elapsed: 0 }, 
-            league: { name: "Premier League" }, 
-            teams: { 
-                home: { id: 3, name: "Arsenal", form: ["W", "W", "W", "D", "L"] }, 
-                away: { id: 4, name: "Liverpool", form: ["D", "W", "W", "W", "W"] } 
-            }, 
-            score: { home: 0, away: 0 },
-            confidence: 79,
-            referee: { name: "Anthony Taylor", avgCards: 3.9 },
-            liveMomentum: null
-        },
-        { 
-            fixture: { id: 203, status: "NS", elapsed: 0 }, 
-            league: { name: "La Liga" }, 
-            teams: { 
-                home: { id: 5, name: "FC Barcelone", form: ["W", "W", "W", "W", "D"] }, 
-                away: { id: 6, name: "Atlético Madrid", form: ["W", "D", "W", "L", "W"] } 
-            }, 
-            score: { home: 0, away: 0 },
-            confidence: 84,
-            referee: { name: "Mateu Lahoz", avgCards: 5.1 },
-            liveMomentum: null
-        },
-        { 
-            fixture: { id: 204, status: "NS", elapsed: 0 }, 
-            league: { name: "Ligue 1" }, 
-            teams: { 
-                home: { id: 7, name: "PSG", form: ["W", "W", "W", "W", "D"] }, 
-                away: { id: 8, name: "Marseille", form: ["L", "D", "W", "L", "W"] } 
-            }, 
-            score: { home: 0, away: 0 },
-            confidence: 86,
-            referee: { name: "Clément Turpin", avgCards: 4.2 },
-            liveMomentum: null
-        },
-        { 
-            fixture: { id: 205, status: "NS", elapsed: 0 }, 
-            league: { name: "Serie A" }, 
-            teams: { 
-                home: { id: 9, name: "Inter Milan", form: ["W", "W", "D", "W", "W"] }, 
-                away: { id: 10, name: "AC Milan", form: ["D", "W", "L", "W", "D"] } 
-            }, 
-            score: { home: 0, away: 0 },
-            confidence: 82,
-            referee: { name: "Davide Massa", avgCards: 4.5 },
-            liveMomentum: null
-        },
-        { 
-            fixture: { id: 206, status: "NS", elapsed: 0 }, 
-            league: { name: "Bundesliga" }, 
-            teams: { 
-                home: { id: 11, name: "Bayern Munich", form: ["W", "W", "W", "W", "W"] }, 
-                away: { id: 12, name: "Dortmund", form: ["W", "L", "D", "W", "L"] } 
-            }, 
-            score: { home: 0, away: 0 },
-            confidence: 89,
-            referee: { name: "Felix Zwayer", avgCards: 3.8 },
-            liveMomentum: null
+    // Mise à jour de la liste des divisions en fonction du pays
+    function updateDivisionOptions(countryCode) {
+        divisionSelect.innerHTML = `<option value="ALL">⚽ Toutes les divisions de ce pays</option>`;
+        
+        if (countryCode !== "ALL" && divisionsData[countryCode]) {
+            divisionsData[countryCode].forEach(div => {
+                const opt = document.createElement('option');
+                opt.value = div;
+                opt.textContent = div;
+                divisionSelect.appendChild(opt);
+            });
         }
-    ];
-
-    function renderFormBadges(formArray) {
-        return formArray.map(res => {
-            if (res === 'W') return `<span style="background:#10b981; color:white; padding:1px 5px; border-radius:3px; font-size:0.65rem; font-weight:bold;">V</span>`;
-            if (res === 'D') return `<span style="background:#f59e0b; color:white; padding:1px 5px; border-radius:3px; font-size:0.65rem; font-weight:bold;">N</span>`;
-            return `<span style="background:#ef4444; color:white; padding:1px 5px; border-radius:3px; font-size:0.65rem; font-weight:bold;">D</span>`;
-        }).join(' ');
     }
 
-    function renderMatches(filterText = "") {
-        const query = filterText.toLowerCase().trim();
-        
+    // Affichage des matchs filtrés
+    function renderMatches() {
+        const selectedCountry = countrySelect.value;
+        const selectedDivision = divisionSelect.value;
+        const query = searchInput.value.toLowerCase().trim();
+
         const filtered = mockMatches.filter(m => {
-            const matchesLeague = (selectedLeague === "ALL" || m.league.name === selectedLeague);
-            const matchesQuery = m.teams.home.name.toLowerCase().includes(query) ||
-                                 m.teams.away.name.toLowerCase().includes(query) ||
-                                 m.league.name.toLowerCase().includes(query);
-            return matchesLeague && matchesQuery;
+            const matchCountry = (selectedCountry === "ALL" || m.country === selectedCountry);
+            const matchDivision = (selectedDivision === "ALL" || m.league === selectedDivision);
+            const matchSearch = m.home.toLowerCase().includes(query) ||
+                                m.away.toLowerCase().includes(query) ||
+                                m.league.toLowerCase().includes(query);
+
+            return matchCountry && matchDivision && matchSearch;
         });
 
         if (totalMatchesElem) {
-            const liveCount = filtered.filter(m => m.fixture.status === "LIVE").length;
-            totalMatchesElem.textContent = `${filtered.length} Match(s) ${liveCount > 0 ? `(dont ${liveCount} LIVE)` : ''}`;
+            totalMatchesElem.textContent = `${filtered.length} Match(s) prêt(s) pour analyse IA`;
         }
 
         container.innerHTML = '';
 
         if (filtered.length === 0) {
-            container.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 30px 10px;">🔍 Aucun match disponible pour ce championnat.</div>`;
+            container.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 35px 10px;">🔍 Aucun match trouvé pour ces filtres.</div>`;
             return;
         }
 
         filtered.forEach(match => {
-            const home = match.teams.home.name;
-            const away = match.teams.away.name;
-            const league = match.league.name;
-            const isLive = match.fixture.status === "LIVE";
+            const isLive = match.status === "LIVE";
             const isPepite = match.confidence >= 85;
 
-            const statusBadge = isLive 
-                ? `<span style="background: #ef4444; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; color: white;">🔴 LIVE ${match.fixture.elapsed}' [${match.score.home}-${match.score.away}]</span>` 
-                : `<span style="color: #94a3b8;">📅 À venir</span>`;
+            const card = document.createElement('div');
+            card.style.cssText = "background: #1e293b; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; color: white;";
 
-            const pepiteBadge = isPepite 
-                ? `<div style="background: linear-gradient(135deg, #f59e0b, #dc2626); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; display: inline-block; margin-bottom: 8px;">🔥 PÉPITE IA (${match.confidence}% Confiance)</div>`
-                : '';
-
-            let momentumHtml = '';
-            if (isLive && match.liveMomentum) {
-                momentumHtml = `
-                    <div style="background: #0f172a; padding: 10px; border-radius: 8px; margin: 10px 0; border: 1px solid #ef4444;">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 4px;">
-                            <span>⚡ Radar Pression Live</span>
-                            <span style="color: #ef4444; font-weight: bold;">${match.liveMomentum.alert}</span>
-                        </div>
-                        <div style="background: #334155; height: 8px; border-radius: 4px; overflow: hidden; display: flex;">
-                            <div style="width: ${match.liveMomentum.home}%; background: #38bdf8;"></div>
-                            <div style="width: ${match.liveMomentum.away}%; background: #ef4444;"></div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            const matchCard = document.createElement('div');
-            matchCard.style.cssText = "background: #1e293b; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155; color: white;";
-            
-            matchCard.innerHTML = `
-                ${pepiteBadge}
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span style="font-size: 0.85rem; color: #38bdf8; font-weight: bold;">🏆 ${league}</span>
-                    ${statusBadge}
-                </div>
+            card.innerHTML = `
+                ${isPepite ? `<div style="background: linear-gradient(135deg, #f59e0b, #dc2626); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; display: inline-block; margin-bottom: 6px;">🔥 TOP CONFIANCE (${match.confidence}%)</div>` : ''}
                 
-                <div style="font-size: 1.1rem; font-weight: bold; text-align: center; margin: 8px 0 4px 0;">
-                    ${home} <span style="color:#38bdf8;">vs</span> ${away}
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 0.8rem; color: #38bdf8; font-weight: bold;">🏆 ${match.league}</span>
+                    ${isLive ? `<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">🔴 LIVE ${match.elapsed}' [${match.homeScore}-${match.awayScore}]</span>` : `<span style="color: #94a3b8; font-size: 0.75rem;">📅 Programme</span>`}
                 </div>
 
-                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-bottom: 8px; background: #0f172a; padding: 6px 10px; border-radius: 6px;">
-                    <div>${home}: ${renderFormBadges(match.teams.home.form)}</div>
-                    <div>${away}: ${renderFormBadges(match.teams.away.form)}</div>
+                <div style="font-size: 1.05rem; font-weight: bold; text-align: center; margin: 8px 0;">
+                    ${match.home} <span style="color: #38bdf8;">vs</span> ${match.away}
                 </div>
 
-                <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px; background: #0f172a; padding: 6px 10px; border-radius: 6px; display: flex; justify-content: space-between;">
-                    <span>👨‍⚖️ Arbitre: <strong style="color:white;">${match.referee.name}</strong></span>
-                    <span>🟨 <strong style="color:#f59e0b;">${match.referee.avgCards}</strong> cartons/match</span>
-                </div>
-
-                ${momentumHtml}
-
-                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                    <button onclick="runAdvancedAnalysis(${match.fixture.id}, '${home}', '${away}')" 
-                            style="flex: 2; padding: 10px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">
-                        🤖 Analyser Match
-                    </button>
-                    <button onclick="runMonteCarloSimulation('${home}', '${away}', ${match.fixture.id})" 
-                            style="flex: 1; padding: 10px; background: #059669; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">
-                        🎲 10k Sims
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <button onclick="runMonteCarloSimulation('${match.home}', '${match.away}', ${match.id})" 
+                            style="width: 100%; padding: 8px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">
+                        🎲 Analyser ce match (${match.league})
                     </button>
                 </div>
 
-                <div id="prediction-${match.fixture.id}"></div>
+                <div id="prediction-${match.id}"></div>
             `;
-            container.appendChild(matchCard);
+
+            container.appendChild(card);
         });
     }
 
-    // Gestion du filtre par ligues
-    window.filterByLeague = (leagueName, btnElement) => {
-        selectedLeague = leagueName;
-        
-        document.querySelectorAll('.league-btn').forEach(b => {
-            b.style.background = '#1e293b';
-            b.style.color = '#cbd5e1';
-            b.style.borderColor = '#334155';
-        });
+    // Événements de changement des filtres
+    countrySelect.addEventListener('change', (e) => {
+        updateDivisionOptions(e.target.value);
+        renderMatches();
+    });
 
-        btnElement.style.background = '#38bdf8';
-        btnElement.style.color = '#0f172a';
-        btnElement.style.borderColor = '#38bdf8';
+    divisionSelect.addEventListener('change', renderMatches);
+    searchInput.addEventListener('input', renderMatches);
 
-        renderMatches(searchInput ? searchInput.value : "");
-    };
-
-    if (searchInput) searchInput.addEventListener('input', (e) => renderMatches(e.target.value));
+    // Chargement initial
     renderMatches();
 });
 
-// 🎲 SIMULATEUR MONTE-CARLO
+// Simulation Monte-Carlo
 window.runMonteCarloSimulation = (home, away, matchId) => {
     const targetDiv = document.getElementById(`prediction-${matchId}`);
     if (!targetDiv) return;
 
-    targetDiv.innerHTML = `<div style="color: #38bdf8; font-size: 0.8rem; text-align: center;">🎲 Calculation de 10 000 simulations Monte-Carlo...</div>`;
+    targetDiv.innerHTML = `<div style="color: #38bdf8; font-size: 0.8rem; text-align: center; margin-top: 8px;">🎲 Simulation 10 000 matchs en cours...</div>`;
 
     setTimeout(() => {
         targetDiv.innerHTML = `
-            <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #059669; font-size: 0.8rem; color: #cbd5e1;">
-                <h4 style="margin: 0 0 6px 0; color: #10b981;">🎲 Bilan Monte-Carlo (10 000 Matchs)</h4>
-                <div>🏠 Victoire ${home} : <strong style="color:#10b981;">54.2%</strong></div>
-                <div>🤝 Match Nul : <strong style="color:#f59e0b;">22.1%</strong></div>
-                <div>🚀 Victoire ${away} : <strong style="color:#ef4444;">23.7%</strong></div>
-                <div style="margin-top: 6px; font-size: 0.75rem; color: #38bdf8;">📌 Score le plus fréquent observé : <strong>2 - 1</strong></div>
+            <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #10b981; font-size: 0.8rem; margin-top: 10px; color: #cbd5e1;">
+                <h4 style="margin: 0 0 6px 0; color: #10b981;">📊 Résultat IA (${home} vs ${away})</h4>
+                <div>🏠 Victoire ${home} : <strong style="color:#10b981;">52.4%</strong></div>
+                <div>🤝 Match Nul : <strong style="color:#f59e0b;">24.1%</strong></div>
+                <div>🚀 Victoire ${away} : <strong style="color:#ef4444;">23.5%</strong></div>
+                <div style="margin-top: 5px; color: #38bdf8;">📌 Option conseillée : <strong>Plus de 1.5 Buts</strong></div>
             </div>
         `;
-    }, 400);
+    }, 350);
 };
 
-// 🔀 CALCULATEUR DE VALUE BET
-window.calculateValueBet = () => {
-    const odds = parseFloat(document.getElementById('bookmaker-odds').value);
-    const prob = parseFloat(document.getElementById('ai-prob').value);
-    const resultDiv = document.getElementById('value-result');
-
-    if (!odds || !prob) {
-        resultDiv.innerHTML = `<span style="color: #ef4444;">Veuillez remplir les deux champs ci-dessus.</span>`;
-        return;
-    }
-
-    const realOdds = (100 / prob).toFixed(2);
-    const expectedValue = ((prob / 100) * odds - 1) * 100;
-
-    if (expectedValue > 0) {
-        resultDiv.innerHTML = `
-            <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #10b981;">
-                <span style="color: #10b981; font-weight: bold;">🔥 EXCELLENT VALUE BET !</span><br>
-                Cote réelle IA : <strong>${realOdds}</strong> vs Bookmaker : <strong>${odds}</strong><br>
-                Bénéfice Théorique (EV) : <strong style="color: #10b981;">+${expectedValue.toFixed(1)}%</strong>
-            </div>
-        `;
-    } else {
-        resultDiv.innerHTML = `
-            <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #ef4444;">
-                <span style="color: #ef4444; font-weight: bold;">⚠️ PAS DE VALEUR (Cote Trop Basse)</span><br>
-                Cote réelle IA : <strong>${realOdds}</strong> vs Bookmaker : <strong>${odds}</strong><br>
-                Marge du Bookmaker : <strong style="color: #ef4444;">${expectedValue.toFixed(1)}%</strong>
-            </div>
-        `;
-    }
-};
-
-// 🎟️ GÉNÉRATEUR DE TICKETS
+// Générateur de combinés
 window.generateTicket = (type) => {
     const resultDiv = document.getElementById('ticket-result');
-    resultDiv.innerHTML = `<div style="color: #38bdf8;">⚡ Calcul du combiné optimisé en cours...</div>`;
+    resultDiv.innerHTML = `<div style="color: #38bdf8;">⚡ Assemblage du ticket multiligues...</div>`;
 
     setTimeout(() => {
-        let title = "🛡️ Ticket Sécurisé";
-        let totalOdds = "1.95";
-        let matches = [
-            { match: "Real Madrid vs Man City", pick: "Plus de 1.5 Buts", odds: "1.25" },
-            { match: "PSG vs Marseille", pick: "Victoire PSG ou Nul", odds: "1.22" }
+        let title = "🛡️ Combiné Sécurisé (Multi-Divisions)";
+        let totalOdds = "2.10";
+        let picks = [
+            { match: "Arsenal vs Liverpool (Premier League)", pick: "Plus de 1.5 Buts", odds: "1.22" },
+            { match: "Real Madrid vs Barcelone (La Liga)", pick: "Real Madrid ou Nul", odds: "1.28" },
+            { match: "Auxerre vs St-Étienne (Ligue 2)", pick: "Plus de 0.5 But en 1ère mi-temps", odds: "1.34" }
         ];
 
-        if (type === 'balanced') {
-            title = "⚖️ Ticket Équilibré";
-            totalOdds = "3.85";
-            matches = [
-                { match: "Real Madrid vs Man City", pick: "Plus de 2.5 Buts", odds: "1.65" },
-                { match: "PSG vs Marseille", pick: "PSG gagne & +1.5 buts", odds: "1.58" }
-            ];
-        } else if (type === 'risk') {
-            title = "🚀 Ticket Jackpot";
-            totalOdds = "8.90";
-            matches = [
-                { match: "Real Madrid vs Man City", pick: "Real gagne & +2.5 Buts", odds: "2.80" },
-                { match: "Arsenal vs Liverpool", pick: "Score exact 2-1", odds: "8.50" }
+        if (type === 'risk') {
+            title = "🚀 Combiné Jackpot (D2/D3 & Pépites)";
+            totalOdds = "9.40";
+            picks = [
+                { match: "Leicester vs Leeds (Championship D2)", pick: "Les 2 équipes marquent", odds: "1.72" },
+                { match: "Cesena vs Torres (Serie C D3)", pick: "Victoire Cesena", odds: "2.10" },
+                { match: "Benfica vs Sporting (Liga Portugal)", pick: "Plus de 2.5 Buts", odds: "1.85" },
+                { match: "Al Ahly vs Sundowns (CAF CL)", pick: "Victoire Al Ahly", odds: "1.40" }
             ];
         }
 
-        let html = `<div style="text-align: left;"><h4 style="margin: 0 0 10px 0; color: #10b981;">${title} (Cote: ${totalOdds})</h4>`;
-        let shareText = `⚽ *FOOTBALL IA PRO - ${title}*%0A*Cote: ${totalOdds}*%0A%0A`;
+        let html = `<div style="text-align: left;"><h4 style="margin: 0 0 8px 0; color: #10b981;">${title} (Cote: ${totalOdds})</h4>`;
+        let shareText = `⚽ *FOOTBALL IA - TICKET MULTILIGUES*%0A*Cote: ${totalOdds}*%0A%0A`;
 
-        matches.forEach(m => {
-            html += `<div style="background: #1e293b; padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 0.8rem;">
-                        <strong>${m.match}</strong><br><span style="color: #38bdf8;">📌 ${m.pick}</span> (Cote: ${m.odds})
+        picks.forEach(p => {
+            html += `<div style="background: #1e293b; padding: 6px 10px; border-radius: 6px; margin-bottom: 5px; font-size: 0.78rem;">
+                        <strong>${p.match}</strong><br><span style="color: #38bdf8;">📌 ${p.pick}</span> (Cote: ${p.odds})
                      </div>`;
-            shareText += `• ${m.match} ➔ ${m.pick} (${m.odds})%0A`;
+            shareText += `• ${p.match} ➔ ${p.pick} (${p.odds})%0A`;
         });
 
         html += `<a href="https://wa.me/?text=${shareText}" target="_blank" 
-                    style="display: block; width: 100%; text-align: center; margin-top: 10px; padding: 10px; background: #25D366; color: white; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.85rem; box-sizing: border-box;">
+                    style="display: block; width: 100%; text-align: center; margin-top: 10px; padding: 8px; background: #25D366; color: white; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.8rem; box-sizing: border-box;">
                     📲 Partager sur WhatsApp
                  </a></div>`;
 
