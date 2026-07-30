@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot de Prédiction Football PRO & FIFA</title>
+    <title>Robot de Prédiction Football PRO & Live API</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -75,16 +75,6 @@
             background-color: #2563eb;
         }
 
-        .btn-filter {
-            background-color: #334155;
-            padding: 8px 12px;
-            font-size: 0.9em;
-        }
-
-        .btn-filter:hover {
-            background-color: var(--accent-color);
-        }
-
         .match-card {
             border-left: 4px solid var(--accent-color);
             margin-bottom: 15px;
@@ -103,18 +93,16 @@
 
         .badge-green { background-color: var(--success-color); color: black; }
         .badge-yellow { background-color: var(--warning-color); color: black; }
-        .badge-red { background-color: var(--danger-color); color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Robot de Prédiction Football PRO & FIFA</h1>
+    <h1>Robot de Prédiction Football PRO & Live API</h1>
 
     <!-- GÉNÉRATEUR DE PRÉDICTIONS FIFA -->
     <div class="card" style="text-align: center;">
         <h2>Robot de Pronostics FIFA / eSports</h2>
-        <p>Générez des prédictions analysées automatiquement pour les matchs FIFA en direct.</p>
         <button onclick="generateFifaCoupon()">Générer un Pronostic FIFA</button>
         <div id="fifa-coupon-result"></div>
     </div>
@@ -135,103 +123,125 @@
 
     <!-- RECHERCHE ET FILTRES DE MATCHS -->
     <div class="card">
-        <h2>Filtres et Recherche</h2>
+        <h2>Matchs en Direct (API Football)</h2>
+        <button onclick="fetchRealMatches()" style="background-color: var(--success-color); color: black;">🔄 Rafraîchir les matchs API</button>
         <input type="text" id="search-input" placeholder="Rechercher une équipe..." onkeyup="filterMatches()">
-        <div class="grid-2">
-            <select id="country-select" onchange="filterMatches()">
-                <option value="ALL">Tous les pays</option>
-                <option value="FIFA">FIFA / Virtuel</option>
-                <option value="ENG">Angleterre</option>
-                <option value="ESP">Espagne</option>
-                <option value="ITA">Italie</option>
-                <option value="FRA">France</option>
-                <option value="INT">International</option>
-            </select>
-            <select id="division-select" onchange="filterMatches()">
-                <option value="ALL">Toutes les divisions</option>
-                <option value="D1">Division 1</option>
-                <option value="D2">Division 2</option>
-            </select>
-        </div>
-
-        <!-- BARRE DE FILTRES RAPIDES -->
-        <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-            <button class="btn-filter" onclick="quickFilter('ALL')">Tous</button>
-            <button class="btn-filter" onclick="quickFilter('SAFE')">Pari Sûr (&gt;75%)</button>
-            <button class="btn-filter" onclick="quickFilter('GOALS')">Over 2.5</button>
-            <button class="btn-filter" onclick="quickFilter('BTTS')">Les 2 marquent</button>
-        </div>
     </div>
 
-    <!-- LISTE DES MATCHS -->
-    <div id="matches-container"></div>
+    <!-- LISTE DES MATCHS EN DIRECT -->
+    <div id="matches-container">
+        <p style="text-align:center; color: #94a3b8;">Chargement des matchs en direct...</p>
+    </div>
 </div>
 
+<!-- INCLUSION DU FICHIER DE CONFIGURATION POUR LA CLÉ API -->
+<script src="config.js"></script>
+
 <script>
+    let liveMatches = [];
+
     // Équipes FIFA pour le simulateur
     const fifaTeams = [
         "Real Madrid (eSports)", "Manchester City (eSports)", "Barcelona (eSports)", 
-        "Bayern Munich (eSports)", "PSG (eSports)", "Liverpool (eSports)", 
-        "Arsenal (eSports)", "Inter Milan (eSports)"
+        "Bayern Munich (eSports)", "PSG (eSports)", "Liverpool (eSports)"
     ];
 
-    // Données fictives initiales
-    const matchesData = [
-        { id: 1, country: 'ENG', division: 'D1', team1: 'Arsenal', team2: 'Chelsea', proba: 78, type: 'SAFE', over: true, btts: true },
-        { id: 2, country: 'ESP', division: 'D1', team1: 'Real Madrid', team2: 'Barcelone', proba: 65, type: 'RISK', over: true, btts: true },
-        { id: 3, country: 'FRA', division: 'D1', team1: 'PSG', team2: 'OM', proba: 82, type: 'SAFE', over: true, btts: false },
-        { id: 4, country: 'FIFA', division: 'D1', team1: 'Man City (eSports)', team2: 'Bayern (eSports)', proba: 74, type: 'GOALS', over: true, btts: true }
-    ];
+    // Charger les matchs réels depuis l'API Football
+    async function fetchRealMatches() {
+        const container = document.getElementById('matches-container');
+        container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Récupération des matchs réels en cours...</p>";
 
-    function getRandomItem(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
+        // Vérification si config.js est bien présent
+        if (typeof API_KEY === 'undefined' || API_KEY === "TA_VRAIE_CLE_API_ICI" || !API_KEY) {
+            container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>⚠️ Erreur : Clé API non configurée dans <strong>config.js</strong> !</p>";
+            return;
+        }
+
+        try {
+            const response = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
+                "method": "GET",
+                "headers": {
+                    "x-apisports-key": API_KEY
+                }
+            });
+
+            const result = await response.json();
+            
+            if (result.errors && Object.keys(result.errors).length > 0) {
+                container.innerHTML = `<p style='color:var(--danger-color); text-align:center;'>Erreur API : ${JSON.stringify(result.errors)}</p>`;
+                return;
+            }
+
+            if (!result.response || result.response.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Aucun match en direct disponible actuellement. Réessayez plus tard !</p>";
+                return;
+            }
+
+            // Transformation des données API
+            liveMatches = result.response.map(item => {
+                const homeGoals = item.goals.home || 0;
+                const awayGoals = item.goals.away || 0;
+                const proba = Math.min(90, Math.max(50, 60 + (homeGoals - awayGoals) * 10));
+
+                return {
+                    team1: item.teams.home.name,
+                    team2: item.teams.away.name,
+                    league: item.league.name,
+                    country: item.league.country,
+                    score: `${homeGoals} - ${awayGoals}`,
+                    time: `${item.fixture.status.elapsed || 0}'`,
+                    proba: proba
+                };
+            });
+
+            renderMatches(liveMatches);
+
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>Erreur de connexion à l'API. Vérifiez votre clé ou votre réseau.</p>";
+        }
     }
 
-    function generateFifaPrediction() {
-        let team1 = getRandomItem(fifaTeams);
-        let team2 = getRandomItem(fifaTeams);
-        while (team1 === team2) {
-            team2 = getRandomItem(fifaTeams);
-        }
+    function renderMatches(data) {
+        const container = document.getElementById('matches-container');
+        container.innerHTML = '';
 
-        const proba1 = Math.floor(Math.random() * 40) + 35;
-        const over25Proba = Math.floor(Math.random() * 30) + 60;
+        data.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'match-card';
+            card.innerHTML = `
+                <h3>${m.team1} <span style="color:var(--warning-color);">${m.score}</span> ${m.team2}</h3>
+                <p>🏆 ${m.league} (${m.country}) | Temps : <strong>${m.time}</strong></p>
+                <p>Indice de confiance / Prédiction : <strong>${m.proba}%</strong></p>
+                <span class="badge ${m.proba > 70 ? 'badge-green' : 'badge-yellow'}">${m.proba > 70 ? 'Pari Sûr' : 'Pari Modéré'}</span>
+            `;
+            container.appendChild(card);
+        });
+    }
 
-        let advice = "";
-        if (over25Proba > 75) {
-            advice = "Plus de 2.5 Buts dans le match";
-        } else if (proba1 > 65) {
-            advice = `Victoire de ${team1}`;
-        } else {
-            advice = "Les deux équipes marquent (Oui)";
-        }
-
-        return {
-            teams: `${team1} vs ${team2}`,
-            proba: Math.max(proba1, over25Proba),
-            advice: advice
-        };
+    function filterMatches() {
+        const search = document.getElementById('search-input').value.toLowerCase();
+        const filtered = liveMatches.filter(m => 
+            m.team1.toLowerCase().includes(search) || 
+            m.team2.toLowerCase().includes(search) ||
+            m.league.toLowerCase().includes(search)
+        );
+        renderMatches(filtered);
     }
 
     function generateFifaCoupon() {
         const resultDiv = document.getElementById('fifa-coupon-result');
-        resultDiv.innerHTML = "<p><em>Analyse des algorithmes FIFA en cours...</em></p>";
+        const team1 = fifaTeams[Math.floor(Math.random() * fifaTeams.length)];
+        let team2 = fifaTeams[Math.floor(Math.random() * fifaTeams.length)];
+        while (team1 === team2) team2 = fifaTeams[Math.floor(Math.random() * fifaTeams.length)];
 
-        setTimeout(() => {
-            let pred1 = generateFifaPrediction();
-            let pred2 = generateFifaPrediction();
-
-            resultDiv.innerHTML = `
-                <div style="background: #0f172a; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: left;">
-                    <h3 style="color: var(--success-color); margin-top:0;">🤖 Pronostics FIFA Générés</h3>
-                    <p><strong>Match 1 :</strong> ${pred1.teams}<br>
-                       👉 <strong>Conseil :</strong> ${pred1.advice} (${pred1.proba}% de confiance)</p>
-                    <hr style="border-color: #334155;">
-                    <p><strong>Match 2 :</strong> ${pred2.teams}<br>
-                       👉 <strong>Conseil :</strong> ${pred2.advice} (${pred2.proba}% de confiance)</p>
-                </div>
-            `;
-        }, 400);
+        resultDiv.innerHTML = `
+            <div style="background: #0f172a; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: left;">
+                <h3 style="color: var(--success-color); margin-top:0;">🤖 Pronostic FIFA Virtuel</h3>
+                <p><strong>Match :</strong> ${team1} vs ${team2}<br>
+                   👉 <strong>Conseil :</strong> Plus de 2.5 Buts dans le match (82% de confiance)</p>
+            </div>
+        `;
     }
 
     function calculateKelly() {
@@ -256,53 +266,8 @@
         }
     }
 
-    function renderMatches(data) {
-        const container = document.getElementById('matches-container');
-        container.innerHTML = '';
-
-        data.forEach(m => {
-            const card = document.createElement('div');
-            card.className = 'match-card';
-            card.innerHTML = `
-                <h3>${m.team1} vs ${m.team2}</h3>
-                <p>Pays: ${m.country} | Division: ${m.division}</p>
-                <p>Probabilité de réussite : <strong>${m.proba}%</strong></p>
-                <span class="badge ${m.proba > 75 ? 'badge-green' : 'badge-yellow'}">${m.proba > 75 ? 'Pari Sûr' : 'Pari Modéré'}</span>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    function filterMatches() {
-        const search = document.getElementById('search-input').value.toLowerCase();
-        const country = document.getElementById('country-select').value;
-        const division = document.getElementById('division-select').value;
-
-        const filtered = matchesData.filter(m => {
-            const matchSearch = m.team1.toLowerCase().includes(search) || m.team2.toLowerCase().includes(search);
-            const matchCountry = country === 'ALL' || m.country === country;
-            const matchDivision = division === 'ALL' || m.division === division;
-
-            return matchSearch && matchCountry && matchDivision;
-        });
-
-        renderMatches(filtered);
-    }
-
-    function quickFilter(type) {
-        if (type === 'ALL') {
-            renderMatches(matchesData);
-        } else if (type === 'SAFE') {
-            renderMatches(matchesData.filter(m => m.proba >= 75));
-        } else if (type === 'GOALS') {
-            renderMatches(matchesData.filter(m => m.over));
-        } else if (type === 'BTTS') {
-            renderMatches(matchesData.filter(m => m.btts));
-        }
-    }
-
-    // Affichage initial
-    renderMatches(matchesData);
+    // Lancement automatique
+    fetchRealMatches();
 </script>
 
 </body>
