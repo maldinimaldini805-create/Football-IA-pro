@@ -48,12 +48,24 @@
     <!-- 📱 VUES DU MENU DE NAVIGATION -->
     <main style="max-width: 480px; margin: 0 auto;">
         
-        <!-- SECTION 1 : LISTE DES MATCHS ET RECHERCHE -->
+        <!-- SECTION 1 : LISTE DES MATCHS ET CHAMPIONNATS -->
         <section id="tab-matches" class="app-tab">
-            <div style="margin: 10px 0 15px 0;">
-                <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe (ex: Real, PSG, Arsenal)..." 
+            <div style="margin: 10px 0 10px 0;">
+                <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe ou un pays..." 
                        style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 0.9rem; box-sizing: border-box; outline: none;">
             </div>
+
+            <!-- 🌍 SÉLECTEUR DE CHAMPIONNATS (BARRE DÉROULANTE HORIZONTALE) -->
+            <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; scrollbar-width: none;">
+                <button class="league-btn active-league" onclick="filterByLeague('ALL', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #38bdf8; background: #38bdf8; color: #0f172a; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🌍 Tous</button>
+                <button class="league-btn" onclick="filterByLeague('UEFA Champions League', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🏆 Champions League</button>
+                <button class="league-btn" onclick="filterByLeague('Premier League', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🇬🇧 Premier League</button>
+                <button class="league-btn" onclick="filterByLeague('La Liga', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🇪🇸 La Liga</button>
+                <button class="league-btn" onclick="filterByLeague('Ligue 1', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🇫🇷 Ligue 1</button>
+                <button class="league-btn" onclick="filterByLeague('Serie A', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🇮🇹 Serie A</button>
+                <button class="league-btn" onclick="filterByLeague('Bundesliga', this)" style="white-space: nowrap; padding: 6px 12px; border-radius: 20px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🇩🇪 Bundesliga</button>
+            </div>
+
             <div id="matches-container"></div>
         </section>
 
@@ -77,7 +89,6 @@
 
         <!-- SECTION 3 : TOP VALUE BETS & BILAN IA -->
         <section id="tab-value" class="app-tab" style="display: none;">
-            <!-- 📊 BILAN & STATISTIQUES GLOBALES -->
             <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 15px; border-radius: 12px; border: 1px solid #10b981; margin-bottom: 15px;">
                 <h3 style="color: #10b981; margin: 0 0 10px 0; font-size: 1rem;">📊 Bilan des Pronostics Robot</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center;">
@@ -124,7 +135,6 @@
                 <p style="font-size: 0.85rem; color: #cbd5e1;">Mise conseillée par pari (3%) : <strong id="recommended-stake" style="color:#10b981;">3.00 €</strong></p>
             </div>
 
-            <!-- 🔀 CALCULATEUR DE COTES REELLES VS BOOKMAKER -->
             <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #38bdf8;">
                 <h3 style="color: #38bdf8; margin-top: 0;">🔀 Calculateur de Valeur (Value Bet)</h3>
                 <div style="display: flex; gap: 8px; margin-bottom: 10px;">
@@ -161,7 +171,7 @@
             <span style="font-size: 1.1rem;">🧠</span> Moteur IA
         </button>
         <button onclick="switchTab('bankroll')" id="btn-bankroll" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.1rem;">💰</span> Tools & Outils
+            <span style="font-size: 1.1rem;">💰</span> Outils
         </button>
     </nav>
 
