@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Football IA Pro - World Edition</title>
+    <title>Football IA Pro - Ultimate Edition</title>
     
     <!-- Feuilles de style -->
     <link rel="stylesheet" href="style.css">
@@ -17,9 +17,9 @@
 </head>
 <body style="background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 15px 15px 95px 15px; min-height: 100vh;">
 
-    <!-- 🏆 EN-TÊTE DU ROBOT -->
-    <header style="text-align: center; padding: 25px 0 10px 0;">
-        <div style="display: inline-block; filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.5)); margin-bottom: 5px;">
+    <!-- 🏆 EN-TÊTE DU ROBOT EN-TÊTE PREMIUM -->
+    <header style="text-align: center; padding: 20px 0 10px 0;">
+        <div style="display: inline-block; filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.6)); margin-bottom: 5px;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="60" height="60">
               <defs>
                 <linearGradient id="neonGlow" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -40,26 +40,25 @@
         </h1>
         
         <p id="total-matches" style="margin: 0; color: #94a3b8; font-size: 0.8rem; font-weight: 500;">
-            Analyse mondiale en cours...
+            Moteur v4.0 • Tous championnats & Options Joueurs
         </p>
     </header>
 
     <!-- 📱 APPLICATION PRINCIPALE -->
     <main style="max-width: 480px; margin: 0 auto;">
         
-        <!-- SECTION MATCHS & FILTRES DE DIVISIONS -->
+        <!-- SECTION 1 : MATCHS, MÉTÉO, H2H & CHAMPIONNATS -->
         <section id="tab-matches" class="app-tab">
             
             <!-- 🔍 RECHERCHE UNIVERSELLE -->
             <div style="margin: 10px 0 12px 0;">
-                <input type="text" id="search-input" placeholder="🔍 Rechercher équipe, ligue ou pays (ex: Portugal, D2, Serie B)..." 
+                <input type="text" id="search-input" placeholder="🔍 Rechercher équipe, joueur, ligue ou pays..." 
                        style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 0.85rem; box-sizing: border-box; outline: none;">
             </div>
 
-            <!-- 🌍 FILTRE MONDIAL (PAYS & DIVISIONS) -->
+            <!-- 🌍 SÉLECTEUR MONDIAL (PAYS & DIVISIONS) -->
             <div style="background: #1e293b; padding: 12px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;">
                 <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                    <!-- SÉLECTEUR DE PAYS -->
                     <select id="country-select" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #38bdf8; font-weight: bold; font-size: 0.8rem; outline: none;">
                         <option value="ALL">🌐 Tous les pays & Coupes</option>
                         <option value="ENG">🇬🇧 Angleterre (D1 à D5)</option>
@@ -77,90 +76,107 @@
                     </select>
                 </div>
 
-                <!-- SÉLECTEUR DE DIVISION DYNAMIQUE -->
                 <select id="division-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.8rem; outline: none;">
                     <option value="ALL">⚽ Toutes les divisions du pays sélectionné</option>
                 </select>
             </div>
 
-            <!-- LISTE DES MATCHS FILTRÉS -->
+            <!-- CONTAINER DES CARTE MATCHS -->
             <div id="matches-container"></div>
         </section>
 
-        <!-- SECTION 2 : GÉNÉRATEUR DE TICKETS -->
-        <section id="tab-ticket" class="app-tab" style="display: none;">
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
-                <h3 style="color: #38bdf8; margin-top: 0;">🎟️ Générateur Multiligues IA</h3>
-                <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px;">Combinaisons intelligentes incluant toutes les divisions :</p>
+        <!-- SECTION 2 : RADAR SMART MONEY & DROPPING ODDS -->
+        <section id="tab-dropping" class="app-tab" style="display: none;">
+            <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 15px; border-radius: 12px; border: 1px solid #ef4444; margin-bottom: 15px;">
+                <h3 style="color: #ef4444; margin: 0 0 6px 0; font-size: 1rem;">🚨 Radar Smart Money & Dropping Odds</h3>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Détection automatique des cotes qui chutent suite à de grosses mises de parieurs pros ou infos de dernière minute.</p>
+            </div>
+
+            <div id="dropping-odds-container"></div>
+        </section>
+
+        <!-- SECTION 3 : PRONOSTICS JOUEURS (BUTEURS & CARTONS) -->
+        <section id="tab-players" class="app-tab" style="display: none;">
+            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #38bdf8; margin-bottom: 15px;">
+                <h3 style="color: #38bdf8; margin: 0 0 6px 0; font-size: 1rem;">🎯 Pronostics Joueurs & Performance</h3>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Analyse IA des Buteurs probables, Tirs cadrés et risque de Cartons Jaunes.</p>
+            </div>
+
+            <div id="players-props-container"></div>
+        </section>
+
+        <!-- SECTION 4 : SCANNER / ÉVALUATEUR DE TICKET PERSONNEL -->
+        <section id="tab-scanner" class="app-tab" style="display: none;">
+            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #f59e0b; margin-top: 10px;">
+                <h3 style="color: #f59e0b; margin-top: 0;">🔍 Scanner & Audit de Votre Ticket</h3>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 12px;">Entrez les sélections de votre coupon pour identifier le maillon faible et la probabilité réelle :</p>
                 
-                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                <div id="ticket-scanner-inputs">
+                    <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                        <input type="text" placeholder="Match (ex: Real vs City)" class="scan-match" style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.8rem;">
+                        <input type="text" placeholder="Choix (ex: 1 ou +2.5)" class="scan-pick" style="flex: 1.5; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.8rem;">
+                        <input type="number" step="0.01" placeholder="Cote" class="scan-odds" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.8rem;">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin: 10px 0;">
+                    <button onclick="addScannerRow()" style="flex: 1; padding: 8px; background: #334155; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.75rem;">+ Ajouter Un Match</button>
+                    <button onclick="analyzeUserTicket()" style="flex: 1.5; padding: 8px; background: #f59e0b; color: #0f172a; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">⚡ Auditer Le Ticket</button>
+                </div>
+
+                <div id="scanner-result" style="margin-top: 12px;"></div>
+            </div>
+
+            <!-- GÉNÉRATEUR DE TICKETS AUTOMATIQUES -->
+            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 15px;">
+                <h3 style="color: #38bdf8; margin-top: 0;">🎟️ Générateur de Combinés IA</h3>
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
                     <button onclick="generateTicket('safe')" style="flex: 1; padding: 10px 5px; background: #059669; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🛡️ Sécurisé</button>
                     <button onclick="generateTicket('balanced')" style="flex: 1; padding: 10px 5px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">⚖️ Équilibré</button>
                     <button onclick="generateTicket('risk')" style="flex: 1; padding: 10px 5px; background: #dc2626; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🚀 Jackpot</button>
                 </div>
-
-                <div id="ticket-result" style="background: #0f172a; padding: 14px; border-radius: 10px; border: 1px dashed #38bdf8; min-height: 80px; text-align: center; color: #cbd5e1; font-size: 0.85rem;">
-                    Sélectionnez un mode pour générer votre combiné.
+                <div id="ticket-result" style="background: #0f172a; padding: 12px; border-radius: 8px; border: 1px dashed #38bdf8; text-align: center; color: #cbd5e1; font-size: 0.85rem;">
+                    Sélectionnez un profil ci-dessus.
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 3 : BILAN IA -->
-        <section id="tab-value" class="app-tab" style="display: none;">
-            <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 15px; border-radius: 12px; border: 1px solid #10b981; margin-bottom: 15px;">
-                <h3 style="color: #10b981; margin: 0 0 10px 0; font-size: 1rem;">📊 Bilan Global du Moteur</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center;">
-                    <div style="background: #0f172a; padding: 8px; border-radius: 8px;">
-                        <span style="font-size: 0.7rem; color: #94a3b8;">Taux Réussite</span><br>
-                        <strong style="color: #10b981; font-size: 1.1rem;">78.4%</strong>
-                    </div>
-                    <div style="background: #0f172a; padding: 8px; border-radius: 8px;">
-                        <span style="font-size: 0.7rem; color: #94a3b8;">Gain Net</span><br>
-                        <strong style="color: #38bdf8; font-size: 1.1rem;">+34.5 U</strong>
-                    </div>
-                    <div style="background: #0f172a; padding: 8px; border-radius: 8px;">
-                        <span style="font-size: 0.7rem; color: #94a3b8;">ROI Global</span><br>
-                        <strong style="color: #f59e0b; font-size: 1.1rem;">+14.2%</strong>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION 4 : REGISTRE IA -->
-        <section id="tab-ml" class="app-tab" style="display: none;">
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
-                <h3 style="color: #38bdf8; margin-top: 0;">🧠 Couverture Mondiale des Championnats</h3>
-                <p style="font-size: 0.8rem; color: #cbd5e1;">• <strong>Plus de 120 ligues couvertes</strong> dans +50 pays.</p>
-                <p style="font-size: 0.8rem; color: #cbd5e1;">• Intégration des données statistiques pour D1, D2, D3 et championnats nationaux.</p>
-            </div>
-        </section>
-
-        <!-- SECTION 5 : OUTILS BANKROLL -->
+        <!-- SECTION 5 : OUTILS, BANKROLL & ALERTES -->
         <section id="tab-bankroll" class="app-tab" style="display: none;">
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
-                <h3 style="color: #f59e0b; margin-top: 0;">💰 Calculateur de Stake (3%)</h3>
-                <input type="number" id="bankroll-input" value="100" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; box-sizing: border-box;">
-                <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 10px;">Mise recommandée : <strong id="recommended-stake" style="color:#10b981;">3.00 €</strong></p>
+            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px; margin-bottom: 15px;">
+                <h3 style="color: #f59e0b; margin-top: 0;">💰 Gestionnaire de Bankroll (3%)</h3>
+                <label style="font-size: 0.8rem; color: #94a3b8;">Capital Total (€) :</label>
+                <input type="number" id="bankroll-input" value="100" style="width: 100%; padding: 10px; margin: 6px 0 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; box-sizing: border-box;">
+                <p style="font-size: 0.85rem; color: #cbd5e1; margin: 0;">Mise conseillée : <strong id="recommended-stake" style="color:#10b981;">3.00 €</strong></p>
+            </div>
+
+            <!-- SIMULATEUR D'ALERTES PUSH -->
+            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #10b981;">
+                <h3 style="color: #10b981; margin-top: 0;">🔔 Alertes In-Play WhatsApp & Push</h3>
+                <p style="font-size: 0.8rem; color: #cbd5e1;">Recevez les signaux en direct (Ex: Pression > 85% pendant 10 min).</p>
+                <button onclick="testPushNotification()" style="width: 100%; padding: 10px; background: #10b981; color: #0f172a; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
+                    📲 Tester une Alerte Live WhatsApp
+                </button>
             </div>
         </section>
 
     </main>
 
-    <!-- 📱 BARRE DE NAVIGATION EN BAS -->
+    <!-- 📱 BARRE DE NAVIGATION EN BAS (5 ONGLETS) -->
     <nav style="position: fixed; bottom: 0; left: 0; right: 0; background: #1e293bec; backdrop-filter: blur(10px); border-top: 1px solid #334155; display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 1000;">
-        <button onclick="switchTab('matches')" id="btn-matches" class="nav-btn active-tab" style="background: none; border: none; color: #38bdf8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
+        <button onclick="switchTab('matches')" id="btn-matches" class="nav-btn active-tab" style="background: none; border: none; color: #38bdf8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: bold; cursor: pointer;">
             <span style="font-size: 1.1rem;">⚽</span> Matchs
         </button>
-        <button onclick="switchTab('ticket')" id="btn-ticket" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.1rem;">🎟️</span> Ticket
+        <button onclick="switchTab('dropping')" id="btn-dropping" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: bold; cursor: pointer;">
+            <span style="font-size: 1.1rem;">🚨</span> Smart Money
         </button>
-        <button onclick="switchTab('value')" id="btn-value" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.1rem;">🎯</span> Bilan IA
+        <button onclick="switchTab('players')" id="btn-players" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: bold; cursor: pointer;">
+            <span style="font-size: 1.1rem;">🎯</span> Joueurs
         </button>
-        <button onclick="switchTab('ml')" id="btn-ml" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.1rem;">🧠</span> Moteur IA
+        <button onclick="switchTab('scanner')" id="btn-scanner" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: bold; cursor: pointer;">
+            <span style="font-size: 1.1rem;">🔍</span> Scanner
         </button>
-        <button onclick="switchTab('bankroll')" id="btn-bankroll" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
+        <button onclick="switchTab('bankroll')" id="btn-bankroll" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: bold; cursor: pointer;">
             <span style="font-size: 1.1rem;">💰</span> Outils
         </button>
     </nav>
