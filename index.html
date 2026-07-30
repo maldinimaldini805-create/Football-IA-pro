@@ -77,8 +77,7 @@
 
         <!-- SECTION 3 : TOP VALUE BETS & BILAN IA -->
         <section id="tab-value" class="app-tab" style="display: none;">
-            
-            <!-- 📊 BILAN & STATISTIQUES GLOBALES DU ROBOT -->
+            <!-- 📊 BILAN & STATISTIQUES GLOBALES -->
             <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 15px; border-radius: 12px; border: 1px solid #10b981; margin-bottom: 15px;">
                 <h3 style="color: #10b981; margin: 0 0 10px 0; font-size: 1rem;">📊 Bilan des Pronostics Robot</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center;">
@@ -116,13 +115,32 @@
             </div>
         </section>
 
-        <!-- SECTION 5 : GESTION DE BANKROLL -->
+        <!-- SECTION 5 : GESTION DE BANKROLL & CALCULATEUR VALUE -->
         <section id="tab-bankroll" class="app-tab" style="display: none;">
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
+            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px; margin-bottom: 15px;">
                 <h3 style="color: #f59e0b; margin-top: 0;">💰 Calculateur de Mise</h3>
                 <label style="font-size: 0.85rem; color: #94a3b8;">Capital Total (€) :</label>
                 <input type="number" id="bankroll-input" value="100" style="width: 100%; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; box-sizing: border-box;">
                 <p style="font-size: 0.85rem; color: #cbd5e1;">Mise conseillée par pari (3%) : <strong id="recommended-stake" style="color:#10b981;">3.00 €</strong></p>
+            </div>
+
+            <!-- 🔀 CALCULATEUR DE COTES REELLES VS BOOKMAKER -->
+            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #38bdf8;">
+                <h3 style="color: #38bdf8; margin-top: 0;">🔀 Calculateur de Valeur (Value Bet)</h3>
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.75rem; color: #94a3b8;">Cote Bookmaker :</label>
+                        <input type="number" step="0.01" id="bookmaker-odds" placeholder="Ex: 2.10" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; margin-top: 4px; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.75rem; color: #94a3b8;">Probabilité IA (%) :</label>
+                        <input type="number" id="ai-prob" placeholder="Ex: 55" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; margin-top: 4px; box-sizing: border-box;">
+                    </div>
+                </div>
+                <button onclick="calculateValueBet()" style="width: 100%; padding: 10px; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                    ⚡ Calculer l'Avantage
+                </button>
+                <div id="value-result" style="margin-top: 10px; font-size: 0.85rem; color: #cbd5e1;"></div>
             </div>
         </section>
 
@@ -143,7 +161,7 @@
             <span style="font-size: 1.1rem;">🧠</span> Moteur IA
         </button>
         <button onclick="switchTab('bankroll')" id="btn-bankroll" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.1rem;">💰</span> Bankroll
+            <span style="font-size: 1.1rem;">💰</span> Tools & Outils
         </button>
     </nav>
 
