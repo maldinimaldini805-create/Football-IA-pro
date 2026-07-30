@@ -1,78 +1,55 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>Football AI Pro 4.0</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football IA Pro - Robot de Prédiction</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
 </head>
-
 <body>
 
-<header>
+    <!-- En-tête du Dashboard -->
+    <header class="header">
+        <div class="logo-container">
+            <img src="logo.png" alt="Logo IA Football" class="logo">
+            <h1>Football <span>IA Pro</span></h1>
+        </div>
+        <div class="status-badge">
+            <span class="pulse"></span> IA Connectée
+        </div>
+    </header>
 
-<h1>⚽ Football AI Pro 4.0</h1>
+    <!-- Conteneur Principal -->
+    <main class="dashboard-container">
+        
+        <!-- Section Statistiques Rapides -->
+        <section class="stats-overview">
+            <div class="stat-card">
+                <h3>Matchs du Jour</h3>
+                <p id="total-matches">Chargement...</p>
+            </div>
+            <div class="stat-card">
+                <h3>Modèle IA Active</h3>
+                <p>Poisson + xG + ELO</p>
+            </div>
+            <div class="stat-card">
+                <h3>Moteur de Valeur</h3>
+                <p class="highlight">Critère de Kelly</p>
+            </div>
+        </section>
 
-<p>
-L'intelligence artificielle pour analyser les matchs de football.
-</p>
+        <!-- Liste des Matchs & Prédictions -->
+        <section class="matches-section">
+            <h2>⚽ Matchs programmés & Analyses IA</h2>
+            <div id="matches-container" class="matches-grid">
+                <div class="loading-spinner">⏳ Chargement des matchs en direct...</div>
+            </div>
+        </section>
 
-</header>
+    </main>
 
-<main>
-
-<section id="coach">
-
-<h2>🤖 Football AI Coach</h2>
-
-<p id="coachMessage">
-
-Bonjour Maldini 👋
-
-Préparation des analyses du jour...
-
-</p>
-
-</section>
-
-<section>
-
-<h2>📅 Matchs du jour</h2>
-
-<div id="matches">
-
-Chargement...
-
-</div>
-
-</section>
-
-</main>
-
-<footer>
-
-<p>
-
-Football AI Pro 4.0
-
-© 2026
-
-</p>
-
-</footer>
-
-<script type="module"
-src="./js/dashboard.js">
-
-</script>
-
+    <!-- Script Principal JS (Module ES6) -->
+    <script type="module" src="js/app.js"></script>
 </body>
-
 </html>
