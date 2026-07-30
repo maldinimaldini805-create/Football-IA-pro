@@ -15,7 +15,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Football IA">
 </head>
-<body style="background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 15px 15px 90px 15px; min-height: 100vh;">
+<body style="background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 15px 15px 95px 15px; min-height: 100vh;">
 
     <!-- 🏆 EN-TÊTE AVEC LOGO NÉON IA -->
     <header style="text-align: center; padding: 35px 0 10px 0;">
@@ -48,22 +48,38 @@
     <!-- 📱 VUES DU MENU DE NAVIGATION -->
     <main style="max-width: 480px; margin: 0 auto;">
         
-        <!-- SECTION 1 : LISTE DES MATCHS (AVEC BARRE DE RECHERCHE) -->
+        <!-- SECTION 1 : LISTE DES MATCHS ET RECHERCHE -->
         <section id="tab-matches" class="app-tab">
-            <!-- 🔍 BARRE DE RECHERCHE D'ÉQUIPES -->
             <div style="margin: 10px 0 15px 0;">
                 <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe (ex: Real, PSG, Arsenal)..." 
-                       style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 0.9rem; box-sizing: border-box; outline: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);">
+                       style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 0.9rem; box-sizing: border-box; outline: none;">
             </div>
-
             <div id="matches-container"></div>
         </section>
 
-        <!-- SECTION 2 : TOP VALUE BETS -->
+        <!-- SECTION 2 : GÉNÉRATEUR DE TICKETS AUTOMATIQUES -->
+        <section id="tab-ticket" class="app-tab" style="display: none;">
+            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
+                <h3 style="color: #38bdf8; margin-top: 0;">🎟️ Générateur de Ticket IA</h3>
+                <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px;">Sélectionnez un profil pour générer un combiné optimisé :</p>
+                
+                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                    <button onclick="generateTicket('safe')" style="flex: 1; padding: 10px 5px; background: #059669; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🛡️ Sécurisé</button>
+                    <button onclick="generateTicket('balanced')" style="flex: 1; padding: 10px 5px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">⚖️ Équilibré</button>
+                    <button onclick="generateTicket('risk')" style="flex: 1; padding: 10px 5px; background: #dc2626; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🚀 Jackpot</button>
+                </div>
+
+                <div id="ticket-result" style="background: #0f172a; padding: 14px; border-radius: 10px; border: 1px dashed #38bdf8; min-height: 80px; text-align: center; color: #cbd5e1; font-size: 0.85rem;">
+                    Sélectionnez un mode ci-dessus pour composer un ticket.
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3 : TOP VALUE BETS -->
         <section id="tab-value" class="app-tab" style="display: none;">
             <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
-                <h3 style="color: #10b981; margin-top: 0;">🔥 Top Opportunités de la Journée</h3>
-                <p style="font-size: 0.85rem; color: #94a3b8;">Matchs filtrés par le robot avec un indice de confiance supérieur à 75%.</p>
+                <h3 style="color: #10b981; margin-top: 0;">🔥 Top Opportunités du Jour</h3>
+                <p style="font-size: 0.85rem; color: #94a3b8;">Matchs filtrés par le robot avec un indice de confiance élevé.</p>
                 <div style="background: #0f172a; padding: 12px; border-radius: 8px; border-left: 4px solid #10b981; margin-bottom: 10px;">
                     <strong style="color: white;">Real Madrid vs Man City</strong><br>
                     <span style="font-size: 0.8rem; color: #38bdf8;">🎯 Conseil IA : Plus de 2.5 Buts (Confiance: 82%)</span>
@@ -71,22 +87,19 @@
             </div>
         </section>
 
-        <!-- SECTION 3 : MOTEUR IA & MACHINE LEARNING -->
+        <!-- SECTION 4 : MOTEUR IA & MACHINE LEARNING -->
         <section id="tab-ml" class="app-tab" style="display: none;">
             <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
                 <h3 style="color: #38bdf8; margin-top: 0;">🧠 Centre d'Apprentissage IA</h3>
-                <p style="font-size: 0.85rem; color: #cbd5e1;">Pondération avantage domicile : <strong id="ml-home-weight" style="color:#10b981;">1.15</strong></p>
-                <p style="font-size: 0.85rem; color: #cbd5e1;">Prochaine révision des algorithmes : <strong style="color:#f59e0b;">Tous les 14 jours</strong></p>
-                <div style="background: #0f172a; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #94a3b8;">
-                     Le robot réajuste automatiquement ses probabilités de Poisson, xG et timing des buts après chaque rencontre enregistrée.
-                </div>
+                <p style="font-size: 0.85rem; color: #cbd5e1;">Pondération domicile : <strong style="color:#10b981;">1.15</strong></p>
+                <p style="font-size: 0.85rem; color: #cbd5e1;">Recalibration automatique : <strong style="color:#f59e0b;">Toutes les 2 semaines</strong></p>
             </div>
         </section>
 
-        <!-- SECTION 4 : GESTION DE BANKROLL / REGLAGES -->
+        <!-- SECTION 5 : GESTION DE BANKROLL -->
         <section id="tab-bankroll" class="app-tab" style="display: none;">
             <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
-                <h3 style="color: #f59e0b; margin-top: 0;">💰 Calculateur de Mise (Kelly)</h3>
+                <h3 style="color: #f59e0b; margin-top: 0;">💰 Calculateur de Mise</h3>
                 <label style="font-size: 0.85rem; color: #94a3b8;">Capital Total (€) :</label>
                 <input type="number" id="bankroll-input" value="100" style="width: 100%; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; box-sizing: border-box;">
                 <p style="font-size: 0.85rem; color: #cbd5e1;">Mise conseillée par pari (3%) : <strong id="recommended-stake" style="color:#10b981;">3.00 €</strong></p>
@@ -95,23 +108,26 @@
 
     </main>
 
-    <!-- 📱 BARRE DE NAVIGATION EN BAS (iOS STYLE) -->
+    <!-- 📱 BARRE DE NAVIGATION EN BAS (5 ONGLETS) -->
     <nav style="position: fixed; bottom: 0; left: 0; right: 0; background: #1e293bec; backdrop-filter: blur(10px); border-top: 1px solid #334155; display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 1000;">
-        <button onclick="switchTab('matches')" id="btn-matches" class="nav-btn active-tab" style="background: none; border: none; color: #38bdf8; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.2rem;">⚽</span> Matchs
+        <button onclick="switchTab('matches')" id="btn-matches" class="nav-btn active-tab" style="background: none; border: none; color: #38bdf8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
+            <span style="font-size: 1.1rem;">⚽</span> Matchs
         </button>
-        <button onclick="switchTab('value')" id="btn-value" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.2rem;">🎯</span> Top Value
+        <button onclick="switchTab('ticket')" id="btn-ticket" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
+            <span style="font-size: 1.1rem;">🎟️</span> Ticket
         </button>
-        <button onclick="switchTab('ml')" id="btn-ml" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.2rem;">🧠</span> Moteur IA
+        <button onclick="switchTab('value')" id="btn-value" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
+            <span style="font-size: 1.1rem;">🎯</span> Value
         </button>
-        <button onclick="switchTab('bankroll')" id="btn-bankroll" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.2rem;">💰</span> Bankroll
+        <button onclick="switchTab('ml')" id="btn-ml" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
+            <span style="font-size: 1.1rem;">🧠</span> Moteur IA
+        </button>
+        <button onclick="switchTab('bankroll')" id="btn-bankroll" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; cursor: pointer;">
+            <span style="font-size: 1.1rem;">💰</span> Bankroll
         </button>
     </nav>
 
-    <!-- SCRIPT DE GESTION DU MENU -->
+    <!-- SCRIPT DU MENU -->
     <script>
         function switchTab(tabName) {
             document.querySelectorAll('.app-tab').forEach(tab => tab.style.display = 'none');
