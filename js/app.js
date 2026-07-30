@@ -1,11 +1,11 @@
 // ==========================================
 // ROBOT DE PRÉDICTION FOOTBALL & ESPORTS (FIFA / FC)
-// Fichier : js/app.js (Version Complète)
+// Fichier : js/app.js
 // ==========================================
 
 import aiOrchestrator from './ai-engine/ai-orchestrator.js';
 
-// 1. Liste des pays et compétitions (Inclus FC 26, FC 25, 3x3, 4x4, Rush)
+// 1. Liste des pays et compétitions (Inclus les modes FC 26, FC 25, 3x3, 4x4, Rush)
 const divisionsData = {
     "FIFA": [
         "FC 26 - Champions League",
@@ -30,8 +30,9 @@ const divisionsData = {
     "INT": ["UEFA Champions League", "UEFA Europa League"]
 };
 
-// 2. Base de données des matchs (FIFA/FC et matchs réels)
+// 2. Base de données exemple des matchs virtuels (FIFA/FC) et réels
 const mockMatches = [
+    // --- FC 26 Champions League ---
     { 
         id: 301, country: "FIFA", league: "FC 26 - Champions League", home: "Atlético de Madrid (eSports)", away: "Sporting CP (eSports)", 
         confidence: 60, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0, isVirtual: true,
@@ -57,6 +58,8 @@ const mockMatches = [
         h2h: ["Atlético 3-1 Sporting", "Sporting 2-2 Atlético"],
         playerProps: []
     },
+
+    // --- FC 25 3x3 Ligue de Conférence ---
     { 
         id: 302, country: "FIFA", league: "FC 25 - 3x3 Ligue de Conférence", home: "Chelsea 3x3", away: "Fiorentina 3x3", 
         confidence: 55, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0, isVirtual: true,
@@ -82,6 +85,8 @@ const mockMatches = [
         h2h: ["Chelsea 5-4 Fiorentina", "Fiorentina 3-3 Chelsea"],
         playerProps: []
     },
+
+    // --- FC 26 5x5 Rush Superligue ---
     { 
         id: 303, country: "FIFA", league: "FC 26 - 5x5 Rush Superligue", home: "Real Madrid Rush", away: "FC Barcelona Rush", 
         confidence: 58, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0, isVirtual: true,
@@ -107,6 +112,8 @@ const mockMatches = [
         h2h: ["Real Rush 6-4 Barca Rush"],
         playerProps: []
     },
+
+    // --- FC 24 4x4 Champions d'Angleterre ---
     { 
         id: 304, country: "FIFA", league: "FC 24 - 4x4 Champions d'Angleterre", home: "Arsenal 4x4", away: "Man City 4x4", 
         confidence: 62, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0, isVirtual: true,
@@ -132,6 +139,8 @@ const mockMatches = [
         h2h: ["Arsenal 4-3 City", "City 2-2 Arsenal"],
         playerProps: []
     },
+
+    // --- MATCH RÉEL EXEMPLAIRE ---
     { 
         id: 201, country: "ESP", league: "La Liga (D1)", home: "Real Madrid", away: "FC Barcelone", 
         confidence: 88, status: "LIVE", homeScore: 2, awayScore: 1, elapsed: 64, isVirtual: false,
@@ -172,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!container) return;
 
     function updateDivisionOptions(countryCode) {
-        if (!divisionSelect) return;
         divisionSelect.innerHTML = `<option value="ALL">⚽ Toutes les divisions de ce pays</option>`;
         if (countryCode !== "ALL" && divisionsData[countryCode]) {
             divisionsData[countryCode].forEach(div => {
@@ -236,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 ${isVirtual ? `
                     <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #fca5a5; padding: 8px 10px; border-radius: 8px; font-size: 0.73rem; margin-bottom: 8px;">
-                        ⚠️ <strong>Match Jeu Vidéo :</strong> Les statistiques réelles des équipes ne s'appliquent pas. Suivez la gestion de mise prudente (1% max).
+                        ⚠️ <strong>Match Jeu Vidéo :</strong> Les statistiques réelles des équipes ne s'appliquent pas. Suivez la gestion de mise prudente.
                     </div>
                 ` : ''}
 
@@ -302,7 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMatches();
 });
 
-// 4. Fonctions globales
 window.toggleH2H = (matchId) => {
     const block = document.getElementById(`h2h-block-${matchId}`);
     if (block) {
@@ -327,70 +334,4 @@ window.runAnalysis = (matchId, home, away) => {
             </div>
         `;
     }, 300);
-};
-
-// 5. Générateur automatique de coupon FIFA
-window.generateFifaCoupon = () => {
-    const fifaMatches = mockMatches.filter(m => 
-        m.isVirtual || m.country === "FIFA" || m.league.toLowerCase().includes("fifa") || m.league.toLowerCase().includes("fc ")
-    );
-
-    const couponResult = document.getElementById('fifa-coupon-result');
-    if (!couponResult) return;
-
-    if (fifaMatches.length === 0) {
-        couponResult.innerHTML = `<div style="color: #ef4444; text-align: center; padding: 10px;">❌ Aucun match FIFA disponible actuellement.</div>`;
-        return;
-    }
-
-    let totalOdds = 1.0;
-    let selections = [];
-
-    fifaMatches.forEach(match => {
-        let pickName = "Plus de 2.5 Buts";
-        let pickOdds = 1.47;
-
-        if (match.league.includes("3x3") || match.league.includes("Rush")) {
-            pickName = "Plus de 4.5 Buts";
-            pickOdds = 1.50;
-        } else if (match.league.includes("4x4")) {
-            pickName = "Plus de 3.5 Buts";
-            pickOdds = 1.42;
-        }
-
-        totalOdds *= pickOdds;
-        selections.push({
-            match: `${match.home} vs ${match.away}`,
-            league: match.league,
-            pick: pickName,
-            odds: pickOdds.toFixed(2)
-        });
-    });
-
-    const finalOdds = totalOdds.toFixed(2);
-    const potentialGain5000 = (5000 * finalOdds).toLocaleString();
-
-    couponResult.innerHTML = `
-        <div style="background: linear-gradient(135deg, #1e1b4b, #0f172a); border: 2px solid #8b5cf6; border-radius: 12px; padding: 15px; margin-top: 15px; color: white;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 12px;">
-                <span style="font-weight: bold; color: #a78bfa; font-size: 0.9rem;">🎫 COUPON COMBINÉ SPÉCIAL FIFA / FC</span>
-                <span style="background: #8b5cf6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold;">Cote Totale : ${finalOdds}</span>
-            </div>
-
-            <div style="font-size: 0.8rem; line-height: 1.5; margin-bottom: 12px;">
-                ${selections.map(s => `
-                    <div style="background: #1e293b; padding: 8px; border-radius: 6px; margin-bottom: 6px; border-left: 3px solid #10b981;">
-                        <div style="font-size: 0.7rem; color: #94a3b8;">${s.league}</div>
-                        <div style="font-weight: bold;">${s.match}</div>
-                        <div style="color: #38bdf8;">🎯 Pari : <strong>${s.pick}</strong> (Cote ${s.odds})</div>
-                    </div>
-                `).join('')}
-            </div>
-
-            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 10px; border-radius: 8px; font-size: 0.8rem;">
-                💰 <strong>Exemple de Gain (Mise 5 000 FCFA) :</strong><br>
-                • Gain Potentiel : <strong style="color: #10b981; font-size: 1rem;">${potentialGain5000} FCFA</strong>
-            </div>
-        </div>
-    `;
 };
