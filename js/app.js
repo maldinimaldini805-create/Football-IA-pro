@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!container) return;
 
-    // Base de données des matchs
+    // Matchs réels et de démo
     const mockMatches = [
         { fixture: { id: 201, status: "LIVE", elapsed: 34 }, league: { name: "UEFA Champions League" }, teams: { home: { id: 1, name: "Real Madrid" }, away: { id: 2, name: "Man City" } }, score: { home: 1, away: 0 } },
         { fixture: { id: 202, status: "NS", elapsed: 0 }, league: { name: "Premier League" }, teams: { home: { id: 3, name: "Arsenal" }, away: { id: 4, name: "Liverpool" } }, score: { home: 0, away: 0 } },
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         { fixture: { id: 204, status: "NS", elapsed: 0 }, league: { name: "La Liga" }, teams: { home: { id: 7, name: "FC Barcelone" }, away: { id: 8, name: "Atletico Madrid" } }, score: { home: 0, away: 0 } }
     ];
 
-    // Fonction de rendu dynamique avec filtre
+    // Rendu dynamique de la liste des matchs
     function renderMatches(filterText = "") {
         const query = filterText.toLowerCase().trim();
         const filtered = mockMatches.filter(m => 
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = '';
 
         if (filtered.length === 0) {
-            container.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 30px 10px;">🔍 Aucun match ne correspond à "${filterText}".</div>`;
+            container.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 30px 10px;">🔍 Aucun match trouvé pour "${filterText}".</div>`;
             return;
         }
 
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ${home} <span style="color:#38bdf8;">vs</span> ${away}
                 </div>
                 <button onclick="runAdvancedAnalysis(${match.fixture.id}, '${home}', '${away}', ${isLive}, ${match.fixture.elapsed}, ${match.score.home}, ${match.score.away})" 
-                        style="width: 100%; padding: 12px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);">
+                        style="width: 100%; padding: 12px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
                     🤖 Analyser Tout (Live, Score, MT, Apprentissage)
                 </button>
                 <div id="prediction-${match.fixture.id}" style="margin-top: 12px;"></div>
@@ -67,13 +67,66 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Écouteur de frappe dans le champ de recherche
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            renderMatches(e.target.value);
-        });
-    }
-
-    // Affichage initial
+    if (searchInput) searchInput.addEventListener('input', (e) => renderMatches(e.target.value));
     renderMatches();
 });
+
+// 🎟️ FONCTION DU GÉNÉRATEUR DE TICKETS
+window.generateTicket = (type) => {
+    const resultDiv = document.getElementById('ticket-result');
+    resultDiv.innerHTML = `<div style="color: #38bdf8;">⚡ Calcul du meilleur combiné par l'IA...</div>`;
+
+    setTimeout(() => {
+        let title = "🛡️ Ticket Sécurisé";
+        let totalOdds = "1.95";
+        let matches = [
+            { match: "Real Madrid vs Man City", pick: "Plus de 1.5 Buts", odds: "1.25" },
+            { match: "PSG vs Marseille", pick: "Victoire PSG ou Nul", odds: "1.22" },
+            { match: "Arsenal vs Liverpool", pick: "Plus de 7.5 Corners", odds: "1.28" }
+        ];
+
+        if (type === 'balanced') {
+            title = "⚖️ Ticket Équilibré";
+            totalOdds = "3.85";
+            matches = [
+                { match: "Real Madrid vs Man City", pick: "Plus de 2.5 Buts", odds: "1.65" },
+                { match: "Arsenal vs Liverpool", pick: "Les 2 équipes marquent", odds: "1.58" },
+                { match: "FC Barcelone vs Atletico", pick: "Victoire FC Barcelone", odds: "1.48" }
+            ];
+        } else if (type === 'risk') {
+            title = "🚀 Ticket Jackpot";
+            totalOdds = "8.90";
+            matches = [
+                { match: "Real Madrid vs Man City", pick: "Real gagne & +2.5 Buts", odds: "2.80" },
+                { match: "Arsenal vs Liverpool", pick: "Score exact 2-1", odds: "8.50" }
+            ];
+        }
+
+        let html = `
+            <div style="text-align: left;">
+                <h4 style="margin: 0 0 10px 0; color: #10b981; font-size: 1rem;">${title} (Cote Totale: ${totalOdds})</h4>
+        `;
+
+        let shareText = `⚽ *FOOTBALL IA PRO - ${title}*%0A*Cote Totale: ${totalOdds}*%0A%0A`;
+
+        matches.forEach(m => {
+            html += `
+                <div style="background: #1e293b; padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 0.8rem;">
+                    <strong>${m.match}</strong><br>
+                    <span style="color: #38bdf8;">📌 ${m.pick}</span> (Cote: ${m.odds})
+                </div>
+            `;
+            shareText += `• ${m.match} ➔ ${m.pick} (Cote: ${m.odds})%0A`;
+        });
+
+        html += `
+                <a href="https://wa.me/?text=${shareText}" target="_blank" 
+                   style="display: block; width: 100%; text-align: center; margin-top: 10px; padding: 10px; background: #25D366; color: white; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.85rem; box-sizing: border-box;">
+                    📲 Partager le Ticket sur WhatsApp
+                </a>
+            </div>
+        `;
+
+        resultDiv.innerHTML = html;
+    }, 400);
+};
