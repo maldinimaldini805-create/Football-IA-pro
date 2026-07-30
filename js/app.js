@@ -1,6 +1,8 @@
 // js/app.js
 import aiOrchestrator from './ai-engine/ai-orchestrator.js';
 
+let selectedLeague = "ALL";
+
 document.addEventListener('DOMContentLoaded', async () => {
     const container = document.getElementById('matches-container');
     const totalMatchesElem = document.getElementById('total-matches');
@@ -8,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!container) return;
 
-    // Base de données augmentée avec Cartons, Arbitre, Absences et Monte-Carlo
+    // Matches de différents championnats du monde
     const mockMatches = [
         { 
             fixture: { id: 201, status: "LIVE", elapsed: 34 }, 
@@ -36,14 +38,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         },
         { 
             fixture: { id: 203, status: "NS", elapsed: 0 }, 
+            league: { name: "La Liga" }, 
+            teams: { 
+                home: { id: 5, name: "FC Barcelone", form: ["W", "W", "W", "W", "D"] }, 
+                away: { id: 6, name: "Atlético Madrid", form: ["W", "D", "W", "L", "W"] } 
+            }, 
+            score: { home: 0, away: 0 },
+            confidence: 84,
+            referee: { name: "Mateu Lahoz", avgCards: 5.1 },
+            liveMomentum: null
+        },
+        { 
+            fixture: { id: 204, status: "NS", elapsed: 0 }, 
             league: { name: "Ligue 1" }, 
             teams: { 
-                home: { id: 5, name: "PSG", form: ["W", "W", "W", "W", "D"] }, 
-                away: { id: 6, name: "Marseille", form: ["L", "D", "W", "L", "W"] } 
+                home: { id: 7, name: "PSG", form: ["W", "W", "W", "W", "D"] }, 
+                away: { id: 8, name: "Marseille", form: ["L", "D", "W", "L", "W"] } 
             }, 
             score: { home: 0, away: 0 },
             confidence: 86,
             referee: { name: "Clément Turpin", avgCards: 4.2 },
+            liveMomentum: null
+        },
+        { 
+            fixture: { id: 205, status: "NS", elapsed: 0 }, 
+            league: { name: "Serie A" }, 
+            teams: { 
+                home: { id: 9, name: "Inter Milan", form: ["W", "W", "D", "W", "W"] }, 
+                away: { id: 10, name: "AC Milan", form: ["D", "W", "L", "W", "D"] } 
+            }, 
+            score: { home: 0, away: 0 },
+            confidence: 82,
+            referee: { name: "Davide Massa", avgCards: 4.5 },
+            liveMomentum: null
+        },
+        { 
+            fixture: { id: 206, status: "NS", elapsed: 0 }, 
+            league: { name: "Bundesliga" }, 
+            teams: { 
+                home: { id: 11, name: "Bayern Munich", form: ["W", "W", "W", "W", "W"] }, 
+                away: { id: 12, name: "Dortmund", form: ["W", "L", "D", "W", "L"] } 
+            }, 
+            score: { home: 0, away: 0 },
+            confidence: 89,
+            referee: { name: "Felix Zwayer", avgCards: 3.8 },
             liveMomentum: null
         }
     ];
@@ -58,11 +96,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function renderMatches(filterText = "") {
         const query = filterText.toLowerCase().trim();
-        const filtered = mockMatches.filter(m => 
-            m.teams.home.name.toLowerCase().includes(query) ||
-            m.teams.away.name.toLowerCase().includes(query) ||
-            m.league.name.toLowerCase().includes(query)
-        );
+        
+        const filtered = mockMatches.filter(m => {
+            const matchesLeague = (selectedLeague === "ALL" || m.league.name === selectedLeague);
+            const matchesQuery = m.teams.home.name.toLowerCase().includes(query) ||
+                                 m.teams.away.name.toLowerCase().includes(query) ||
+                                 m.league.name.toLowerCase().includes(query);
+            return matchesLeague && matchesQuery;
+        });
 
         if (totalMatchesElem) {
             const liveCount = filtered.filter(m => m.fixture.status === "LIVE").length;
@@ -72,7 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = '';
 
         if (filtered.length === 0) {
-            container.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 30px 10px;">🔍 Aucun match trouvé pour "${filterText}".</div>`;
+            container.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 30px 10px;">🔍 Aucun match disponible pour ce championnat.</div>`;
             return;
         }
 
@@ -113,7 +154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             matchCard.innerHTML = `
                 ${pepiteBadge}
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span style="font-size: 0.85rem; color: #94a3b8;">🏆 ${league}</span>
+                    <span style="font-size: 0.85rem; color: #38bdf8; font-weight: bold;">🏆 ${league}</span>
                     ${statusBadge}
                 </div>
                 
@@ -121,30 +162,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ${home} <span style="color:#38bdf8;">vs</span> ${away}
                 </div>
 
-                <!-- ⚔️ Forme récente 5 matchs -->
                 <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-bottom: 8px; background: #0f172a; padding: 6px 10px; border-radius: 6px;">
                     <div>${home}: ${renderFormBadges(match.teams.home.form)}</div>
                     <div>${away}: ${renderFormBadges(match.teams.away.form)}</div>
                 </div>
 
-                <!-- 🟨 Arbitre et Cartons -->
                 <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px; background: #0f172a; padding: 6px 10px; border-radius: 6px; display: flex; justify-content: space-between;">
                     <span>👨‍⚖️ Arbitre: <strong style="color:white;">${match.referee.name}</strong></span>
                     <span>🟨 <strong style="color:#f59e0b;">${match.referee.avgCards}</strong> cartons/match</span>
                 </div>
 
                 ${momentumHtml}
-
-                <!-- 🚑 Sélecteur d'Absence Clé -->
-                <div style="margin-bottom: 10px; background: #0f172a; padding: 8px; border-radius: 6px;">
-                    <label style="font-size: 0.75rem; color: #94a3b8;">🚑 Impact des Absences :</label>
-                    <select id="absence-${match.fixture.id}" style="width: 100%; padding: 6px; margin-top: 4px; background: #1e293b; color: white; border: 1px solid #334155; border-radius: 6px; font-size: 0.75rem;">
-                        <option value="none">Aucune absence majeure</option>
-                        <option value="home-striker">Buteur ${home} absent (-25% buts)</option>
-                        <option value="away-striker">Buteur ${away} absent (-25% buts)</option>
-                        <option value="both-def">Défenses affaiblies (+30% xG total)</option>
-                    </select>
-                </div>
 
                 <div style="display: flex; gap: 8px; margin-bottom: 10px;">
                     <button onclick="runAdvancedAnalysis(${match.fixture.id}, '${home}', '${away}')" 
@@ -163,29 +191,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Gestion du filtre par ligues
+    window.filterByLeague = (leagueName, btnElement) => {
+        selectedLeague = leagueName;
+        
+        document.querySelectorAll('.league-btn').forEach(b => {
+            b.style.background = '#1e293b';
+            b.style.color = '#cbd5e1';
+            b.style.borderColor = '#334155';
+        });
+
+        btnElement.style.background = '#38bdf8';
+        btnElement.style.color = '#0f172a';
+        btnElement.style.borderColor = '#38bdf8';
+
+        renderMatches(searchInput ? searchInput.value : "");
+    };
+
     if (searchInput) searchInput.addEventListener('input', (e) => renderMatches(e.target.value));
     renderMatches();
 });
 
-// 🎲 SIMULATEUR MONTE-CARLO (10 000 SIMULATIONS)
+// 🎲 SIMULATEUR MONTE-CARLO
 window.runMonteCarloSimulation = (home, away, matchId) => {
     const targetDiv = document.getElementById(`prediction-${matchId}`);
     if (!targetDiv) return;
 
-    targetDiv.innerHTML = `<div style="color: #38bdf8; font-size: 0.8rem; text-align: center;">🎲 Calculation de 10 000 simulations Monte-Carlo en cours...</div>`;
+    targetDiv.innerHTML = `<div style="color: #38bdf8; font-size: 0.8rem; text-align: center;">🎲 Calculation de 10 000 simulations Monte-Carlo...</div>`;
 
     setTimeout(() => {
-        let homeWins = 5420;
-        let draws = 2210;
-        let awayWins = 2370;
-
         targetDiv.innerHTML = `
             <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #059669; font-size: 0.8rem; color: #cbd5e1;">
                 <h4 style="margin: 0 0 6px 0; color: #10b981;">🎲 Bilan Monte-Carlo (10 000 Matchs)</h4>
                 <div>🏠 Victoire ${home} : <strong style="color:#10b981;">54.2%</strong></div>
                 <div>🤝 Match Nul : <strong style="color:#f59e0b;">22.1%</strong></div>
                 <div>🚀 Victoire ${away} : <strong style="color:#ef4444;">23.7%</strong></div>
-                <div style="margin-top: 6px; font-size: 0.75rem; color: #38bdf8;">📌 Score le plus fréquent observé : <strong>2 - 1</strong> (14.2% des cas)</div>
+                <div style="margin-top: 6px; font-size: 0.75rem; color: #38bdf8;">📌 Score le plus fréquent observé : <strong>2 - 1</strong></div>
             </div>
         `;
     }, 400);
