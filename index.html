@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot de Prédiction Football PRO</title>
+    <title>Robot de Prédiction Football PRO & FIFA</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -109,7 +109,15 @@
 <body>
 
 <div class="container">
-    <h1>Robot de Prédiction Football PRO</h1>
+    <h1>Robot de Prédiction Football PRO & FIFA</h1>
+
+    <!-- GÉNÉRATEUR DE PRÉDICTIONS FIFA -->
+    <div class="card" style="text-align: center;">
+        <h2>Robot de Pronostics FIFA / eSports</h2>
+        <p>Générez des prédictions analysées automatiquement pour les matchs FIFA en direct.</p>
+        <button onclick="generateFifaCoupon()">Générer un Pronostic FIFA</button>
+        <div id="fifa-coupon-result"></div>
+    </div>
 
     <!-- CALCULATRICE KELLY -->
     <div class="card">
@@ -123,12 +131,6 @@
             <button onclick="calculateKelly()">Calculer la Mise</button>
         </div>
         <div id="kelly-result"></div>
-    </div>
-
-    <!-- GÉNÉRATEUR DE COUPON FIFA -->
-    <div class="card" style="text-align: center;">
-        <button onclick="generateFifaCoupon()">Générer un Coupon Combiné FIFA</button>
-        <div id="fifa-coupon-result"></div>
     </div>
 
     <!-- RECHERCHE ET FILTRES DE MATCHS -->
@@ -154,7 +156,7 @@
 
         <!-- BARRE DE FILTRES RAPIDES -->
         <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-            <button class="btn-filter" onclick="quickFilter('ALL')">Tous</option>
+            <button class="btn-filter" onclick="quickFilter('ALL')">Tous</button>
             <button class="btn-filter" onclick="quickFilter('SAFE')">Pari Sûr (&gt;75%)</button>
             <button class="btn-filter" onclick="quickFilter('GOALS')">Over 2.5</button>
             <button class="btn-filter" onclick="quickFilter('BTTS')">Les 2 marquent</button>
@@ -166,13 +168,71 @@
 </div>
 
 <script>
-    // Données fictives d'exemple pour le fonctionnement
+    // Équipes FIFA pour le simulateur
+    const fifaTeams = [
+        "Real Madrid (eSports)", "Manchester City (eSports)", "Barcelona (eSports)", 
+        "Bayern Munich (eSports)", "PSG (eSports)", "Liverpool (eSports)", 
+        "Arsenal (eSports)", "Inter Milan (eSports)"
+    ];
+
+    // Données fictives initiales
     const matchesData = [
         { id: 1, country: 'ENG', division: 'D1', team1: 'Arsenal', team2: 'Chelsea', proba: 78, type: 'SAFE', over: true, btts: true },
         { id: 2, country: 'ESP', division: 'D1', team1: 'Real Madrid', team2: 'Barcelone', proba: 65, type: 'RISK', over: true, btts: true },
         { id: 3, country: 'FRA', division: 'D1', team1: 'PSG', team2: 'OM', proba: 82, type: 'SAFE', over: true, btts: false },
-        { id: 4, country: 'FIFA', division: 'D1', team1: 'Man City (Virtuel)', team2: 'Bayern (Virtuel)', proba: 70, type: 'GOALS', over: true, btts: true }
+        { id: 4, country: 'FIFA', division: 'D1', team1: 'Man City (eSports)', team2: 'Bayern (eSports)', proba: 74, type: 'GOALS', over: true, btts: true }
     ];
+
+    function getRandomItem(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function generateFifaPrediction() {
+        let team1 = getRandomItem(fifaTeams);
+        let team2 = getRandomItem(fifaTeams);
+        while (team1 === team2) {
+            team2 = getRandomItem(fifaTeams);
+        }
+
+        const proba1 = Math.floor(Math.random() * 40) + 35;
+        const over25Proba = Math.floor(Math.random() * 30) + 60;
+
+        let advice = "";
+        if (over25Proba > 75) {
+            advice = "Plus de 2.5 Buts dans le match";
+        } else if (proba1 > 65) {
+            advice = `Victoire de ${team1}`;
+        } else {
+            advice = "Les deux équipes marquent (Oui)";
+        }
+
+        return {
+            teams: `${team1} vs ${team2}`,
+            proba: Math.max(proba1, over25Proba),
+            advice: advice
+        };
+    }
+
+    function generateFifaCoupon() {
+        const resultDiv = document.getElementById('fifa-coupon-result');
+        resultDiv.innerHTML = "<p><em>Analyse des algorithmes FIFA en cours...</em></p>";
+
+        setTimeout(() => {
+            let pred1 = generateFifaPrediction();
+            let pred2 = generateFifaPrediction();
+
+            resultDiv.innerHTML = `
+                <div style="background: #0f172a; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: left;">
+                    <h3 style="color: var(--success-color); margin-top:0;">🤖 Pronostics FIFA Générés</h3>
+                    <p><strong>Match 1 :</strong> ${pred1.teams}<br>
+                       👉 <strong>Conseil :</strong> ${pred1.advice} (${pred1.proba}% de confiance)</p>
+                    <hr style="border-color: #334155;">
+                    <p><strong>Match 2 :</strong> ${pred2.teams}<br>
+                       👉 <strong>Conseil :</strong> ${pred2.advice} (${pred2.proba}% de confiance)</p>
+                </div>
+            `;
+        }, 400);
+    }
 
     function calculateKelly() {
         const b = parseFloat(document.getElementById('bankroll').value);
@@ -189,16 +249,11 @@
         const kellyFraction = ((bDecimal * p) - q) / bDecimal;
 
         if (kellyFraction <= 0) {
-            document.getElementById('kelly-result').innerHTML = "<p style='color:var(--warning-color)'>Pari non recommandé (Valeur négative).</p>";
+            document.getElementById('kelly-result').innerHTML = "<p style='color:var(--warning-color)'>Pari non recommandé.</p>";
         } else {
-            const stake = (b * kellyFraction * 0.5).toFixed(2); // Demie-mise de Kelly conseillée
-            document.getElementById('kelly-result').innerHTML = `<p style='color:var(--success-color)'>Mise conseillée (Half-Kelly) : <strong>${stake} €</strong></p>`;
+            const stake = (b * kellyFraction * 0.5).toFixed(2);
+            document.getElementById('kelly-result').innerHTML = `<p style='color:var(--success-color)'>Mise conseillée : <strong>${stake} €</strong></p>`;
         }
-    }
-
-    function generateFifaCoupon() {
-        const resultDiv = document.getElementById('fifa-coupon-result');
-        resultDiv.innerHTML = "<p style='margin-top:15px; font-weight:bold;'>Coupon Généré : Over 1.5 Buts dans les matchs FIFA sélectionnés.</p>";
     }
 
     function renderMatches(data) {
@@ -211,8 +266,8 @@
             card.innerHTML = `
                 <h3>${m.team1} vs ${m.team2}</h3>
                 <p>Pays: ${m.country} | Division: ${m.division}</p>
-                <p>Probabilité de victoire : <strong>${m.proba}%</strong></p>
-                <span class="badge ${m.proba > 75 ? 'badge-green' : 'badge-yellow'}">${m.proba > 75 ? 'Pari Sûr' : 'Pari Moderé'}</span>
+                <p>Probabilité de réussite : <strong>${m.proba}%</strong></p>
+                <span class="badge ${m.proba > 75 ? 'badge-green' : 'badge-yellow'}">${m.proba > 75 ? 'Pari Sûr' : 'Pari Modéré'}</span>
             `;
             container.appendChild(card);
         });
