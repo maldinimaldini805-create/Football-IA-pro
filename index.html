@@ -2,202 +2,487 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Football IA Pro - Ultimate Edition</title>
-    
-    <!-- Feuilles de style -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="dashboard.css">
-    
-    <!-- Configuration PWA -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot de Prédiction Football & FIFA AI v2.0</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Football IA">
+    <meta name="theme-color" content="#2563eb">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #0f172a; 
+            color: #f8fafc; 
+            padding: 15px; 
+            max-width: 900px; 
+            margin: auto; 
+        }
+        header { 
+            text-align: center; 
+            padding: 20px 0; 
+            border-bottom: 1px solid #334155; 
+            margin-bottom: 20px; 
+        }
+        h1 { color: #38bdf8; font-size: 1.6rem; margin-bottom: 5px; }
+        p.subtitle { color: #94a3b8; font-size: 0.85rem; }
+        .card { 
+            background: #1e293b; 
+            border-radius: 12px; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border: 1px solid #334155; 
+        }
+        .filter-btn { 
+            background: #334155; 
+            color: white; 
+            border: none; 
+            padding: 8px 14px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 0.8rem; 
+            transition: background 0.2s; 
+        }
+        .filter-btn:hover, .filter-btn.active { background: #2563eb; }
+        select, input { 
+            width: 100%; 
+            padding: 10px; 
+            border-radius: 8px; 
+            border: 1px solid #334155; 
+            background: #0f172a; 
+            color: white; 
+            margin-bottom: 10px; 
+            font-size: 0.85rem; 
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button.action-btn { 
+            background: linear-gradient(90deg, #7c3aed, #2563eb); 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            font-weight: bold; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-size: 0.9rem; 
+        }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
+        .badge-live { background: #ef4444; color: white; }
+        .badge-value { background: #8b5cf6; color: white; }
+        .badge-virtual { background: #a855f7; color: white; }
+    </style>
 </head>
-<body style="background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 15px 15px 95px 15px; min-height: 100vh;">
+<body>
 
-    <!-- 🏆 EN-TÊTE DU ROBOT EN-TÊTE PREMIUM -->
-    <header style="text-align: center; padding: 20px 0 10px 0;">
-        <div style="display: inline-block; filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.6)); margin-bottom: 5px;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="60" height="60">
-              <defs>
-                <linearGradient id="neonGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#38bdf8" />
-                  <stop offset="100%" stop-color="#10b981" />
-                </linearGradient>
-              </defs>
-              <path d="M100 15 L160 45 V105 C160 145 100 180 100 180 C100 180 40 145 40 105 V45 Z" fill="#0f172a" stroke="url(#neonGlow)" stroke-width="6" stroke-linejoin="round"/>
-              <polygon points="100,55 125,75 115,105 85,105 75,75" fill="none" stroke="url(#neonGlow)" stroke-width="4"/>
-              <circle cx="80" cy="88" r="6" fill="#38bdf8" />
-              <circle cx="120" cy="88" r="6" fill="#10b981" />
-              <path d="M85 125 Q100 135 115 125" fill="none" stroke="url(#neonGlow)" stroke-width="4" stroke-linecap="round"/>
-            </svg>
-        </div>
-        
-        <h1 style="margin: 2px 0; font-size: 1.7rem; font-weight: 800; background: linear-gradient(135deg, #38bdf8, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            Football IA Pro
-        </h1>
-        
-        <p id="total-matches" style="margin: 0; color: #94a3b8; font-size: 0.8rem; font-weight: 500;">
-            Moteur v4.0 • Tous championnats & Options Joueurs
-        </p>
+    <header>
+        <h1>⚡ Robot de Prédiction Foot & eSports v2.0</h1>
+        <p class="subtitle">Analyse par Intelligence Artificielle & Gestionnaire de Bankroll</p>
     </header>
 
-    <!-- 📱 APPLICATION PRINCIPALE -->
-    <main style="max-width: 480px; margin: 0 auto;">
-        
-        <!-- SECTION 1 : MATCHS, MÉTÉO, H2H & CHAMPIONNATS -->
-        <section id="tab-matches" class="app-tab">
-            
-            <!-- 🔍 RECHERCHE UNIVERSELLE -->
-            <div style="margin: 10px 0 12px 0;">
-                <input type="text" id="search-input" placeholder="🔍 Rechercher équipe, joueur, ligue ou pays..." 
-                       style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 0.85rem; box-sizing: border-box; outline: none;">
+    <!-- SECTION CALCULATEUR DE KELLY -->
+    <div class="card" style="border: 1px solid #10b981;">
+        <h3 style="color: #10b981; font-size: 1rem; margin-bottom: 10px;">📊 Calculateur de Mise Maximale (Critère de Kelly)</h3>
+        <div class="grid-2">
+            <div>
+                <label style="font-size: 0.75rem; color: #94a3b8;">Capital Total (FCFA / €)</label>
+                <input type="number" id="kelly-bankroll" value="500000" placeholder="Ex: 500000">
             </div>
-
-            <!-- 🌍 SÉLECTEUR MONDIAL (PAYS & DIVISIONS) -->
-            <div style="background: #1e293b; padding: 12px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;">
-                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                    <select id="country-select" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #38bdf8; font-weight: bold; font-size: 0.8rem; outline: none;">
-                        <option value="ALL">🌐 Tous les pays & Coupes</option>
-                        <option value="ENG">🇬🇧 Angleterre (D1 à D5)</option>
-                        <option value="ESP">🇪🇸 Espagne (D1 à D3)</option>
-                        <option value="ITA">🇮🇹 Italie (D1 à D3)</option>
-                        <option value="FRA">🇫🇷 France (D1 à D3)</option>
-                        <option value="POR">🇵🇹 Portugal (D1, D2)</option>
-                        <option value="NED">🇳🇱 Pays-Bas (D1, D2)</option>
-                        <option value="GER">🇩🇪 Allemagne (D1, D2, D3)</option>
-                        <option value="BEL">🇧🇪 Belgique (D1, D2)</option>
-                        <option value="BRA">🇧🇷 Brésil (Série A, B)</option>
-                        <option value="ARG">🇦🇷 Argentine (D1, D2)</option>
-                        <option value="AFR">🌍 Afrique & CAF</option>
-                        <option value="INT">🏆 UEFA / FIFA</option>
-                    </select>
-                </div>
-
-                <select id="division-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.8rem; outline: none;">
-                    <option value="ALL">⚽ Toutes les divisions du pays sélectionné</option>
-                </select>
+            <div>
+                <label style="font-size: 0.75rem; color: #94a3b8;">Cote Proposée</label>
+                <input type="number" step="0.01" id="kelly-odds" value="1.85" placeholder="Ex: 1.85">
             </div>
-
-            <!-- CONTAINER DES CARTE MATCHS -->
-            <div id="matches-container"></div>
-        </section>
-
-        <!-- SECTION 2 : RADAR SMART MONEY & DROPPING ODDS -->
-        <section id="tab-dropping" class="app-tab" style="display: none;">
-            <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 15px; border-radius: 12px; border: 1px solid #ef4444; margin-bottom: 15px;">
-                <h3 style="color: #ef4444; margin: 0 0 6px 0; font-size: 1rem;">🚨 Radar Smart Money & Dropping Odds</h3>
-                <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Détection automatique des cotes qui chutent suite à de grosses mises de parieurs pros ou infos de dernière minute.</p>
+        </div>
+        <div class="grid-2">
+            <div>
+                <label style="font-size: 0.75rem; color: #94a3b8;">Probabilité Estimée (%)</label>
+                <input type="number" id="kelly-prob" value="65" placeholder="Ex: 65">
             </div>
-
-            <div id="dropping-odds-container"></div>
-        </section>
-
-        <!-- SECTION 3 : PRONOSTICS JOUEURS (BUTEURS & CARTONS) -->
-        <section id="tab-players" class="app-tab" style="display: none;">
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #38bdf8; margin-bottom: 15px;">
-                <h3 style="color: #38bdf8; margin: 0 0 6px 0; font-size: 1rem;">🎯 Pronostics Joueurs & Performance</h3>
-                <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Analyse IA des Buteurs probables, Tirs cadrés et risque de Cartons Jaunes.</p>
+            <div style="display: flex; align-items: flex-end;">
+                <button onclick="calculateBankrollKelly()" class="action-btn" style="background: #10b981; margin-bottom: 10px;">🧮 Calculer la Mise</button>
             </div>
+        </div>
+        <div id="kelly-result" style="font-size: 0.85rem; padding: 10px; background: #0f172a; border-radius: 8px; text-align: center; display: none;"></div>
+    </div>
 
-            <div id="players-props-container"></div>
-        </section>
-
-        <!-- SECTION 4 : SCANNER / ÉVALUATEUR DE TICKET PERSONNEL -->
-        <section id="tab-scanner" class="app-tab" style="display: none;">
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #f59e0b; margin-top: 10px;">
-                <h3 style="color: #f59e0b; margin-top: 0;">🔍 Scanner & Audit de Votre Ticket</h3>
-                <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 12px;">Entrez les sélections de votre coupon pour identifier le maillon faible et la probabilité réelle :</p>
-                
-                <div id="ticket-scanner-inputs">
-                    <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                        <input type="text" placeholder="Match (ex: Real vs City)" class="scan-match" style="flex: 2; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.8rem;">
-                        <input type="text" placeholder="Choix (ex: 1 ou +2.5)" class="scan-pick" style="flex: 1.5; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.8rem;">
-                        <input type="number" step="0.01" placeholder="Cote" class="scan-odds" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.8rem;">
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 8px; margin: 10px 0;">
-                    <button onclick="addScannerRow()" style="flex: 1; padding: 8px; background: #334155; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.75rem;">+ Ajouter Un Match</button>
-                    <button onclick="analyzeUserTicket()" style="flex: 1.5; padding: 8px; background: #f59e0b; color: #0f172a; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">⚡ Auditer Le Ticket</button>
-                </div>
-
-                <div id="scanner-result" style="margin-top: 12px;"></div>
-            </div>
-
-            <!-- GÉNÉRATEUR DE TICKETS AUTOMATIQUES -->
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 15px;">
-                <h3 style="color: #38bdf8; margin-top: 0;">🎟️ Générateur de Combinés IA</h3>
-                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                    <button onclick="generateTicket('safe')" style="flex: 1; padding: 10px 5px; background: #059669; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🛡️ Sécurisé</button>
-                    <button onclick="generateTicket('balanced')" style="flex: 1; padding: 10px 5px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">⚖️ Équilibré</button>
-                    <button onclick="generateTicket('risk')" style="flex: 1; padding: 10px 5px; background: #dc2626; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">🚀 Jackpot</button>
-                </div>
-                <div id="ticket-result" style="background: #0f172a; padding: 12px; border-radius: 8px; border: 1px dashed #38bdf8; text-align: center; color: #cbd5e1; font-size: 0.85rem;">
-                    Sélectionnez un profil ci-dessus.
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION 5 : OUTILS, BANKROLL & ALERTES -->
-        <section id="tab-bankroll" class="app-tab" style="display: none;">
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px; margin-bottom: 15px;">
-                <h3 style="color: #f59e0b; margin-top: 0;">💰 Gestionnaire de Bankroll (3%)</h3>
-                <label style="font-size: 0.8rem; color: #94a3b8;">Capital Total (€) :</label>
-                <input type="number" id="bankroll-input" value="100" style="width: 100%; padding: 10px; margin: 6px 0 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; box-sizing: border-box;">
-                <p style="font-size: 0.85rem; color: #cbd5e1; margin: 0;">Mise conseillée : <strong id="recommended-stake" style="color:#10b981;">3.00 €</strong></p>
-            </div>
-
-            <!-- SIMULATEUR D'ALERTES PUSH -->
-            <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #10b981;">
-                <h3 style="color: #10b981; margin-top: 0;">🔔 Alertes In-Play WhatsApp & Push</h3>
-                <p style="font-size: 0.8rem; color: #cbd5e1;">Recevez les signaux en direct (Ex: Pression > 85% pendant 10 min).</p>
-                <button onclick="testPushNotification()" style="width: 100%; padding: 10px; background: #10b981; color: #0f172a; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
-                    📲 Tester une Alerte Live WhatsApp
-                </button>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- 📱 BARRE DE NAVIGATION EN BAS (5 ONGLETS) -->
-    <nav style="position: fixed; bottom: 0; left: 0; right: 0; background: #1e293bec; backdrop-filter: blur(10px); border-top: 1px solid #334155; display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 1000;">
-        <button onclick="switchTab('matches')" id="btn-matches" class="nav-btn active-tab" style="background: none; border: none; color: #38bdf8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.1rem;">⚽</span> Matchs
+    <!-- GÉNÉRATEUR DE COUPON FIFA -->
+    <div style="text-align: center; margin: 15px 0;">
+        <button onclick="generateFifaCoupon()" class="action-btn">
+            🎯 Générer un Coupon Combiné FIFA / FC
         </button>
-        <button onclick="switchTab('dropping')" id="btn-dropping" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.1rem;">🚨</span> Smart Money
-        </button>
-        <button onclick="switchTab('players')" id="btn-players" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.1rem;">🎯</span> Joueurs
-        </button>
-        <button onclick="switchTab('scanner')" id="btn-scanner" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.1rem;">🔍</span> Scanner
-        </button>
-        <button onclick="switchTab('bankroll')" id="btn-bankroll" class="nav-btn" style="background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: bold; cursor: pointer;">
-            <span style="font-size: 1.1rem;">💰</span> Outils
-        </button>
-    </nav>
+        <div id="fifa-coupon-result"></div>
+    </div>
+
+    <!-- RECHERCHE ET FILTRES DE MATCHS -->
+    <div class="card">
+        <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe ou compétition...">
+        <div class="grid-2">
+            <select id="country-select">
+                <option value="ALL">🌐 Tous les pays / Catégories</option>
+                <option value="FIFA">🎮 FIFA / FC eSports</option>
+                <option value="ENG">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre</option>
+                <option value="ESP">🇪🇸 Espagne</option>
+                <option value="ITA">🇮🇹 Italie</option>
+                <option value="FRA">🇫🇷 France</option>
+                <option value="INT">🇪🇺 Compétitions Européennes</option>
+            </select>
+            <select id="division-select">
+                <option value="ALL">⚽ Toutes les divisions</option>
+            </select>
+        </div>
+
+        <!-- BARRE DE FILTRES RAPIDES -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; justify-content: center;">
+            <button class="filter-btn active" onclick="setFilterCategory('ALL', this)">Tous</button>
+            <button class="filter-btn" onclick="setFilterCategory('VALUE', this)">💎 Value Bets</button>
+            <button class="filter-btn" onclick="setFilterCategory('FIFA', this)">🎮 FIFA / eSports</button>
+            <button class="filter-btn" onclick="setFilterCategory('CONFIDENCE', this)">🔥 Confiance > 75%</button>
+        </div>
+    </div>
+
+    <div id="total-matches" style="text-align: center; font-size: 0.8rem; color: #94a3b8; margin-bottom: 10px;"></div>
+
+    <!-- CONTENEUR DES MATCHS -->
+    <div id="matches-container"></div>
 
     <script>
-        function switchTab(tabName) {
-            document.querySelectorAll('.app-tab').forEach(tab => tab.style.display = 'none');
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.style.color = '#94a3b8');
+        // DONNÉES ET LOGIQUE DU ROBOT IA
+        const divisionsData = {
+            "FIFA": [
+                "FC 26 - Champions League",
+                "FC 25 - 3x3 Ligue de Conférence",
+                "FC 26 - England Championship",
+                "FC 26 - 5x5 Rush Superligue",
+                "FC 24 - 4x4 Champions d'Angleterre",
+                "FIFA 24 - Ultimate League"
+            ],
+            "ENG": ["Premier League (D1)", "Championship (D2)", "FA Cup"],
+            "ESP": ["La Liga (D1)", "Copa del Rey"],
+            "ITA": ["Serie A (D1)", "Coppa Italia"],
+            "FRA": ["Ligue 1 (D1)", "Coupe de France"],
+            "INT": ["UEFA Champions League", "UEFA Europa League"]
+        };
 
-            document.getElementById('tab-' + tabName).style.display = 'block';
-            document.getElementById('btn-' + tabName).style.color = '#38bdf8';
-        }
-
-        document.addEventListener('input', (e) => {
-            if (e.target.id === 'bankroll-input') {
-                const val = parseFloat(e.target.value) || 0;
-                document.getElementById('recommended-stake').textContent = (val * 0.03).toFixed(2) + ' €';
+        const mockMatches = [
+            { 
+                id: 301, country: "FIFA", league: "FC 26 - Champions League", home: "Atlético de Madrid (eSports)", away: "Sporting CP (eSports)", 
+                confidence: 60, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0, isVirtual: true,
+                valueBet: { active: false, edge: "0%", bookmakerOdds: 1.71, aiEstimatedOdds: 1.70 },
+                bankrollTip: "⚠️ Match Virtuel FC 26 : Réduisez la mise à 1% MAX de votre bankroll",
+                goalsData: { overUnderPred: "+2.5 Buts dans le match (Cote 1.47)", btts: "Les 2 équipes marquent : OUI" },
+                pressure: null,
+                h2h: ["Atlético 3-1 Sporting", "Sporting 2-2 Atlético"]
+            },
+            { 
+                id: 302, country: "FIFA", league: "FC 25 - 3x3 Ligue de Conférence", home: "Chelsea 3x3", away: "Fiorentina 3x3", 
+                confidence: 55, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0, isVirtual: true,
+                valueBet: { active: false, edge: "0%", bookmakerOdds: 1.85, aiEstimatedOdds: 1.80 },
+                bankrollTip: "⚠️ Mode 3x3 : Match court, mise 0.5% à 1% Max",
+                goalsData: { overUnderPred: "+4.5 Buts dans le match", btts: "Les 2 équipes marquent : OUI" },
+                pressure: null,
+                h2h: ["Chelsea 5-4 Fiorentina", "Fiorentina 3-3 Chelsea"]
+            },
+            { 
+                id: 303, country: "FIFA", league: "FC 26 - 5x5 Rush Superligue", home: "Real Madrid Rush", away: "FC Barcelona Rush", 
+                confidence: 82, status: "NS", homeScore: 0, awayScore: 0, elapsed: 0, isVirtual: true,
+                valueBet: { active: true, edge: "+8%", bookmakerOdds: 1.95, aiEstimatedOdds: 1.65 },
+                bankrollTip: "⚠️ Mode Rush 5x5 : Gros volume de buts attendu",
+                goalsData: { overUnderPred: "+5.5 Buts dans le match", btts: "Les 2 équipes marquent : OUI" },
+                pressure: null,
+                h2h: ["Real Rush 6-4 Barca Rush"]
+            },
+            { 
+                id: 201, country: "ESP", league: "La Liga (D1)", home: "Real Madrid", away: "FC Barcelone", 
+                confidence: 88, status: "LIVE", homeScore: 2, awayScore: 1, elapsed: 64, isVirtual: false,
+                valueBet: { active: true, edge: "+12% Value", bookmakerOdds: 2.10, aiEstimatedOdds: 1.80 },
+                bankrollTip: "Mise recommandée : 3.5% de votre Bankroll (Confiance 88%)",
+                goalsData: { overUnderPred: "+3.5 Buts dans le match (Cote 1.80)", btts: "Les 2 équipes marquent : OUI (Validé ✅)" },
+                pressure: { homePercent: 78, awayPercent: 22, alert: "🔥 Dominance Real Madrid : But imminent !" },
+                h2h: ["Real 2-1 Barca", "Barca 1-3 Real", "Real 0-1 Barca"]
+            },
+            { 
+                id: 202, country: "ENG", league: "Premier League (D1)", home: "Manchester City", away: "Liverpool", 
+                confidence: 79, status: "LIVE", homeScore: 1, awayScore: 1, elapsed: 52, isVirtual: false,
+                valueBet: { active: true, edge: "+6% Value", bookmakerOdds: 1.90, aiEstimatedOdds: 1.72 },
+                bankrollTip: "Mise recommandée : 2% de votre Bankroll",
+                goalsData: { overUnderPred: "+2.5 Buts dans le match (Cote 1.65)", btts: "Les 2 équipes marquent : OUI" },
+                pressure: { homePercent: 55, awayPercent: 45, alert: "⚔️ Match très équilibré - Fort rythme" },
+                h2h: ["City 2-2 Liverpool", "Liverpool 1-1 City"]
             }
-        });
-    </script>
+        ];
 
-    <script type="module" src="js/app.js"></script>
+        let activeFilterCategory = 'ALL';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('matches-container');
+            const countrySelect = document.getElementById('country-select');
+            const divisionSelect = document.getElementById('division-select');
+            const searchInput = document.getElementById('search-input');
+            const totalMatchesElem = document.getElementById('total-matches');
+
+            function updateDivisionOptions(countryCode) {
+                if (!divisionSelect) return;
+                divisionSelect.innerHTML = `<option value="ALL">⚽ Toutes les divisions</option>`;
+                if (countryCode !== "ALL" && divisionsData[countryCode]) {
+                    divisionsData[countryCode].forEach(div => {
+                        const opt = document.createElement('option');
+                        opt.value = div;
+                        opt.textContent = div;
+                        divisionSelect.appendChild(opt);
+                    });
+                }
+            }
+
+            function renderMatches() {
+                if (!container) return;
+                const selectedCountry = countrySelect ? countrySelect.value : "ALL";
+                const selectedDivision = divisionSelect ? divisionSelect.value : "ALL";
+                const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+
+                const filtered = mockMatches.filter(m => {
+                    const matchCountry = (selectedCountry === "ALL" || m.country === selectedCountry);
+                    const matchDivision = (selectedDivision === "ALL" || m.league === selectedDivision);
+                    const matchSearch = m.home.toLowerCase().includes(query) ||
+                                        m.away.toLowerCase().includes(query) ||
+                                        m.league.toLowerCase().includes(query);
+
+                    let categoryMatch = true;
+                    if (activeFilterCategory === 'VALUE') categoryMatch = m.valueBet.active;
+                    else if (activeFilterCategory === 'FIFA') categoryMatch = m.isVirtual || m.country === "FIFA";
+                    else if (activeFilterCategory === 'CONFIDENCE') categoryMatch = m.confidence >= 75;
+
+                    return matchCountry && matchDivision && matchSearch && categoryMatch;
+                });
+
+                if (totalMatchesElem) {
+                    totalMatchesElem.textContent = `${filtered.length} Match(s) filtré(s) et analysé(s) par l'IA`;
+                }
+
+                container.innerHTML = '';
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 30px 10px;">🔍 Aucun match correspondant à vos critères.</div>`;
+                    return;
+                }
+
+                filtered.forEach(match => {
+                    const isLive = match.status === "LIVE";
+                    const isVirtual = match.isVirtual || match.country === "FIFA";
+                    const g = match.goalsData;
+                    const vb = match.valueBet;
+                    const p = match.pressure;
+
+                    const card = document.createElement('div');
+                    card.className = "card";
+
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 0.8rem; color: #38bdf8; font-weight: bold;">🏆 ${match.league}</span>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                ${isVirtual ? `<span class="badge badge-virtual">🎮 FIFA / eSports</span>` : ''}
+                                ${vb.active ? `<span class="badge badge-value">💎 VALUE (${vb.edge})</span>` : ''}
+                                ${isLive ? `<span class="badge badge-live">🔴 LIVE ${match.elapsed}'</span>` : `<span style="color: #94a3b8; font-size: 0.75rem;">📅 À venir</span>`}
+                            </div>
+                        </div>
+
+                        <div style="background: #0f172a; border-radius: 10px; padding: 12px; text-align: center; margin: 8px 0; border: 1px solid #38bdf8;">
+                            <div style="font-size: 1.1rem; font-weight: bold;">
+                                ${match.home} <span style="color: #10b981; font-size: 1.3rem; font-weight: 900; margin: 0 6px;">${isLive ? `${match.homeScore} - ${match.awayScore}` : 'VS'}</span> ${match.away}
+                            </div>
+                            <div style="font-size: 0.75rem; color: #38bdf8; margin-top: 4px;">🎯 Indice de Confiance IA : <strong>${match.confidence}%</strong></div>
+                        </div>
+
+                        ${isLive && p ? `
+                            <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155; margin: 8px 0;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 4px;">
+                                    <span>🔥 Pression Live</span>
+                                    <span style="color: #38bdf8; font-weight: bold;">${p.homePercent}% vs ${p.awayPercent}%</span>
+                                </div>
+                                <div style="width: 100%; background: #334155; height: 8px; border-radius: 4px; overflow: hidden; display: flex;">
+                                    <div style="width: ${p.homePercent}%; background: linear-gradient(90deg, #38bdf8, #2563eb);"></div>
+                                    <div style="width: ${p.awayPercent}%; background: #ef4444;"></div>
+                                </div>
+                                <div style="font-size: 0.72rem; color: #10b981; margin-top: 5px; text-align: center; font-weight: bold;">
+                                    ${p.alert}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <div style="background: #0f172a; padding: 10px; border-radius: 10px; border-left: 4px solid #10b981; margin: 10px 0; font-size: 0.78rem;">
+                            <div>• 🎯 <strong>Pronostic :</strong> <span style="color: #38bdf8;">${g.overUnderPred}</span></div>
+                            <div>• 🥅 <strong>BTTS :</strong> ${g.btts}</div>
+                        </div>
+
+                        <div style="background: ${isVirtual ? '#854d0e' : '#0284c7'}; padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; font-size: 0.75rem; color: white; text-align: center;">
+                            💰 ${match.bankrollTip}
+                        </div>
+
+                        <div style="display: flex; gap: 6px;">
+                            <button onclick="toggleH2H(${match.id})" style="flex: 1; padding: 8px; background: #334155; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.75rem;">
+                                ⚔️ H2H
+                            </button>
+                            <button onclick="runAnalysis(${match.id}, '${match.home}', '${match.away}')" style="flex: 1.5; padding: 8px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.75rem;">
+                                🎲 Simulation IA
+                            </button>
+                        </div>
+
+                        <div id="h2h-block-${match.id}" style="display: none; background: #0f172a; padding: 10px; border-radius: 8px; margin-top: 8px; font-size: 0.75rem;">
+                            <strong style="color: #38bdf8;">📜 Derniers affrontements :</strong>
+                            <ul style="margin: 4px 0 0 15px; padding: 0; color: #cbd5e1;">
+                                ${match.h2h.map(h => `<li>${h}</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <div id="prediction-${match.id}"></div>
+                    `;
+
+                    container.appendChild(card);
+                });
+            }
+
+            window.setFilterCategory = (cat, btnElem) => {
+                activeFilterCategory = cat;
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                if (btnElem) btnElem.classList.add('active');
+                renderMatches();
+            };
+
+            if (countrySelect) {
+                countrySelect.addEventListener('change', (e) => {
+                    updateDivisionOptions(e.target.value);
+                    renderMatches();
+                });
+            }
+
+            if (divisionSelect) divisionSelect.addEventListener('change', renderMatches);
+            if (searchInput) searchInput.addEventListener('input', renderMatches);
+
+            renderMatches();
+        });
+
+        // CALCULATEUR DE KELLY
+        window.calculateBankrollKelly = () => {
+            const bankroll = parseFloat(document.getElementById('kelly-bankroll').value) || 0;
+            const odds = parseFloat(document.getElementById('kelly-odds').value) || 0;
+            const prob = parseFloat(document.getElementById('kelly-prob').value) || 0;
+
+            const resDiv = document.getElementById('kelly-result');
+            if (!resDiv) return;
+
+            if (bankroll <= 0 || odds <= 1 || prob <= 0) {
+                resDiv.style.display = 'block';
+                resDiv.innerHTML = `<span style="color: #ef4444;">⚠️ Veuillez entrer des valeurs valides.</span>`;
+                return;
+            }
+
+            const p = prob / 100;
+            const b = odds;
+            const kellyFraction = (p * (b - 1) - (1 - p)) / (b - 1);
+            
+            const safeFraction = Math.max(0, kellyFraction / 4);
+            const stake = Math.round(safeFraction * bankroll);
+            const percent = (safeFraction * 100).toFixed(1);
+
+            resDiv.style.display = 'block';
+            if (stake > 0) {
+                resDiv.innerHTML = `
+                    💰 Mise recommandée (Kelly Prudent) : <strong style="color: #10b981; font-size: 1.1rem;">${stake.toLocaleString()} FCFA</strong> (${percent}% du capital)<br>
+                    <span style="font-size: 0.72rem; color: #94a3b8;">Gain Potentiel : ${(stake * odds).toLocaleString()} FCFA</span>
+                `;
+            } else {
+                resDiv.innerHTML = `<span style="color: #fca5a5;">❌ Ce pari n'a pas de Value Bet positif. Mise déconseillée.</span>`;
+            }
+        };
+
+        window.toggleH2H = (matchId) => {
+            const block = document.getElementById(`h2h-block-${matchId}`);
+            if (block) {
+                block.style.display = (block.style.display === 'none') ? 'block' : 'none';
+            }
+        };
+
+        window.runAnalysis = (matchId, home, away) => {
+            const target = document.getElementById(`prediction-${matchId}`);
+            if (!target) return;
+
+            target.innerHTML = `<div style="color:#38bdf8; font-size:0.8rem; margin-top:8px; text-align:center;">🎲 Lancement des simulations Monte Carlo...</div>`;
+            setTimeout(() => {
+                target.innerHTML = `
+                    <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #10b981; margin-top: 8px; font-size: 0.78rem;">
+                        <span style="color: #10b981; font-weight: bold;">📊 Diagnostic Robot IA :</span><br>
+                        Victoire ${home}: <strong>48%</strong> | Nul: <strong>26%</strong> | Victoire ${away}: <strong>26%</strong><br>
+                        <div style="margin-top: 4px; color: #cbd5e1;">
+                            • ⚽ Sélection : <strong>+2.5 Buts dans le match</strong><br>
+                            • 🛡️ Prudence : <strong>1% Max de Bankroll</strong>
+                        </div>
+                    </div>
+                `;
+            }, 300);
+        };
+
+        // GENERATEUR DE COUPON FIFA
+        window.generateFifaCoupon = () => {
+            const fifaMatches = mockMatches.filter(m => 
+                m.isVirtual || m.country === "FIFA" || m.league.toLowerCase().includes("fifa") || m.league.toLowerCase().includes("fc ")
+            );
+
+            const couponResult = document.getElementById('fifa-coupon-result');
+            if (!couponResult) return;
+
+            if (fifaMatches.length === 0) {
+                couponResult.innerHTML = `<div style="color: #ef4444; text-align: center; padding: 10px;">❌ Aucun match FIFA disponible.</div>`;
+                return;
+            }
+
+            let totalOdds = 1.0;
+            let selections = [];
+
+            fifaMatches.forEach(match => {
+                let pickName = "Plus de 2.5 Buts";
+                let pickOdds = 1.47;
+
+                if (match.league.includes("3x3") || match.league.includes("Rush")) {
+                    pickName = "Plus de 4.5 Buts";
+                    pickOdds = 1.50;
+                } else if (match.league.includes("4x4")) {
+                    pickName = "Plus de 3.5 Buts";
+                    pickOdds = 1.42;
+                }
+
+                totalOdds *= pickOdds;
+                selections.push({
+                    match: `${match.home} vs ${match.away}`,
+                    league: match.league,
+                    pick: pickName,
+                    odds: pickOdds.toFixed(2)
+                });
+            });
+
+            const finalOdds = totalOdds.toFixed(2);
+            const potentialGain5000 = (5000 * finalOdds).toLocaleString();
+
+            couponResult.innerHTML = `
+                <div style="background: linear-gradient(135deg, #1e1b4b, #0f172a); border: 2px solid #8b5cf6; border-radius: 12px; padding: 15px; margin-top: 15px; color: white; text-align: left;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 12px;">
+                        <span style="font-weight: bold; color: #a78bfa; font-size: 0.9rem;">🎫 COUPON COMBINÉ SPÉCIAL FIFA</span>
+                        <span style="background: #8b5cf6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold;">Cote Totale : ${finalOdds}</span>
+                    </div>
+
+                    <div style="font-size: 0.8rem; line-height: 1.5; margin-bottom: 12px;">
+                        ${selections.map(s => `
+                            <div style="background: #1e293b; padding: 8px; border-radius: 6px; margin-bottom: 6px; border-left: 3px solid #10b981;">
+                                <div style="font-size: 0.7rem; color: #94a3b8;">${s.league}</div>
+                                <div style="font-weight: bold;">${s.match}</div>
+                                <div style="color: #38bdf8;">🎯 Pari : <strong>${s.pick}</strong> (Cote ${s.odds})</div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 10px; border-radius: 8px; font-size: 0.8rem;">
+                        💰 <strong>Simulateur de Gain (Mise 5 000 FCFA) :</strong><br>
+                        • Gain Potentiel : <strong style="color: #10b981; font-size: 1rem;">${potentialGain5000} FCFA</strong>
+                    </div>
+                </div>
+            `;
+        };
+    </script>
 </body>
 </html>
