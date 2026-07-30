@@ -48,8 +48,14 @@
     <!-- 📱 VUES DU MENU DE NAVIGATION -->
     <main style="max-width: 480px; margin: 0 auto;">
         
-        <!-- SECTION 1 : LISTE DES MATCHS (PAR DÉFAUT) -->
+        <!-- SECTION 1 : LISTE DES MATCHS (AVEC BARRE DE RECHERCHE) -->
         <section id="tab-matches" class="app-tab">
+            <!-- 🔍 BARRE DE RECHERCHE D'ÉQUIPES -->
+            <div style="margin: 10px 0 15px 0;">
+                <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe (ex: Real, PSG, Arsenal)..." 
+                       style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 0.9rem; box-sizing: border-box; outline: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);">
+            </div>
+
             <div id="matches-container"></div>
         </section>
 
@@ -82,7 +88,7 @@
             <div style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 10px;">
                 <h3 style="color: #f59e0b; margin-top: 0;">💰 Calculateur de Mise (Kelly)</h3>
                 <label style="font-size: 0.85rem; color: #94a3b8;">Capital Total (€) :</label>
-                <input type="number" id="bankroll-input" value="100" style="width: 100%; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem;">
+                <input type="number" id="bankroll-input" value="100" style="width: 100%; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; box-sizing: border-box;">
                 <p style="font-size: 0.85rem; color: #cbd5e1;">Mise conseillée par pari (3%) : <strong id="recommended-stake" style="color:#10b981;">3.00 €</strong></p>
             </div>
         </section>
@@ -108,18 +114,13 @@
     <!-- SCRIPT DE GESTION DU MENU -->
     <script>
         function switchTab(tabName) {
-            // Masquer toutes les sections
             document.querySelectorAll('.app-tab').forEach(tab => tab.style.display = 'none');
-            // Reinitialiser la couleur des boutons
             document.querySelectorAll('.nav-btn').forEach(btn => btn.style.color = '#94a3b8');
 
-            // Afficher la section active
             document.getElementById('tab-' + tabName).style.display = 'block';
-            // Mettre en surbrillance le bouton actif
             document.getElementById('btn-' + tabName).style.color = '#38bdf8';
         }
 
-        // Calcul dynamique de la mise selon le capital
         document.addEventListener('input', (e) => {
             if (e.target.id === 'bankroll-input') {
                 const val = parseFloat(e.target.value) || 0;
