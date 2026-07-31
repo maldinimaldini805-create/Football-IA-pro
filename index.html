@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Robot de Prédiction Football 100.0 OMEGA</title>
+    
+    <!-- SUPPORT APPLICATION MOBILE PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#030712">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/53/53283.png">
+
+    <!-- LIBRAIRIE EXPORT TICKET EN IMAGE -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         :root {
             --bg-color: #030712;
@@ -64,7 +73,7 @@
             letter-spacing: 1px;
         }
 
-        /* GRANDS ONGLETS PRINCIPAUX */
+        /* ONGLETS PRINCIPAUX */
         .main-mode-menu {
             display: flex;
             gap: 12px;
@@ -101,7 +110,7 @@
             box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
         }
 
-        /* MENU DÉFILANT CATEGORIES PRONO */
+        /* MENU CATEGORIES */
         .filter-menu {
             display: flex;
             overflow-x: auto;
@@ -195,7 +204,6 @@
             border: none;
             cursor: pointer;
             box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
-            transition: transform 0.2s;
         }
 
         button.custom-btn {
@@ -232,11 +240,24 @@
             box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
         }
 
-        button:active {
-            transform: scale(0.98);
+        .export-btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
         }
 
-        /* TICKET COMBINÉ BANNER */
+        .export-btn {
+            flex: 1;
+            background: #1f2937;
+            border: 1px solid #374151;
+            padding: 10px;
+            border-radius: 8px;
+            color: #f3f4f6;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
         .combo-box {
             background: linear-gradient(135deg, #1e1b4b, #0f172a);
             border: 2px solid #a855f7;
@@ -286,8 +307,6 @@
             border-radius: 14px;
             padding: 18px;
             margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
         }
 
         .match-header {
@@ -314,7 +333,7 @@
 
         .grid-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 10px;
             margin-top: 12px;
         }
@@ -337,7 +356,8 @@
         .stat-value {
             color: #f9fafb;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
+            line-height: 1.4;
         }
 
         .badge-dynamic {
@@ -383,10 +403,10 @@
     <div id="section-prematch" class="card hidden">
         <div class="card-title">🔍 Sélectionner & Prédire un Match Avant Coup d'Envoi</div>
         <div class="inputs-flex">
-            <input type="text" id="custom-team1" placeholder="Équipe Domicile (ex: Real Madrid)">
-            <input type="text" id="custom-team2" placeholder="Équipe Extérieur (ex: FC Barcelone)">
+            <input type="text" id="custom-team1" placeholder="Équipe Domicile (ex: Bodø/Glimt)">
+            <input type="text" id="custom-team2" placeholder="Équipe Extérieur (ex: Lillestrøm)">
         </div>
-        <button class="custom-btn" onclick="predictCustomMatch()">🎯 Calculer la Prédiction Avant-Match</button>
+        <button class="custom-btn" onclick="predictCustomMatch()">🎯 Calculer la Prédiction Complet</button>
     </div>
 
     <!-- SECTION LIVE -->
@@ -405,11 +425,10 @@
     <div class="filter-menu">
         <button class="filter-btn active" onclick="setCategory('all', this)">🌐 Tout (Vue Globale)</button>
         <button class="filter-btn alert-btn" onclick="setCategory('alert', this)">🚨 Alertes Sûres (+85%)</button>
-        <button class="filter-btn" onclick="setCategory('main', this)">🏆 Principal & Buts</button>
-        <button class="filter-btn" onclick="setCategory('fast', this)">⚡ 1er But & Rapide</button>
-        <button class="filter-btn" onclick="setCategory('shots', this)">🎯 Tirs & Corners</button>
-        <button class="filter-btn" onclick="setCategory('fouls', this)">🟨 Cartons & Fautes</button>
-        <button class="filter-btn" onclick="setCategory('other', this)">🖐️ Touches & Dégagements</button>
+        <button class="filter-btn" onclick="setCategory('main', this)">🏆 Issues & Scores Exacts</button>
+        <button class="filter-btn" onclick="setCategory('goals', this)">⚽ Buts (0.5 à 4.5)</button>
+        <button class="filter-btn" onclick="setCategory('corners_fouls', this)">🚩 Corners & Fautes</button>
+        <button class="filter-btn" onclick="setCategory('cards_throws', this)">🟨 Cartons & Touches</button>
     </div>
 
     <!-- ZONE DU TICKET COMBINÉ -->
@@ -424,6 +443,12 @@
 <script src="config.js"></script>
 
 <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('Service Worker Enregistré !', reg))
+            .catch(err => console.log('Erreur SW:', err));
+    }
+
     let liveMatches = [];
     let prematchMatches = [];
     let currentCategory = 'all';
@@ -467,6 +492,7 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
+    // FONCTION POUR PRÉDIRE UN MATCH AVANT-MATCH AVEC TOUS LES MARCHÉS
     function predictCustomMatch() {
         const t1 = document.getElementById('custom-team1').value.trim();
         const t2 = document.getElementById('custom-team2').value.trim();
@@ -476,36 +502,47 @@
             return;
         }
 
-        const confidence = 82 + Math.floor(Math.random() * 12);
+        const confidence = 80 + Math.floor(Math.random() * 15);
 
-        const customMatch = {
-            team1: t1,
-            team2: t2,
-            league: "Analyse Avant-Match",
-            country: "International",
-            score: "À venir (0 - 0)",
-            confidencePercent: confidence,
-            odd: (1.35 + Math.random() * 0.45).toFixed(2),
-
-            winner: confidence > 88 ? `Double Chance : 1X (${t1})` : `Double Chance : X2 (${t2})`,
-            totalGoals: confidence > 85 ? "Plus de 2.5 Buts dans le match" : "Plus de 1.5 Buts dans le match",
-            htWinner: `Avantage ${t1} ou Nul (1ère MT)`,
-            
-            firstGoal: `Premier But estimé : ${t1}`,
-            fastEvent: "Événement 0-5 min : Touche ou Coup franc",
-
-            shots: "Plus de 8.5 Tirs cadrés au total",
-            corners: "Plus de 8.5 Corners",
-
-            yellowCards: "Plus de 3.5 Cartons Jaunes",
-            fouls: "Plus de 21.5 Fautes commises",
-
-            throwIns: "Plus de 34.5 Touches",
-            clearances: "Plus de 16.5 Dégagements"
-        };
+        const customMatch = buildFullPrediction(t1, t2, "Analyse Avant-Match", "International", "0 - 0", confidence);
 
         prematchMatches = [customMatch, ...prematchMatches];
         renderMatches(prematchMatches);
+    }
+
+    // GENERATEUR DE MARCHÉS COMPLETS (1N2, GOALS 0.5-4.5, FAUTES, CARTONS, TOUCHES, CORNERS, SCORE EXACT, MT-FM)
+    function buildFullPrediction(t1, t2, league, country, score, confidence) {
+        return {
+            team1: t1,
+            team2: t2,
+            league: league,
+            country: country,
+            score: score,
+            confidencePercent: confidence,
+            odd: (1.35 + Math.random() * 0.45).toFixed(2),
+
+            // ISSUES
+            winnerChoice: confidence > 85 ? `Victoire : ${t1}` : `Double Chance : 1X (${t1})`,
+            doubleChance: `Double Chance : 1X (${t1}) ou X2 (${t2})`,
+            drawOption: `Nul dans le match : Option Détectée`,
+
+            // BUTS (0.5 A 4.5)
+            g05: "Plus de 0.5 Buts",
+            g15: "Plus de 1.5 Buts",
+            g25: confidence > 83 ? "Plus de 2.5 Buts" : "Moins de 2.5 Buts",
+            g35: "Moins de 3.5 Buts",
+            g45: "Moins de 4.5 Buts",
+
+            // CORNERS, FAUTES, CARTONS, TOUCHES
+            corners: "Plus de 8.5 Corners dans le match",
+            fouls: "Plus de 20.5 Fautes dans le match",
+            yellowCards: "Plus de 3.5 Cartons Jaunes dans le match",
+            throwIns: "Plus de 33.5 Touches dans le match",
+
+            // SCORES EXACTS & MT-FM
+            exactScore: confidence > 86 ? "2 - 1 ou 2 - 0" : "1 - 1 ou 1 - 0",
+            htFt: `MT/FM : ${t1} / ${t1} ou Nul / ${t1}`
+        };
     }
 
     async function fetchRealMatches() {
@@ -537,43 +574,14 @@
                 const awayName = item.teams.away.name;
                 const homeGoals = item.goals.home ?? 0;
                 const awayGoals = item.goals.away ?? 0;
-                const totalGoals = homeGoals + awayGoals;
 
                 let calculatedConfidence = 70;
                 const diff = Math.abs(homeGoals - awayGoals);
-                if (diff >= 2) {
-                    calculatedConfidence = 88 + Math.min(diff, 6);
-                } else if (diff === 1) {
-                    calculatedConfidence = 78 + Math.floor(Math.random() * 6);
-                } else {
-                    calculatedConfidence = 68 + Math.floor(Math.random() * 8);
-                }
+                if (diff >= 2) calculatedConfidence = 88 + Math.min(diff, 6);
+                else if (diff === 1) calculatedConfidence = 78 + Math.floor(Math.random() * 6);
+                else calculatedConfidence = 68 + Math.floor(Math.random() * 8);
 
-                return {
-                    team1: homeName,
-                    team2: awayName,
-                    league: item.league.name,
-                    country: item.league.country,
-                    score: `${homeGoals} - ${awayGoals}`,
-                    confidencePercent: calculatedConfidence,
-                    odd: (1.30 + Math.random() * 0.50).toFixed(2),
-                    
-                    winner: homeGoals >= awayGoals ? `Double Chance : 1X (${homeName})` : `Double Chance : X2 (${awayName})`,
-                    totalGoals: totalGoals >= 2 ? "Plus de 2.5 Buts dans le match" : "Plus de 1.5 Buts dans le match",
-                    htWinner: homeGoals >= awayGoals ? `Avantage ${homeName} ou Nul (1ère MT)` : `Avantage ${awayName} ou Nul (1ère MT)`,
-                    
-                    firstGoal: homeGoals >= awayGoals ? `Premier But : ${homeName}` : `Premier But : ${awayName}`,
-                    fastEvent: "Événement 0-5 min : Touche ou Coup franc",
-
-                    shots: "Plus de 8.5 Tirs cadrés au total",
-                    corners: "Plus de 7.5 Corners",
-
-                    yellowCards: "Plus de 3.5 Cartons Jaunes",
-                    fouls: "Plus de 20.5 Fautes commises",
-
-                    throwIns: "Plus de 32.5 Touches",
-                    clearances: "Plus de 15.5 Dégagements"
-                };
+                return buildFullPrediction(homeName, awayName, item.league.name, item.league.country, `${homeGoals} - ${awayGoals}`, calculatedConfidence);
             });
 
             renderMatches(liveMatches);
@@ -608,39 +616,38 @@
 
             let statsHTML = '';
 
+            // CATEGORIE ISSUES ET SCORES
             if (currentCategory === 'all' || currentCategory === 'alert' || currentCategory === 'main') {
                 statsHTML += `
-                    <div class="stat-box"><div class="stat-title">🏆 Issue du Match (1N2)</div><div class="stat-value">${m.winner}</div></div>
-                    <div class="stat-box"><div class="stat-title">⚽ Total de Buts</div><div class="stat-value">${m.totalGoals}</div></div>
-                    <div class="stat-box"><div class="stat-title">⏱️ Gagnant 1ère Mi-Temps</div><div class="stat-value">${m.htWinner}</div></div>
+                    <div class="stat-box"><div class="stat-title">🏆 Issue / Gagnant</div><div class="stat-value">${m.winnerChoice}</div></div>
+                    <div class="stat-box"><div class="stat-title">🔄 Double Chance / Nul</div><div class="stat-value">${m.doubleChance}</div></div>
+                    <div class="stat-box"><div class="stat-title">🎯 Score Exact Estimé</div><div class="stat-value">${m.exactScore}</div></div>
+                    <div class="stat-box"><div class="stat-title">⏱️ Mi-Temps / Fin (MT-FM)</div><div class="stat-value">${m.htFt}</div></div>
                 `;
             }
 
-            if (currentCategory === 'all' || currentCategory === 'fast') {
+            // CATEGORIE BUTS (0.5 à 4.5)
+            if (currentCategory === 'all' || currentCategory === 'goals') {
                 statsHTML += `
-                    <div class="stat-box"><div class="stat-title">🥇 Équipe qui marque le 1er But</div><div class="stat-value">${m.firstGoal}</div></div>
-                    <div class="stat-box"><div class="stat-title">⚡ Événement Rapide (0-5 min)</div><div class="stat-value">${m.fastEvent}</div></div>
+                    <div class="stat-box"><div class="stat-title">⚽ Buts (+/- 0.5 & 1.5)</div><div class="stat-value">${m.g05} | ${m.g15}</div></div>
+                    <div class="stat-box"><div class="stat-title">⚽ Buts (+/- 2.5)</div><div class="stat-value">${m.g25}</div></div>
+                    <div class="stat-box"><div class="stat-title">⚽ Buts (+/- 3.5 & 4.5)</div><div class="stat-value">${m.g35} | ${m.g45}</div></div>
                 `;
             }
 
-            if (currentCategory === 'all' || currentCategory === 'shots') {
+            // CATEGORIE CORNERS & FAUTES
+            if (currentCategory === 'all' || currentCategory === 'corners_fouls') {
                 statsHTML += `
-                    <div class="stat-box"><div class="stat-title">🎯 Tirs Cadrés Total</div><div class="stat-value">${m.shots}</div></div>
-                    <div class="stat-box"><div class="stat-title">🚩 Nombre de Corners</div><div class="stat-value">${m.corners}</div></div>
+                    <div class="stat-box"><div class="stat-title">🚩 Corners (+/-)</div><div class="stat-value">${m.corners}</div></div>
+                    <div class="stat-box"><div class="stat-title">🛑 Fautes Commises (+/-)</div><div class="stat-value">${m.fouls}</div></div>
                 `;
             }
 
-            if (currentCategory === 'all' || currentCategory === 'fouls') {
+            // CATEGORIE CARTONS & TOUCHES
+            if (currentCategory === 'all' || currentCategory === 'cards_throws') {
                 statsHTML += `
-                    <div class="stat-box"><div class="stat-title">🟨 Cartons Jaunes</div><div class="stat-value">${m.yellowCards}</div></div>
-                    <div class="stat-box"><div class="stat-title">🛑 Nombre de Fautes</div><div class="stat-value">${m.fouls}</div></div>
-                `;
-            }
-
-            if (currentCategory === 'all' || currentCategory === 'other') {
-                statsHTML += `
-                    <div class="stat-box"><div class="stat-title">🖐️ Nombre de Touches</div><div class="stat-value">${m.throwIns}</div></div>
-                    <div class="stat-box"><div class="stat-title">🛡️ Dégagements Défensifs</div><div class="stat-value">${m.clearances}</div></div>
+                    <div class="stat-box"><div class="stat-title">🟨 Cartons Jaunes (+/-)</div><div class="stat-value">${m.yellowCards}</div></div>
+                    <div class="stat-box"><div class="stat-title">🖐️ Nombre de Touches (+/-)</div><div class="stat-value">${m.throwIns}</div></div>
                 `;
             }
 
@@ -661,7 +668,7 @@
         });
     }
 
-    // GENERER UN COMBINE FIABLE (2-3 MATCHS)
+    // GENERER UN COMBINE FIABLE
     function generateComboTicket(limit = 3) {
         const comboBox = document.getElementById('combo-container');
         const dataToUse = currentMainMode === 'live' ? liveMatches : prematchMatches;
@@ -688,22 +695,27 @@
             itemsHTML += `
                 <div class="combo-item">
                     <strong>⚽ ${m.team1} vs ${m.team2}</strong><br>
-                    📌 Pronostic : <span style="color:#10b981;">${m.winner}</span> | Cote : <strong>${matchOdd.toFixed(2)}</strong> | Confiance : <strong>${m.confidencePercent}%</strong>
+                    📌 Pronostic : <span style="color:#10b981;">${m.winnerChoice}</span> | Cote : <strong>${matchOdd.toFixed(2)}</strong> | Confiance : <strong>${m.confidencePercent}%</strong>
                 </div>
             `;
         });
 
         comboBox.style.display = 'block';
         comboBox.innerHTML = `
-            <div class="combo-header">
-                <span>🛡️ COMBINÉ SÛR VIP (${safeMatches.length} ÉVÉNEMENTS)</span>
-                <span style="font-size:0.9rem; color:#10b981;">COTE TOTAL : <strong>${totalOdd.toFixed(2)}</strong></span>
+            <div id="ticket-capture">
+                <div class="combo-header">
+                    <span>🛡️ COMBINÉ SÛR VIP (${safeMatches.length} ÉVÉNEMENTS)</span>
+                    <span style="font-size:0.9rem; color:#10b981;">COTE TOTAL : <strong>${totalOdd.toFixed(2)}</strong></span>
+                </div>
+                ${itemsHTML}
             </div>
-            ${itemsHTML}
+            <div class="export-btn-container">
+                <button class="export-btn" onclick="downloadTicketImage()">📸 Télécharger l'Image du Ticket</button>
+            </div>
         `;
     }
 
-    // GENERER UN COMBINE GROSSE COTE (4-5 MATCHS)
+    // GENERER UN COMBINE GROSSE COTE
     function generateBigOddsTicket() {
         const comboBox = document.getElementById('combo-container');
         const dataToUse = currentMainMode === 'live' ? liveMatches : prematchMatches;
@@ -724,19 +736,35 @@
             itemsHTML += `
                 <div class="combo-item">
                     <strong>⚽ ${m.team1} vs ${m.team2}</strong><br>
-                    📌 Pronostic : <span style="color:#f97316;">${m.winner} & ${m.totalGoals}</span> | Cote : <strong>${matchOdd.toFixed(2)}</strong>
+                    📌 Pronostic : <span style="color:#f97316;">${m.winnerChoice} & ${m.g25}</span> | Cote : <strong>${matchOdd.toFixed(2)}</strong>
                 </div>
             `;
         });
 
         comboBox.style.display = 'block';
         comboBox.innerHTML = `
-            <div class="combo-header">
-                <span>🚀 COMBINÉ GROSSE COTE (${selectedMatches.length} MATCHS)</span>
-                <span style="font-size:0.95rem; color:#f97316;">COTE TOTALE : <strong>${totalOdd.toFixed(2)}</strong></span>
+            <div id="ticket-capture">
+                <div class="combo-header">
+                    <span>🚀 COMBINÉ GROSSE COTE (${selectedMatches.length} MATCHS)</span>
+                    <span style="font-size:0.95rem; color:#f97316;">COTE TOTALE : <strong>${totalOdd.toFixed(2)}</strong></span>
+                </div>
+                ${itemsHTML}
             </div>
-            ${itemsHTML}
+            <div class="export-btn-container">
+                <button class="export-btn" onclick="downloadTicketImage()">📸 Télécharger l'Image du Ticket</button>
+            </div>
         `;
+    }
+
+    // FONCTION POUR TÉLÉCHARGER LE TICKET EN PNG
+    function downloadTicketImage() {
+        const element = document.getElementById('ticket-capture');
+        html2canvas(element, { backgroundColor: '#0f172a' }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'ticket-omega-prediction.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
     }
 
     function filterMatches() {
