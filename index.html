@@ -1,140 +1,3 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot de Prédiction Football PRO & Live API</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --accent-color: #3b82f6;
-            --success-color: #22c55e;
-            --warning-color: #eab308;
-            --danger-color: #ef4444;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        h1, h2, h3 {
-            text-align: center;
-            color: var(--accent-color);
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        input, select, button {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            background-color: #0f172a;
-            color: white;
-            box-sizing: border-box;
-        }
-
-        button {
-            background-color: var(--accent-color);
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background-color: #2563eb;
-        }
-
-        .match-card {
-            border-left: 4px solid var(--accent-color);
-            margin-bottom: 15px;
-            padding: 15px;
-            background: #1e293b;
-            border-radius: 8px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-
-        .badge-green { background-color: var(--success-color); color: black; }
-        .badge-yellow { background-color: var(--warning-color); color: black; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>Robot de Prédiction Football PRO & Live API</h1>
-
-    <!-- GÉNÉRATEUR DE PRÉDICTIONS FIFA -->
-    <div class="card" style="text-align: center;">
-        <h2>Robot de Pronostics FIFA / eSports</h2>
-        <button onclick="generateFifaCoupon()">Générer un Pronostic FIFA</button>
-        <div id="fifa-coupon-result"></div>
-    </div>
-
-    <!-- CALCULATRICE KELLY -->
-    <div class="card">
-        <h2>Calculatrice de Mise (Critère de Kelly)</h2>
-        <div class="grid-2">
-            <input type="number" id="bankroll" placeholder="Capital total (€)">
-            <input type="number" id="odd" placeholder="Cote du pari" step="0.01">
-        </div>
-        <div class="grid-2">
-            <input type="number" id="probability" placeholder="Probabilité estimée (%)">
-            <button onclick="calculateKelly()">Calculer la Mise</button>
-        </div>
-        <div id="kelly-result"></div>
-    </div>
-
-    <!-- RECHERCHE ET FILTRES DE MATCHS -->
-    <div class="card">
-        <h2>Matchs en Direct (API Football)</h2>
-        <button onclick="fetchRealMatches()" style="background-color: var(--success-color); color: black;">🔄 Rafraîchir les matchs API</button>
-        <input type="text" id="search-input" placeholder="Rechercher une équipe..." onkeyup="filterMatches()">
-    </div>
-
-    <!-- LISTE DES MATCHS EN DIRECT -->
-    <div id="matches-container">
-        <p style="text-align:center; color: #94a3b8;">Chargement des matchs en direct...</p>
-    </div>
-</div>
-
-<!-- INCLUSION DU FICHIER DE CONFIGURATION POUR LA CLÉ API -->
 <script src="config.js"></script>
 
 <script>
@@ -151,7 +14,6 @@
         const container = document.getElementById('matches-container');
         container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Récupération des matchs réels en cours...</p>";
 
-        // Vérification si config.js est bien présent
         if (typeof API_KEY === 'undefined' || API_KEY === "TA_VRAIE_CLE_API_ICI" || !API_KEY) {
             container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>⚠️ Erreur : Clé API non configurée dans <strong>config.js</strong> !</p>";
             return;
@@ -177,20 +39,43 @@
                 return;
             }
 
-            // Transformation des données API
+            // Transformation et analyse des prédictions
             liveMatches = result.response.map(item => {
                 const homeGoals = item.goals.home || 0;
                 const awayGoals = item.goals.away || 0;
-                const proba = Math.min(90, Math.max(50, 60 + (homeGoals - awayGoals) * 10));
+                const totalGoals = homeGoals + awayGoals;
+                const homeName = item.teams.home.name;
+                const awayName = item.teams.away.name;
+
+                // Logique de prédiction intelligente selon le score et le temps
+                let predictionAdvice = "";
+                let proba = 60;
+
+                if (homeGoals > awayGoals) {
+                    predictionAdvice = `Victoire ou Nul pour ${homeName}`;
+                    proba = Math.min(88, 65 + (homeGoals - awayGoals) * 10);
+                } else if (awayGoals > homeGoals) {
+                    predictionAdvice = `Victoire ou Nul pour ${awayName}`;
+                    proba = Math.min(88, 65 + (awayGoals - homeGoals) * 10);
+                } else {
+                    if (totalGoals >= 2) {
+                        predictionAdvice = "Plus de 2.5 Buts dans le match";
+                        proba = 72;
+                    } else {
+                        predictionAdvice = "Moins de 3.5 Buts / Match Serré";
+                        proba = 68;
+                    }
+                }
 
                 return {
-                    team1: item.teams.home.name,
-                    team2: item.teams.away.name,
+                    team1: homeName,
+                    team2: awayName,
                     league: item.league.name,
                     country: item.league.country,
                     score: `${homeGoals} - ${awayGoals}`,
                     time: `${item.fixture.status.elapsed || 0}'`,
-                    proba: proba
+                    proba: proba,
+                    advice: predictionAdvice
                 };
             });
 
@@ -212,8 +97,9 @@
             card.innerHTML = `
                 <h3>${m.team1} <span style="color:var(--warning-color);">${m.score}</span> ${m.team2}</h3>
                 <p>🏆 ${m.league} (${m.country}) | Temps : <strong>${m.time}</strong></p>
-                <p>Indice de confiance / Prédiction : <strong>${m.proba}%</strong></p>
-                <span class="badge ${m.proba > 70 ? 'badge-green' : 'badge-yellow'}">${m.proba > 70 ? 'Pari Sûr' : 'Pari Modéré'}</span>
+                <p>🎯 <strong>Conseil Robot :</strong> <span style="color:var(--accent-color); font-weight:bold;">${m.advice}</span></p>
+                <p>Indice de confiance : <strong>${m.proba}%</strong></p>
+                <span class="badge ${m.proba > 70 ? 'badge-green' : 'badge-yellow'}">${m.proba > 70 ? 'Pari Fort' : 'Pari Modéré'}</span>
             `;
             container.appendChild(card);
         });
@@ -266,9 +152,5 @@
         }
     }
 
-    // Lancement automatique
     fetchRealMatches();
 </script>
-
-</body>
-</html>
