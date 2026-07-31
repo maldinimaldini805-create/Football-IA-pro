@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot de Prédiction Football PRO & Live API</title>
+    <title>Robot de Prédiction Football PRO</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -20,40 +20,61 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
-        h1, h2, h3 {
+        h1 {
             text-align: center;
             color: var(--accent-color);
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+        }
+
+        /* NAVIGATION / MENU */
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 12px 5px;
+            background: #334155;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .nav-btn.active {
+            background: var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .card {
             background-color: var(--card-bg);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        input, select, button {
+        input, button {
             width: 100%;
             padding: 12px;
             margin: 8px 0;
@@ -64,15 +85,10 @@
             box-sizing: border-box;
         }
 
-        button {
+        button.action-btn {
             background-color: var(--accent-color);
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background-color: #2563eb;
         }
 
         .match-card {
@@ -83,12 +99,26 @@
             border-radius: 8px;
         }
 
+        .prediction-box {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border: 1px solid #334155;
+        }
+
+        .prediction-item {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+
         .badge {
             display: inline-block;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.8em;
             font-weight: bold;
+            margin-top: 5px;
         }
 
         .badge-green { background-color: var(--success-color); color: black; }
@@ -98,42 +128,53 @@
 <body>
 
 <div class="container">
-    <h1>Robot de Prédiction Football PRO</h1>
+    <h1>🤖 Robot Pronostics Football</h1>
 
-    <!-- CALCULATRICE KELLY -->
-    <div class="card">
-        <h2>Calculatrice de Mise (Critère de Kelly)</h2>
-        <div class="grid-2">
+    <!-- BARRE DE MENU -->
+    <div class="nav-menu">
+        <button class="nav-btn active" onclick="switchTab('matches-tab', this)">⚽ Matchs & Prédictions</button>
+        <button class="nav-btn" onclick="switchTab('kelly-tab', this)">🧮 Calculatrice Kelly</button>
+    </div>
+
+    <!-- ONGLET 1 : MATCHS ET PRÉDICTIONS -->
+    <div id="matches-tab" class="tab-content active">
+        <div class="card">
+            <button class="action-btn" onclick="fetchRealMatches()" style="background-color: var(--success-color); color: black;">🔄 Rafraîchir les Matchs</button>
+            <input type="text" id="search-input" placeholder="Rechercher une équipe ou compétition..." onkeyup="filterMatches()">
+        </div>
+
+        <div id="matches-container">
+            <p style="text-align:center; color: #94a3b8;">Chargement des matchs en cours...</p>
+        </div>
+    </div>
+
+    <!-- ONGLET 2 : CALCULATRICE KELLY -->
+    <div id="kelly-tab" class="tab-content">
+        <div class="card">
+            <h2 style="text-align:center; color: var(--accent-color);">Calculatrice de Mise</h2>
             <input type="number" id="bankroll" placeholder="Capital total (€)">
             <input type="number" id="odd" placeholder="Cote du pari" step="0.01">
-        </div>
-        <div class="grid-2">
             <input type="number" id="probability" placeholder="Probabilité estimée (%)">
-            <button onclick="calculateKelly()">Calculer la Mise</button>
+            <button class="action-btn" onclick="calculateKelly()">Calculer la Mise</button>
+            <div id="kelly-result"></div>
         </div>
-        <div id="kelly-result"></div>
-    </div>
-
-    <!-- RECHERCHE ET FILTRES DE MATCHS RÉELS -->
-    <div class="card">
-        <h2>Événements & Matchs Réels (API Football)</h2>
-        <button onclick="fetchRealMatches()" style="background-color: var(--success-color); color: black;">🔄 Rafraîchir les matchs API</button>
-        <input type="text" id="search-input" placeholder="Rechercher une équipe ou une ligue..." onkeyup="filterMatches()">
-    </div>
-
-    <!-- LISTE DES MATCHS RÉELS ET PRÉDICTIONS -->
-    <div id="matches-container">
-        <p style="text-align:center; color: #94a3b8;">Chargement des matchs...</p>
     </div>
 </div>
 
-<!-- CHARGEMENT DE LA CLÉ API DEPUIS CONFIG.JS -->
+<!-- CONFIGURATION CLÉ API -->
 <script src="config.js"></script>
 
 <script>
     let liveMatches = [];
 
-    // Obtenir la date d'aujourd'hui au format YYYY-MM-DD
+    // Gestion de la navigation par onglets (Menu)
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+    }
+
     function getTodayDate() {
         const today = new Date();
         const yyyy = today.getFullYear();
@@ -142,13 +183,12 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
-    // Charger les événements réels du jour
     async function fetchRealMatches() {
         const container = document.getElementById('matches-container');
-        container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Chargement de tous les événements du jour...</p>";
+        container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Analyse des matchs et génération des pronostics...</p>";
 
-        if (typeof API_KEY === 'undefined' || API_KEY === "TA_VRAIE_CLE_API_ICI" || !API_KEY) {
-            container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>⚠️ Erreur : Clé API non configurée dans <strong>config.js</strong> !</p>";
+        if (typeof API_KEY === 'undefined' || !API_KEY || API_KEY === "TA_VRAIE_CLE_API_ICI") {
+            container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>⚠️ Clé API non configurée dans <strong>config.js</strong> !</p>";
             return;
         }
 
@@ -157,20 +197,18 @@
         try {
             const response = await fetch(`https://v3.football.api-sports.io/fixtures?date=${todayStr}`, {
                 "method": "GET",
-                "headers": {
-                    "x-apisports-key": API_KEY
-                }
+                "headers": { "x-apisports-key": API_KEY }
             });
 
             const result = await response.json();
-            
+
             if (result.errors && Object.keys(result.errors).length > 0) {
                 container.innerHTML = `<p style='color:var(--danger-color); text-align:center;'>Erreur API : ${JSON.stringify(result.errors)}</p>`;
                 return;
             }
 
             if (!result.response || result.response.length === 0) {
-                container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Aucun événement programmé pour aujourd'hui.</p>";
+                container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Aucun match programmé pour aujourd'hui.</p>";
                 return;
             }
 
@@ -182,14 +220,9 @@
                 const awayName = item.teams.away.name;
 
                 const matchDate = new Date(item.fixture.date);
-                const hours = String(matchDate.getHours()).padStart(2, '0');
-                const minutes = String(matchDate.getMinutes()).padStart(2, '0');
-                const timeFormatted = `${hours}:${minutes}`;
+                const timeFormatted = `${String(matchDate.getHours()).padStart(2, '0')}:${String(matchDate.getMinutes()).padStart(2, '0')}`;
 
-                let predictionAdvice = "";
-                let proba = 65;
                 let statusText = "";
-
                 if (['1H', '2H', 'ET', 'P', 'LIVE'].includes(statusShort)) {
                     statusText = `🔴 EN DIRECT (${item.fixture.status.elapsed}')`;
                 } else if (['FT', 'AET', 'PEN'].includes(statusShort)) {
@@ -198,16 +231,23 @@
                     statusText = `📅 Prévu à ${timeFormatted}`;
                 }
 
-                // Logique d'analyse de prédiction
+                // ALGORITHME DE PRÉDICTION DU ROBOT
+                let winnerPrediction = "";
+                let htPrediction = "";
+                let confidence = 65;
+
                 if (homeGoals > awayGoals) {
-                    predictionAdvice = `Victoire ou Nul pour ${homeName}`;
-                    proba = 78;
+                    winnerPrediction = `Victoire ${homeName}`;
+                    htPrediction = `Avantage ${homeName} à la pause`;
+                    confidence = 78;
                 } else if (awayGoals > homeGoals) {
-                    predictionAdvice = `Victoire ou Nul pour ${awayName}`;
-                    proba = 78;
+                    winnerPrediction = `Victoire ${awayName}`;
+                    htPrediction = `Avantage ${awayName} à la pause`;
+                    confidence = 78;
                 } else {
-                    predictionAdvice = "Plus de 1.5 Buts dans le match";
-                    proba = 70;
+                    winnerPrediction = "Match Nul ou Victoire Domicile (1X)";
+                    htPrediction = "Egalité / Nul à la pause (HT X)";
+                    confidence = 70;
                 }
 
                 return {
@@ -217,8 +257,9 @@
                     country: item.league.country,
                     score: `${homeGoals} - ${awayGoals}`,
                     status: statusText,
-                    proba: proba,
-                    advice: predictionAdvice
+                    confidence: confidence,
+                    winnerPred: winnerPrediction,
+                    htPred: htPrediction
                 };
             });
 
@@ -238,11 +279,16 @@
             const card = document.createElement('div');
             card.className = 'match-card';
             card.innerHTML = `
-                <h3>${m.team1} <span style="color:var(--warning-color);">${m.score}</span> ${m.team2}</h3>
-                <p>🏆 ${m.league} (${m.country}) | Statut : <strong>${m.status}</strong></p>
-                <p>🎯 <strong>Pronostic Robot :</strong> <span style="color:var(--accent-color); font-weight:bold;">${m.advice}</span></p>
-                <p>Indice de confiance : <strong>${m.proba}%</strong></p>
-                <span class="badge ${m.proba >= 75 ? 'badge-green' : 'badge-yellow'}">${m.proba >= 75 ? 'Confiance Élevée' : 'Confiance Modérée'}</span>
+                <h3 style="margin:0 0 5px 0;">${m.team1} <span style="color:var(--warning-color);">${m.score}</span> ${m.team2}</h3>
+                <p style="margin:0 0 10px 0; font-size:0.85rem; color:#94a3b8;">🏆 ${m.league} (${m.country}) | Statut : <strong>${m.status}</strong></p>
+                
+                <div class="prediction-box">
+                    <div class="prediction-item">🏆 <strong>Vainqueur Match :</strong> <span style="color:var(--accent-color); font-weight:bold;">${m.winnerPred}</span></div>
+                    <div class="prediction-item">⏱️ <strong> 1ère Mi-Temps (HT) :</strong> <span style="color:#38bdf8;">${m.htPred}</span></div>
+                    <div class="prediction-item">📊 <strong>Indice de Confiance :</strong> ${m.confidence}%</div>
+                </div>
+                
+                <span class="badge ${m.confidence >= 75 ? 'badge-green' : 'badge-yellow'}">${m.confidence >= 75 ? 'Confiance Élevée' : 'Confiance Modérée'}</span>
             `;
             container.appendChild(card);
         });
@@ -264,7 +310,7 @@
         const p = parseFloat(document.getElementById('probability').value) / 100;
 
         if (!b || !o || !p) {
-            document.getElementById('kelly-result').innerHTML = "<p style='color:var(--danger-color)'>Veuillez remplir tous les champs.</p>";
+            document.getElementById('kelly-result').innerHTML = "<p style='color:var(--danger-color); margin-top:10px;'>Veuillez remplir tous les champs.</p>";
             return;
         }
 
@@ -273,14 +319,13 @@
         const kellyFraction = ((bDecimal * p) - q) / bDecimal;
 
         if (kellyFraction <= 0) {
-            document.getElementById('kelly-result').innerHTML = "<p style='color:var(--warning-color)'>Pari non recommandé.</p>";
+            document.getElementById('kelly-result').innerHTML = "<p style='color:var(--warning-color); margin-top:10px;'>Pari non recommandé.</p>";
         } else {
             const stake = (b * kellyFraction * 0.5).toFixed(2);
-            document.getElementById('kelly-result').innerHTML = `<p style='color:var(--success-color)'>Mise conseillée : <strong>${stake} €</strong></p>`;
+            document.getElementById('kelly-result').innerHTML = `<p style='color:var(--success-color); margin-top:10px;'>Mise conseillée : <strong>${stake} €</strong></p>`;
         }
     }
 
-    // Démarrage automatique
     fetchRealMatches();
 </script>
 
