@@ -1,3 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot de Prédiction Football PRO & Live API</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #3b82f6;
+            --success-color: #22c55e;
+            --warning-color: #eab308;
+            --danger-color: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            color: var(--accent-color);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #0f172a;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        .match-card {
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #1e293b;
+            border-radius: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .badge-green { background-color: var(--success-color); color: black; }
+        .badge-yellow { background-color: var(--warning-color); color: black; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Robot de Prédiction Football PRO & Live API</h1>
+
+    <!-- GÉNÉRATEUR DE PRÉDICTIONS FIFA -->
+    <div class="card" style="text-align: center;">
+        <h2>Robot de Pronostics FIFA / eSports</h2>
+        <button onclick="generateFifaCoupon()">Générer un Pronostic FIFA</button>
+        <div id="fifa-coupon-result"></div>
+    </div>
+
+    <!-- CALCULATRICE KELLY -->
+    <div class="card">
+        <h2>Calculatrice de Mise (Critère de Kelly)</h2>
+        <div class="grid-2">
+            <input type="number" id="bankroll" placeholder="Capital total (€)">
+            <input type="number" id="odd" placeholder="Cote du pari" step="0.01">
+        </div>
+        <div class="grid-2">
+            <input type="number" id="probability" placeholder="Probabilité estimée (%)">
+            <button onclick="calculateKelly()">Calculer la Mise</button>
+        </div>
+        <div id="kelly-result"></div>
+    </div>
+
+    <!-- RECHERCHE ET FILTRES DE MATCHS -->
+    <div class="card">
+        <h2>Événements & Matchs (API Football)</h2>
+        <button onclick="fetchRealMatches()" style="background-color: var(--success-color); color: black;">🔄 Rafraîchir les matchs API</button>
+        <input type="text" id="search-input" placeholder="Rechercher une équipe ou une ligue..." onkeyup="filterMatches()">
+    </div>
+
+    <!-- LISTE DES MATCHS EN DIRECT -->
+    <div id="matches-container">
+        <p style="text-align:center; color: #94a3b8;">Chargement des matchs...</p>
+    </div>
+</div>
+
+<!-- CHARGEMENT DE LA CLÉ API -->
 <script src="config.js"></script>
 
 <script>
@@ -8,7 +145,6 @@
         "Bayern Munich (eSports)", "PSG (eSports)", "Liverpool (eSports)"
     ];
 
-    // Obtenir la date d'aujourd'hui au format YYYY-MM-DD
     function getTodayDate() {
         const today = new Date();
         const yyyy = today.getFullYear();
@@ -29,7 +165,6 @@
         const todayStr = getTodayDate();
 
         try {
-            // On récupère TOUS les matchs du jour (en direct + à venir + terminés)
             const response = await fetch(`https://v3.football.api-sports.io/fixtures?date=${todayStr}`, {
                 "method": "GET",
                 "headers": {
@@ -56,13 +191,11 @@
                 const homeName = item.teams.home.name;
                 const awayName = item.teams.away.name;
 
-                // Format de l'heure du match
                 const matchDate = new Date(item.fixture.date);
                 const hours = String(matchDate.getHours()).padStart(2, '0');
                 const minutes = String(matchDate.getMinutes()).padStart(2, '0');
                 const timeFormatted = `${hours}:${minutes}`;
 
-                // Analyse et conseil du Robot
                 let predictionAdvice = "";
                 let proba = 65;
                 let statusText = "";
@@ -75,7 +208,6 @@
                     statusText = `📅 Prévu à ${timeFormatted}`;
                 }
 
-                // Génération de la prédiction
                 if (homeGoals > awayGoals) {
                     predictionAdvice = `Victoire ou Nul pour ${homeName}`;
                     proba = 78;
@@ -174,3 +306,6 @@
 
     fetchRealMatches();
 </script>
+
+</body>
+</html>
