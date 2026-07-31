@@ -36,7 +36,7 @@
 
         .header-title {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .header-title h1 {
@@ -63,7 +63,44 @@
             letter-spacing: 1px;
         }
 
-        /* MENU DÉFILANT CATEGORIES */
+        /* GRANDS ONGLETS PRINCIPAUX (MODE LIVE / MODE AVANT-MATCH) */
+        .main-mode-menu {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 16px;
+            font-size: 1.05rem;
+            font-weight: 900;
+            border-radius: 14px;
+            border: 2px solid var(--card-border);
+            background: var(--card-bg);
+            color: #9ca3af;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mode-btn.active-live {
+            background: linear-gradient(135deg, #ef4444, #991b1b);
+            color: white;
+            border-color: #ef4444;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .mode-btn.active-prematch {
+            background: linear-gradient(135deg, #38bdf8, #0284c7);
+            color: white;
+            border-color: #38bdf8;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+        }
+
+        /* MENU DÉFILANT CATEGORIES PRONO */
         .filter-menu {
             display: flex;
             overflow-x: auto;
@@ -117,6 +154,27 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
         }
 
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--neon-blue);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .inputs-flex {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .inputs-flex input {
+            flex: 1;
+            min-width: 140px;
+        }
+
         input, button {
             width: 100%;
             padding: 14px;
@@ -137,6 +195,15 @@
             cursor: pointer;
             box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
             transition: transform 0.2s;
+        }
+
+        button.custom-btn {
+            background: linear-gradient(135deg, #38bdf8, #0284c7);
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
         }
 
         button.combo-btn {
@@ -263,6 +330,11 @@
             border: 1px solid #ef4444;
             box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
         }
+
+        /* UTILS */
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -272,7 +344,30 @@
         <h1>ROBOT DE PRÉDICTION <span class="version-tag">v100.0 OMEGA</span></h1>
     </div>
 
-    <!-- MENU FILTRES PAR CATEGORIES -->
+    <!-- SELECTION DU MENU PRINCIPAL -->
+    <div class="main-mode-menu">
+        <button id="btn-mode-live" class="mode-btn active-live" onclick="switchMainMode('live')">🔴 MENU LIVE (EN DIRECT)</button>
+        <button id="btn-mode-prematch" class="mode-btn" onclick="switchMainMode('prematch')">📅 MENU AVANT-MATCH</button>
+    </div>
+
+    <!-- SECTION AVANT-MATCH (AFFICHEE UNIQUEMENT QUAND LE MENU AVANT-MATCH EST ACTIF) -->
+    <div id="section-prematch" class="card hidden">
+        <div class="card-title">🔍 Sélectionner & Prédire un Match Avant Coup d'Envoi</div>
+        <div class="inputs-flex">
+            <input type="text" id="custom-team1" placeholder="Équipe Domicile (ex: Real Madrid)">
+            <input type="text" id="custom-team2" placeholder="Équipe Extérieur (ex: FC Barcelone)">
+        </div>
+        <button class="custom-btn" onclick="predictCustomMatch()">🎯 Calculer la Prédiction Avant-Match</button>
+    </div>
+
+    <!-- SECTION LIVE (AFFICHEE UNIQUEMENT QUAND LE MENU LIVE EST ACTIF) -->
+    <div id="section-live-controls" class="card">
+        <button class="action-btn" onclick="fetchRealMatches()">🔴 Scanner Tous les Matchs en Direct (API Live)</button>
+        <button class="combo-btn" onclick="generateComboTicket()">🎯 Générer le Combiné Sûr du Jour</button>
+        <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe, un pays ou une ligue..." onkeyup="filterMatches()">
+    </div>
+
+    <!-- MENU FILTRES PAR CATEGORIES DE PRÉDICTIONS -->
     <div class="filter-menu">
         <button class="filter-btn active" onclick="setCategory('all', this)">🌐 Tout (Vue Globale)</button>
         <button class="filter-btn alert-btn" onclick="setCategory('alert', this)">🚨 Alertes Sûres (+85%)</button>
@@ -283,19 +378,12 @@
         <button class="filter-btn" onclick="setCategory('other', this)">🖐️ Touches & Dégagements</button>
     </div>
 
-    <!-- COMMANDES -->
-    <div class="card">
-        <button class="action-btn" onclick="fetchRealMatches()">⚡ Lancer l'Analyse Algorithmique</button>
-        <button class="combo-btn" onclick="generateComboTicket()">🎯 Générer le Combiné Sûr du Jour</button>
-        <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe, un pays ou une ligue..." onkeyup="filterMatches()">
-    </div>
-
     <!-- ZONE DU TICKET COMBINÉ -->
     <div id="combo-container" class="combo-box"></div>
 
     <!-- CONTENEUR DES PRÉDICTIONS -->
     <div id="matches-container">
-        <p style="text-align:center; color: #6b7280; padding: 20px;">Cliquez sur le bouton vert ci-dessus pour lancer le scanner.</p>
+        <p style="text-align:center; color: #6b7280; padding: 20px;">Cliquez sur le bouton rouge ci-dessus pour lancer le scanner Live.</p>
     </div>
 </div>
 
@@ -303,13 +391,39 @@
 
 <script>
     let liveMatches = [];
+    let prematchMatches = [];
     let currentCategory = 'all';
+    let currentMainMode = 'live'; // 'live' ou 'prematch'
+
+    // BASCULER ENTRE MENU LIVE ET MENU AVANT-MATCH
+    function switchMainMode(mode) {
+        currentMainMode = mode;
+        const liveBtn = document.getElementById('btn-mode-live');
+        const prematchBtn = document.getElementById('btn-mode-prematch');
+        const sectionLive = document.getElementById('section-live-controls');
+        const sectionPrematch = document.getElementById('section-prematch');
+
+        if (mode === 'live') {
+            liveBtn.className = "mode-btn active-live";
+            prematchBtn.className = "mode-btn";
+            sectionLive.classList.remove('hidden');
+            sectionPrematch.classList.add('hidden');
+            renderMatches(liveMatches);
+        } else {
+            liveBtn.className = "mode-btn";
+            prematchBtn.className = "mode-btn active-prematch";
+            sectionLive.classList.add('hidden');
+            sectionPrematch.classList.remove('hidden');
+            renderMatches(prematchMatches);
+        }
+    }
 
     function setCategory(cat, btn) {
         currentCategory = cat;
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        renderMatches(liveMatches);
+        const dataToRender = currentMainMode === 'live' ? liveMatches : prematchMatches;
+        renderMatches(dataToRender);
     }
 
     function getTodayDate() {
@@ -320,9 +434,51 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
+    // PRÉDICTION EN AVANT-MATCH
+    function predictCustomMatch() {
+        const t1 = document.getElementById('custom-team1').value.trim();
+        const t2 = document.getElementById('custom-team2').value.trim();
+
+        if (!t1 || !t2) {
+            alert("Veuillez remplir les deux équipes avant de valider.");
+            return;
+        }
+
+        const confidence = 82 + Math.floor(Math.random() * 12); // Ex: 82% à 93%
+
+        const customMatch = {
+            team1: t1,
+            team2: t2,
+            league: "Analyse Avant-Match",
+            country: "International",
+            score: "À venir (0 - 0)",
+            confidencePercent: confidence,
+
+            winner: confidence > 88 ? `Double Chance : 1X (${t1})` : `Double Chance : X2 (${t2})`,
+            totalGoals: confidence > 85 ? "Plus de 2.5 Buts dans le match" : "Plus de 1.5 Buts dans le match",
+            htWinner: `Avantage ${t1} ou Nul (1ère MT)`,
+            
+            firstGoal: `Premier But estimé : ${t1}`,
+            fastEvent: "Événement 0-5 min : Touche ou Coup franc",
+
+            shots: "Plus de 8.5 Tirs cadrés au total",
+            corners: "Plus de 8.5 Corners",
+
+            yellowCards: "Plus de 3.5 Cartons Jaunes",
+            fouls: "Plus de 21.5 Fautes commises",
+
+            throwIns: "Plus de 34.5 Touches",
+            clearances: "Plus de 16.5 Dégagements"
+        };
+
+        prematchMatches = [customMatch, ...prematchMatches];
+        renderMatches(prematchMatches);
+    }
+
+    // CHARGEMENT DES MATCHS EN LIVE
     async function fetchRealMatches() {
         const container = document.getElementById('matches-container');
-        container.innerHTML = "<p style='text-align:center; color: #f59e0b; padding: 20px;'>🚀 Calcul des probabilités statistiques en cours...</p>";
+        container.innerHTML = "<p style='text-align:center; color: #ef4444; padding: 20px;'>🔴 Connection au flux des matchs en direct...</p>";
 
         if (typeof API_KEY === 'undefined' || !API_KEY || API_KEY === "TA_VRAIE_CLE_API_ICI") {
             container.innerHTML = "<p style='color:var(--danger-color); text-align:center; padding:20px;'>⚠️ Erreur : Clé API non détectée dans <strong>config.js</strong> !</p>";
@@ -340,7 +496,7 @@
             const result = await response.json();
 
             if (!result.response || result.response.length === 0) {
-                container.innerHTML = "<p style='text-align:center; color: #6b7280; padding: 20px;'>Aucun événement programmé aujourd'hui.</p>";
+                container.innerHTML = "<p style='text-align:center; color: #6b7280; padding: 20px;'>Aucun événement Live programmé actuellement.</p>";
                 return;
             }
 
@@ -351,15 +507,14 @@
                 const awayGoals = item.goals.away ?? 0;
                 const totalGoals = homeGoals + awayGoals;
 
-                // CALCUL AUTOMATIQUE DE POURCENTAGE PAR LE ROBOT
                 let calculatedConfidence = 70;
                 const diff = Math.abs(homeGoals - awayGoals);
                 if (diff >= 2) {
-                    calculatedConfidence = 88 + Math.min(diff, 6); // Ex: 90%, 92%
+                    calculatedConfidence = 88 + Math.min(diff, 6);
                 } else if (diff === 1) {
-                    calculatedConfidence = 78 + Math.floor(Math.random() * 6); // 78% à 83%
+                    calculatedConfidence = 78 + Math.floor(Math.random() * 6);
                 } else {
-                    calculatedConfidence = 68 + Math.floor(Math.random() * 8); // 68% à 75%
+                    calculatedConfidence = 68 + Math.floor(Math.random() * 8);
                 }
 
                 return {
@@ -402,13 +557,15 @@
 
         let filteredData = data;
 
-        // FILTRE D'ALERTE DES MATCHS SÛRS (+85%)
         if (currentCategory === 'alert') {
             filteredData = data.filter(m => m.confidencePercent >= 85);
         }
 
         if (filteredData.length === 0) {
-            container.innerHTML = "<p style='text-align:center; color: #6b7280; padding: 20px;'>Aucun match trouvé pour cette catégorie ou ce filtre.</p>";
+            const emptyMsg = currentMainMode === 'live' 
+                ? "Aucun match en direct chargé. Cliquez sur le bouton rouge pour scanner." 
+                : "Aucun match avant-match créé. Saisissez deux équipes ci-dessus.";
+            container.innerHTML = `<p style='text-align:center; color: #6b7280; padding: 20px;'>${emptyMsg}</p>`;
             return;
         }
 
@@ -471,21 +628,20 @@
         });
     }
 
-    // FONCTION POUR GÉNÉRER UN TICKET COMBINÉ
     function generateComboTicket() {
         const comboBox = document.getElementById('combo-container');
+        const dataToUse = currentMainMode === 'live' ? liveMatches : prematchMatches;
         
-        if (liveMatches.length === 0) {
-            alert("Veuillez d'abord charger les matchs en cliquant sur le bouton vert !");
+        if (dataToUse.length === 0) {
+            alert("Veuillez d'abord charger ou ajouter des matchs !");
             return;
         }
 
-        // Sélection des matchs les plus sûrs (>= 80%)
-        const safeMatches = liveMatches.filter(m => m.confidencePercent >= 80).slice(0, 3);
+        const safeMatches = dataToUse.filter(m => m.confidencePercent >= 80).slice(0, 3);
 
         if (safeMatches.length === 0) {
             comboBox.style.display = 'block';
-            comboBox.innerHTML = "<p style='color:#f87171; text-align:center;'>Pas assez de matchs sûrs aujourd'hui pour former un combiné.</p>";
+            comboBox.innerHTML = "<p style='color:#f87171; text-align:center;'>Pas assez de matchs sûrs pour former un combiné.</p>";
             return;
         }
 
@@ -511,7 +667,8 @@
 
     function filterMatches() {
         const search = document.getElementById('search-input').value.toLowerCase();
-        const filtered = liveMatches.filter(m => 
+        const dataToFilter = currentMainMode === 'live' ? liveMatches : prematchMatches;
+        const filtered = dataToFilter.filter(m => 
             m.team1.toLowerCase().includes(search) || 
             m.team2.toLowerCase().includes(search) ||
             m.league.toLowerCase().includes(search) ||
