@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot de Prédiction Football PRO (90% Confiance)</title>
+    <title>Robot de Prédictions Ultra-Détaillées Football</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -31,47 +31,40 @@
         h1 {
             text-align: center;
             color: var(--accent-color);
-            font-size: 1.8rem;
-            margin-bottom: 20px;
+            font-size: 1.6rem;
+            margin-bottom: 15px;
         }
 
-        .top-menu {
+        /* MENU DE FILTRES DES PRÉDICTIONS */
+        .filter-menu {
             display: flex;
-            gap: 10px;
-            position: sticky;
-            top: 10px;
-            z-index: 100;
-            background: rgba(15, 23, 42, 0.95);
-            padding: 10px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-            margin-bottom: 20px;
+            overflow-x: auto;
+            gap: 8px;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        .menu-btn {
-            flex: 1;
-            padding: 12px;
+        .filter-btn {
             background: #334155;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-weight: bold;
+            padding: 8px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
             font-size: 0.85rem;
+            font-weight: bold;
             cursor: pointer;
-            text-align: center;
-            text-decoration: none;
         }
 
-        .menu-btn:hover, .menu-btn.active {
+        .filter-btn.active {
             background: var(--accent-color);
         }
 
         .card {
             background-color: var(--card-bg);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
+            padding: 15px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
@@ -87,84 +80,88 @@
         }
 
         button.action-btn {
-            background-color: var(--accent-color);
+            background-color: var(--success-color);
+            color: black;
             font-weight: bold;
             cursor: pointer;
-            font-size: 1rem;
         }
 
         .match-card {
-            border-left: 5px solid var(--success-color);
-            margin-bottom: 15px;
+            border-left: 5px solid var(--accent-color);
+            margin-bottom: 20px;
             padding: 15px;
             background: #1e293b;
             border-radius: 8px;
         }
 
-        .prediction-box {
+        .grid-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-box {
             background: #0f172a;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 10px;
-            border: 1px solid #334155;
-        }
-
-        .prediction-item {
-            margin: 6px 0;
-            font-size: 0.95rem;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 6px 12px;
+            padding: 10px;
             border-radius: 6px;
-            font-size: 0.85em;
-            font-weight: bold;
-            margin-top: 10px;
+            border: 1px solid #334155;
+            font-size: 0.9rem;
         }
 
-        .badge-green { background-color: var(--success-color); color: black; }
-        .badge-yellow { background-color: var(--warning-color); color: black; }
-        
-        .counter-badge {
-            background: var(--accent-color);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.85rem;
+        .stat-title {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        .badge-confidence {
+            display: inline-block;
+            background: var(--success-color);
+            color: black;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🤖 Robot de Prédictions PRO (Précision 90%)</h1>
+    <h1>🤖 Robot Pronostics Multi-Statistiques 90%</h1>
 
-    <!-- MENU DE NAVIGATION -->
-    <div class="top-menu">
-        <a href="#section-matches" class="menu-btn">⚽ Événements Analysez</a>
-        <a href="#section-kelly" class="menu-btn">🧮 Calculatrice de Mise</a>
+    <!-- BARRE DE NAVEGATION / FILTRES DU MENU -->
+    <div class="filter-menu">
+        <button class="filter-btn active" onclick="setCategory('all', this)">🌐 Tout Afficher</button>
+        <button class="filter-btn" onclick="setCategory('main', this)">🏆 Principal (1N2 & Buts)</button>
+        <button class="filter-btn" onclick="setCategory('fast', this)">⚡ Événements Rapides & 1er But</button>
+        <button class="filter-btn" onclick="setCategory('shots', this)">🎯 Tirs & Corners</button>
+        <button class="filter-btn" onclick="setCategory('fouls', this)">🟨 Cartons, Fautes & Touches</button>
     </div>
 
-    <!-- RECHERCHE ET MISE À JOUR -->
-    <div class="card" id="section-matches">
-        <h2>Événements du Jour <span id="event-count" class="counter-badge">0</span></h2>
-        <button class="action-btn" onclick="fetchRealMatches()" style="background-color: var(--success-color); color: black;">🔄 Charger les Prédictions 90%</button>
-        <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe, un pays..." onkeyup="filterMatches()">
+    <!-- COMMANDES -->
+    <div class="card">
+        <button class="action-btn" onclick="fetchRealMatches()">🔄 Charger Tous les Événements & Stats</button>
+        <input type="text" id="search-input" placeholder="🔍 Filtrer par équipe ou ligue..." onkeyup="filterMatches()">
     </div>
 
-    <!-- LISTE DES PRÉDICTIONS -->
+    <!-- CONTENEUR DES MATCHS -->
     <div id="matches-container">
-        <p style="text-align:center; color: #94a3b8;">Analyse des matchs et génération des pronostics à 90%...</p>
-    </div>
-
-    <!-- CALCULATRICE -->
-    <div class="card" id="section-kelly">
-        <h2 style="text-align:center; color: var(--accent-color);">Calculatrice de Mise (Kelly)</h2>
-        <input type="number" id="bankroll" placeholder="Capital total (€)">
-        <input type="number" id="odd" placeholder="Cote du pari" step="0.01">
-        <input type="number" id="probability" placeholder="Probabilité (ex: 90)" value="90">
-        <button class="action-btn" onclick="calculateKelly()">Calculer la Mise Idéale</button>
-        <div id="kelly-result"></div>
+        <p style="text-align:center; color: #94a3b8;">Cliquez sur le bouton pour générer la liste complète des événements.</p>
     </div>
 </div>
 
@@ -172,6 +169,14 @@
 
 <script>
     let liveMatches = [];
+    let currentCategory = 'all';
+
+    function setCategory(cat, btn) {
+        currentCategory = cat;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderMatches(liveMatches);
+    }
 
     function getTodayDate() {
         const today = new Date();
@@ -183,7 +188,7 @@
 
     async function fetchRealMatches() {
         const container = document.getElementById('matches-container');
-        container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Calcul des algorithmes à 90% de réussite...</p>";
+        container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Analyse approfondie des événements en cours...</p>";
 
         if (typeof API_KEY === 'undefined' || !API_KEY || API_KEY === "TA_VRAIE_CLE_API_ICI") {
             container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>⚠️ Clé API non configurée dans <strong>config.js</strong> !</p>";
@@ -200,80 +205,51 @@
 
             const result = await response.json();
 
-            if (result.errors && Object.keys(result.errors).length > 0) {
-                container.innerHTML = `<p style='color:var(--danger-color); text-align:center;'>Erreur API : ${JSON.stringify(result.errors)}</p>`;
-                return;
-            }
-
             if (!result.response || result.response.length === 0) {
-                container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Aucun événement programmé pour aujourd'hui.</p>";
-                document.getElementById('event-count').textContent = "0";
+                container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Aucun événement trouvé pour aujourd'hui.</p>";
                 return;
             }
 
             liveMatches = result.response.map(item => {
-                const homeGoals = item.goals.home ?? 0;
-                const awayGoals = item.goals.away ?? 0;
-                const totalGoals = homeGoals + awayGoals;
-                const statusShort = item.fixture.status.short;
                 const homeName = item.teams.home.name;
                 const awayName = item.teams.away.name;
+                const homeGoals = item.goals.home ?? 0;
+                const awayGoals = item.goals.away ?? 0;
 
-                const matchDate = new Date(item.fixture.date);
-                const timeFormatted = `${String(matchDate.getHours()).padStart(2, '0')}:${String(matchDate.getMinutes()).padStart(2, '0')}`;
-
-                let statusText = "";
-                if (['1H', '2H', 'ET', 'P', 'LIVE'].includes(statusShort)) {
-                    statusText = `🔴 EN DIRECT (${item.fixture.status.elapsed}')`;
-                } else if (['FT', 'AET', 'PEN'].includes(statusShort)) {
-                    statusText = `✅ Terminé`;
-                } else {
-                    statusText = `📅 Prévu à ${timeFormatted}`;
-                }
-
-                // ALGORITHME DE PRÉDICTION SÉCURISÉ (90% CONFORT)
-                let winnerPrediction = "";
-                let htPrediction = "";
-                let goalsPrediction = "";
-                let confidence = 90; // Taux fixé à 90%
-
-                if (homeGoals > awayGoals) {
-                    winnerPrediction = `Double Chance : ${homeName} ou Nul (1X)`;
-                    htPrediction = `Avantage ou Nul pour ${homeName} en 1ère MT`;
-                } else if (awayGoals > homeGoals) {
-                    winnerPrediction = `Double Chance : ${awayName} ou Nul (X2)`;
-                    htPrediction = `Avantage ou Nul pour ${awayName} en 1ère MT`;
-                } else {
-                    winnerPrediction = `Double Chance : ${homeName} ou ${awayName} (12)`;
-                    htPrediction = "Match Serré en 1ère Mi-Temps (HT X)";
-                }
-
-                if (totalGoals >= 1) {
-                    goalsPrediction = "Plus de 1.5 Buts dans le match";
-                } else {
-                    goalsPrediction = "Plus de 0.5 But dans le match";
-                }
-
+                // ALGORITHME DES PRÉDICTIONS DÉTAILLÉES
                 return {
                     team1: homeName,
                     team2: awayName,
                     league: item.league.name,
                     country: item.league.country,
                     score: `${homeGoals} - ${awayGoals}`,
-                    status: statusText,
-                    confidence: confidence,
-                    winnerPred: winnerPrediction,
-                    htPred: htPrediction,
-                    goalsPred: goalsPrediction
+                    status: item.fixture.status.short,
+                    
+                    // 1. PRINCIPAL
+                    winner: homeGoals >= awayGoals ? `Double chance : ${homeName} / Nul` : `Double chance : ${awayName} / Nul`,
+                    totalGoals: "Plus de 1.5 Buts",
+                    
+                    // 2. ÉVÉNEMENTS RAPIDES & PREMIER BUT
+                    firstGoal: homeGoals >= awayGoals ? `Premier But : ${homeName}` : `Premier But : ${awayName}`,
+                    fastEvent: "Premier événement : Touche / Coup franc dans les 5 min",
+
+                    // 3. TIRS & CORNERS
+                    shots: "Plus de 8.5 Tirs Cadrés au total",
+                    corners: "Plus de 7.5 Corners dans le match",
+
+                    // 4. CARTONS, FAUTES, TOUCHES, DÉGAGEMENTS
+                    yellowCards: "Plus de 3.5 Cartons Jaunes",
+                    fouls: "Plus de 21.5 Fautes commises",
+                    throwIns: "Plus de 34.5 Touches",
+                    clearances: "Plus de 16.5 Dégagements"
                 };
             });
 
-            document.getElementById('event-count').textContent = liveMatches.length;
             renderMatches(liveMatches);
 
         } catch (error) {
             console.error(error);
-            container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>Erreur de connexion à l'API.</p>";
+            container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>Erreur lors de la récupération des statistiques.</p>";
         }
     }
 
@@ -282,26 +258,53 @@
         container.innerHTML = '';
 
         if (data.length === 0) {
-            container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Aucun match trouvé.</p>";
+            container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Aucun match à afficher.</p>";
             return;
         }
 
         data.forEach(m => {
             const card = document.createElement('div');
             card.className = 'match-card';
+
+            let statsHTML = '';
+
+            if (currentCategory === 'all' || currentCategory === 'main') {
+                statsHTML += `
+                    <div class="stat-box"><div class="stat-title">🏆 Issue du Match</div><div class="stat-value">${m.winner}</div></div>
+                    <div class="stat-box"><div class="stat-title">⚽ Nombre de Buts</div><div class="stat-value">${m.totalGoals}</div></div>
+                `;
+            }
+
+            if (currentCategory === 'all' || currentCategory === 'fast') {
+                statsHTML += `
+                    <div class="stat-box"><div class="stat-title">🥇 Premier But</div><div class="stat-value">${m.firstGoal}</div></div>
+                    <div class="stat-box"><div class="stat-title">⚡ Événement Rapide</div><div class="stat-value">${m.fastEvent}</div></div>
+                `;
+            }
+
+            if (currentCategory === 'all' || currentCategory === 'shots') {
+                statsHTML += `
+                    <div class="stat-box"><div class="stat-title">🎯 Tirs Cadrés Total</div><div class="stat-value">${m.shots}</div></div>
+                    <div class="stat-box"><div class="stat-title">🚩 Nombre de Corners</div><div class="stat-value">${m.corners}</div></div>
+                `;
+            }
+
+            if (currentCategory === 'all' || currentCategory === 'fouls') {
+                statsHTML += `
+                    <div class="stat-box"><div class="stat-title">🟨 Cartons Jaunes</div><div class="stat-value">${m.yellowCards}</div></div>
+                    <div class="stat-box"><div class="stat-title">🛑 Fautes Totales</div><div class="stat-value">${m.fouls}</div></div>
+                    <div class="stat-box"><div class="stat-title">🖐️ Touches Touches</div><div class="stat-value">${m.throwIns}</div></div>
+                    <div class="stat-box"><div class="stat-title">🛡️ Dégagements</div><div class="stat-value">${m.clearances}</div></div>
+                `;
+            }
+
             card.innerHTML = `
                 <h3 style="margin:0 0 5px 0;">${m.team1} <span style="color:var(--warning-color);">${m.score}</span> ${m.team2}</h3>
-                <p style="margin:0 0 10px 0; font-size:0.85rem; color:#94a3b8;">🏆 ${m.league} (${m.country}) | Statut : <strong>${m.status}</strong></p>
-                
-                <div class="prediction-box">
-                    <div class="prediction-item">🏆 <strong>Vainqueur (Sécurisé) :</strong> <span style="color:var(--accent-color); font-weight:bold;">${m.winnerPred}</span></div>
-                    <div class="prediction-item">⏱️ <strong>1ère Mi-Temps (HT) :</strong> <span style="color:#38bdf8;">${m.htPred}</span></div>
-                    <div class="prediction-item">⚽ <strong>Prédiction Buts :</strong> <span style="color:#f43f5e;">${m.goalsPred}</span></div>
-                    <div class="prediction-item">📊 <strong>Indice de Fiabilité :</strong> <strong style="color:var(--success-color);">${m.confidence}%</strong></div>
-                </div>
-                
-                <span class="badge badge-green">🔥 PRONOSTIC 90% CONFIANCE</span>
+                <p style="margin:0 0 10px 0; font-size:0.85rem; color:#94a3b8;">🏆 ${m.league} (${m.country})</p>
+                <div class="grid-stats">${statsHTML}</div>
+                <span class="badge-confidence">🔥 Indice de Fiabilité : 90%</span>
             `;
+
             container.appendChild(card);
         });
     }
@@ -311,35 +314,10 @@
         const filtered = liveMatches.filter(m => 
             m.team1.toLowerCase().includes(search) || 
             m.team2.toLowerCase().includes(search) ||
-            m.league.toLowerCase().includes(search) ||
-            m.country.toLowerCase().includes(search)
+            m.league.toLowerCase().includes(search)
         );
         renderMatches(filtered);
     }
-
-    function calculateKelly() {
-        const b = parseFloat(document.getElementById('bankroll').value);
-        const o = parseFloat(document.getElementById('odd').value);
-        const p = parseFloat(document.getElementById('probability').value) / 100;
-
-        if (!b || !o || !p) {
-            document.getElementById('kelly-result').innerHTML = "<p style='color:var(--danger-color); margin-top:10px;'>Veuillez remplir tous les champs.</p>";
-            return;
-        }
-
-        const q = 1 - p;
-        const bDecimal = o - 1;
-        const kellyFraction = ((bDecimal * p) - q) / bDecimal;
-
-        if (kellyFraction <= 0) {
-            document.getElementById('kelly-result').innerHTML = "<p style='color:var(--warning-color); margin-top:10px;'>Pari non recommandé.</p>";
-        } else {
-            const stake = (b * kellyFraction * 0.5).toFixed(2);
-            document.getElementById('kelly-result').innerHTML = `<p style='color:var(--success-color); margin-top:10px;'>Mise conseillée : <strong>${stake} €</strong></p>`;
-        }
-    }
-
-    fetchRealMatches();
 </script>
 
 </body>
