@@ -17,6 +17,7 @@
             --danger-color: #ef4444;
             --gold-gradient: linear-gradient(135deg, #f59e0b, #d97706, #b45309);
             --neon-blue: #38bdf8;
+            --purple-glow: rgba(168, 85, 247, 0.4);
         }
 
         body {
@@ -39,7 +40,7 @@
         }
 
         .header-title h1 {
-            font-size: 2.3rem;
+            font-size: 2.1rem;
             margin: 0;
             background: linear-gradient(90deg, #f59e0b, #38bdf8, #10b981);
             -webkit-background-clip: text;
@@ -96,6 +97,17 @@
             border-color: var(--accent-color);
         }
 
+        .filter-btn.alert-btn {
+            border-color: var(--danger-color);
+            color: #f87171;
+        }
+
+        .filter-btn.alert-btn.active {
+            background: var(--danger-color);
+            color: white;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+        }
+
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -127,8 +139,47 @@
             transition: transform 0.2s;
         }
 
-        button.action-btn:active {
+        button.combo-btn {
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 14px var(--purple-glow);
+            margin-top: 10px;
+        }
+
+        button:active {
             transform: scale(0.98);
+        }
+
+        /* TICKET COMBINÉ BANNER */
+        .combo-box {
+            background: linear-gradient(135deg, #1e1b4b, #0f172a);
+            border: 2px solid #a855f7;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+            box-shadow: 0 0 20px var(--purple-glow);
+        }
+
+        .combo-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #c084fc;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .combo-item {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid #10b981;
         }
 
         .match-card {
@@ -204,7 +255,13 @@
             font-size: 0.8rem;
             font-weight: 900;
             margin-top: 15px;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        }
+
+        .badge-alert {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
         }
     </style>
 </head>
@@ -217,7 +274,8 @@
 
     <!-- MENU FILTRES PAR CATEGORIES -->
     <div class="filter-menu">
-        <button class="filter-btn active" onclick="setCategory('all', this)">🌐 Tout (Vue 100.0)</button>
+        <button class="filter-btn active" onclick="setCategory('all', this)">🌐 Tout (Vue Globale)</button>
+        <button class="filter-btn alert-btn" onclick="setCategory('alert', this)">🚨 Alertes Sûres (+85%)</button>
         <button class="filter-btn" onclick="setCategory('main', this)">🏆 Principal & Buts</button>
         <button class="filter-btn" onclick="setCategory('fast', this)">⚡ 1er But & Rapide</button>
         <button class="filter-btn" onclick="setCategory('shots', this)">🎯 Tirs & Corners</button>
@@ -227,13 +285,17 @@
 
     <!-- COMMANDES -->
     <div class="card">
-        <button class="action-btn" onclick="fetchRealMatches()">⚡ Lancer l'Analyse Algorithmique Automatique</button>
+        <button class="action-btn" onclick="fetchRealMatches()">⚡ Lancer l'Analyse Algorithmique</button>
+        <button class="combo-btn" onclick="generateComboTicket()">🎯 Générer le Combiné Sûr du Jour</button>
         <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe, un pays ou une ligue..." onkeyup="filterMatches()">
     </div>
 
+    <!-- ZONE DU TICKET COMBINÉ -->
+    <div id="combo-container" class="combo-box"></div>
+
     <!-- CONTENEUR DES PRÉDICTIONS -->
     <div id="matches-container">
-        <p style="text-align:center; color: #6b7280; padding: 20px;">Cliquez sur le bouton vert ci-dessus pour activer le scanner v100.0 OMEGA.</p>
+        <p style="text-align:center; color: #6b7280; padding: 20px;">Cliquez sur le bouton vert ci-dessus pour lancer le scanner.</p>
     </div>
 </div>
 
@@ -260,7 +322,7 @@
 
     async function fetchRealMatches() {
         const container = document.getElementById('matches-container');
-        container.innerHTML = "<p style='text-align:center; color: #f59e0b; padding: 20px;'>🚀 Calcul des probabilités statistiques par match en cours...</p>";
+        container.innerHTML = "<p style='text-align:center; color: #f59e0b; padding: 20px;'>🚀 Calcul des probabilités statistiques en cours...</p>";
 
         if (typeof API_KEY === 'undefined' || !API_KEY || API_KEY === "TA_VRAIE_CLE_API_ICI") {
             container.innerHTML = "<p style='color:var(--danger-color); text-align:center; padding:20px;'>⚠️ Erreur : Clé API non détectée dans <strong>config.js</strong> !</p>";
@@ -293,11 +355,11 @@
                 let calculatedConfidence = 70;
                 const diff = Math.abs(homeGoals - awayGoals);
                 if (diff >= 2) {
-                    calculatedConfidence = 88 + Math.min(diff, 7); // Ex: 90%, 91%
+                    calculatedConfidence = 88 + Math.min(diff, 6); // Ex: 90%, 92%
                 } else if (diff === 1) {
-                    calculatedConfidence = 78 + Math.floor(Math.random() * 6); // Ex: 78% à 83%
+                    calculatedConfidence = 78 + Math.floor(Math.random() * 6); // 78% à 83%
                 } else {
-                    calculatedConfidence = 68 + Math.floor(Math.random() * 8); // Ex: 68% à 75%
+                    calculatedConfidence = 68 + Math.floor(Math.random() * 8); // 68% à 75%
                 }
 
                 return {
@@ -338,18 +400,25 @@
         const container = document.getElementById('matches-container');
         container.innerHTML = '';
 
-        if (data.length === 0) {
-            container.innerHTML = "<p style='text-align:center; color: #6b7280; padding: 20px;'>Aucun résultat ne correspond à votre recherche.</p>";
+        let filteredData = data;
+
+        // FILTRE D'ALERTE DES MATCHS SÛRS (+85%)
+        if (currentCategory === 'alert') {
+            filteredData = data.filter(m => m.confidencePercent >= 85);
+        }
+
+        if (filteredData.length === 0) {
+            container.innerHTML = "<p style='text-align:center; color: #6b7280; padding: 20px;'>Aucun match trouvé pour cette catégorie ou ce filtre.</p>";
             return;
         }
 
-        data.forEach(m => {
+        filteredData.forEach(m => {
             const card = document.createElement('div');
             card.className = 'match-card';
 
             let statsHTML = '';
 
-            if (currentCategory === 'all' || currentCategory === 'main') {
+            if (currentCategory === 'all' || currentCategory === 'alert' || currentCategory === 'main') {
                 statsHTML += `
                     <div class="stat-box"><div class="stat-title">🏆 Issue du Match (1N2)</div><div class="stat-value">${m.winner}</div></div>
                     <div class="stat-box"><div class="stat-title">⚽ Total de Buts</div><div class="stat-value">${m.totalGoals}</div></div>
@@ -385,6 +454,9 @@
                 `;
             }
 
+            const badgeClass = m.confidencePercent >= 85 ? "badge-dynamic badge-alert" : "badge-dynamic";
+            const alertTag = m.confidencePercent >= 85 ? "🚨 ALERTE MATCH SÛR - " : "🤖 ";
+
             card.innerHTML = `
                 <div class="match-header">
                     <div class="match-teams">${m.team1} vs ${m.team2}</div>
@@ -392,11 +464,49 @@
                 </div>
                 <div style="font-size:0.8rem; color:#6b7280; margin-bottom:10px;">🏆 ${m.league} (${m.country})</div>
                 <div class="grid-stats">${statsHTML}</div>
-                <div class="badge-dynamic">🤖 Probabilité Calculée par le Robot : ${m.confidencePercent}%</div>
+                <div class="${badgeClass}">${alertTag} Confiance : ${m.confidencePercent}%</div>
             `;
 
             container.appendChild(card);
         });
+    }
+
+    // FONCTION POUR GÉNÉRER UN TICKET COMBINÉ
+    function generateComboTicket() {
+        const comboBox = document.getElementById('combo-container');
+        
+        if (liveMatches.length === 0) {
+            alert("Veuillez d'abord charger les matchs en cliquant sur le bouton vert !");
+            return;
+        }
+
+        // Sélection des matchs les plus sûrs (>= 80%)
+        const safeMatches = liveMatches.filter(m => m.confidencePercent >= 80).slice(0, 3);
+
+        if (safeMatches.length === 0) {
+            comboBox.style.display = 'block';
+            comboBox.innerHTML = "<p style='color:#f87171; text-align:center;'>Pas assez de matchs sûrs aujourd'hui pour former un combiné.</p>";
+            return;
+        }
+
+        let itemsHTML = '';
+        safeMatches.forEach(m => {
+            itemsHTML += `
+                <div class="combo-item">
+                    <strong>⚽ ${m.team1} vs ${m.team2}</strong><br>
+                    📌 Pronostic : <span style="color:#10b981;">${m.winner}</span> | Confiance : <strong>${m.confidencePercent}%</strong>
+                </div>
+            `;
+        });
+
+        comboBox.style.display = 'block';
+        comboBox.innerHTML = `
+            <div class="combo-header">
+                <span>🔥 TICKET COMBINÉ VIP (${safeMatches.length} ÉVÉNEMENTS)</span>
+                <span style="font-size:0.8rem; color:#10b981;">OPTIMISÉ</span>
+            </div>
+            ${itemsHTML}
+        `;
     }
 
     function filterMatches() {
