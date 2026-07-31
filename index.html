@@ -18,6 +18,7 @@
             --gold-gradient: linear-gradient(135deg, #f59e0b, #d97706, #b45309);
             --neon-blue: #38bdf8;
             --purple-glow: rgba(168, 85, 247, 0.4);
+            --fire-gradient: linear-gradient(135deg, #ef4444, #f97316);
         }
 
         body {
@@ -63,7 +64,7 @@
             letter-spacing: 1px;
         }
 
-        /* GRANDS ONGLETS PRINCIPAUX (MODE LIVE / MODE AVANT-MATCH) */
+        /* GRANDS ONGLETS PRINCIPAUX */
         .main-mode-menu {
             display: flex;
             gap: 12px;
@@ -206,6 +207,13 @@
             box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
         }
 
+        .combo-buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
         button.combo-btn {
             background: linear-gradient(135deg, #a855f7, #6366f1);
             color: white;
@@ -213,7 +221,15 @@
             border: none;
             cursor: pointer;
             box-shadow: 0 4px 14px var(--purple-glow);
-            margin-top: 10px;
+        }
+
+        button.big-odds-btn {
+            background: var(--fire-gradient);
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
         }
 
         button:active {
@@ -231,6 +247,12 @@
             box-shadow: 0 0 20px var(--purple-glow);
         }
 
+        .combo-box.big-odds-style {
+            border-color: #f97316;
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
+            background: linear-gradient(135deg, #451a03, #0f172a);
+        }
+
         .combo-header {
             font-size: 1.2rem;
             font-weight: bold;
@@ -241,12 +263,20 @@
             justify-content: space-between;
         }
 
+        .big-odds-style .combo-header {
+            color: #fb923c;
+        }
+
         .combo-item {
             background: rgba(0, 0, 0, 0.4);
             padding: 10px;
             border-radius: 8px;
             margin-bottom: 8px;
             border-left: 3px solid #10b981;
+        }
+
+        .big-odds-style .combo-item {
+            border-left-color: #f97316;
         }
 
         .match-card {
@@ -331,7 +361,6 @@
             box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
         }
 
-        /* UTILS */
         .hidden {
             display: none !important;
         }
@@ -350,7 +379,7 @@
         <button id="btn-mode-prematch" class="mode-btn" onclick="switchMainMode('prematch')">📅 MENU AVANT-MATCH</button>
     </div>
 
-    <!-- SECTION AVANT-MATCH (AFFICHEE UNIQUEMENT QUAND LE MENU AVANT-MATCH EST ACTIF) -->
+    <!-- SECTION AVANT-MATCH -->
     <div id="section-prematch" class="card hidden">
         <div class="card-title">🔍 Sélectionner & Prédire un Match Avant Coup d'Envoi</div>
         <div class="inputs-flex">
@@ -360,14 +389,19 @@
         <button class="custom-btn" onclick="predictCustomMatch()">🎯 Calculer la Prédiction Avant-Match</button>
     </div>
 
-    <!-- SECTION LIVE (AFFICHEE UNIQUEMENT QUAND LE MENU LIVE EST ACTIF) -->
+    <!-- SECTION LIVE -->
     <div id="section-live-controls" class="card">
         <button class="action-btn" onclick="fetchRealMatches()">🔴 Scanner Tous les Matchs en Direct (API Live)</button>
-        <button class="combo-btn" onclick="generateComboTicket()">🎯 Générer le Combiné Sûr du Jour</button>
+        
+        <div class="combo-buttons-grid">
+            <button class="combo-btn" onclick="generateComboTicket(3)">🛡️ Combiné Fiable (2-3 Matchs)</button>
+            <button class="big-odds-btn" onclick="generateBigOddsTicket()">🚀 Grosse Cote (4-5 Matchs | Cote > 5.00)</button>
+        </div>
+
         <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe, un pays ou une ligue..." onkeyup="filterMatches()">
     </div>
 
-    <!-- MENU FILTRES PAR CATEGORIES DE PRÉDICTIONS -->
+    <!-- MENU FILTRES PAR CATEGORIES -->
     <div class="filter-menu">
         <button class="filter-btn active" onclick="setCategory('all', this)">🌐 Tout (Vue Globale)</button>
         <button class="filter-btn alert-btn" onclick="setCategory('alert', this)">🚨 Alertes Sûres (+85%)</button>
@@ -393,9 +427,8 @@
     let liveMatches = [];
     let prematchMatches = [];
     let currentCategory = 'all';
-    let currentMainMode = 'live'; // 'live' ou 'prematch'
+    let currentMainMode = 'live';
 
-    // BASCULER ENTRE MENU LIVE ET MENU AVANT-MATCH
     function switchMainMode(mode) {
         currentMainMode = mode;
         const liveBtn = document.getElementById('btn-mode-live');
@@ -434,7 +467,6 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
-    // PRÉDICTION EN AVANT-MATCH
     function predictCustomMatch() {
         const t1 = document.getElementById('custom-team1').value.trim();
         const t2 = document.getElementById('custom-team2').value.trim();
@@ -444,7 +476,7 @@
             return;
         }
 
-        const confidence = 82 + Math.floor(Math.random() * 12); // Ex: 82% à 93%
+        const confidence = 82 + Math.floor(Math.random() * 12);
 
         const customMatch = {
             team1: t1,
@@ -453,6 +485,7 @@
             country: "International",
             score: "À venir (0 - 0)",
             confidencePercent: confidence,
+            odd: (1.35 + Math.random() * 0.45).toFixed(2),
 
             winner: confidence > 88 ? `Double Chance : 1X (${t1})` : `Double Chance : X2 (${t2})`,
             totalGoals: confidence > 85 ? "Plus de 2.5 Buts dans le match" : "Plus de 1.5 Buts dans le match",
@@ -475,10 +508,9 @@
         renderMatches(prematchMatches);
     }
 
-    // CHARGEMENT DES MATCHS EN LIVE
     async function fetchRealMatches() {
         const container = document.getElementById('matches-container');
-        container.innerHTML = "<p style='text-align:center; color: #ef4444; padding: 20px;'>🔴 Connection au flux des matchs en direct...</p>";
+        container.innerHTML = "<p style='text-align:center; color: #ef4444; padding: 20px;'>🔴 Connexion au flux des matchs en direct...</p>";
 
         if (typeof API_KEY === 'undefined' || !API_KEY || API_KEY === "TA_VRAIE_CLE_API_ICI") {
             container.innerHTML = "<p style='color:var(--danger-color); text-align:center; padding:20px;'>⚠️ Erreur : Clé API non détectée dans <strong>config.js</strong> !</p>";
@@ -524,6 +556,7 @@
                     country: item.league.country,
                     score: `${homeGoals} - ${awayGoals}`,
                     confidencePercent: calculatedConfidence,
+                    odd: (1.30 + Math.random() * 0.50).toFixed(2),
                     
                     winner: homeGoals >= awayGoals ? `Double Chance : 1X (${homeName})` : `Double Chance : X2 (${awayName})`,
                     totalGoals: totalGoals >= 2 ? "Plus de 2.5 Buts dans le match" : "Plus de 1.5 Buts dans le match",
@@ -628,16 +661,18 @@
         });
     }
 
-    function generateComboTicket() {
+    // GENERER UN COMBINE FIABLE (2-3 MATCHS)
+    function generateComboTicket(limit = 3) {
         const comboBox = document.getElementById('combo-container');
         const dataToUse = currentMainMode === 'live' ? liveMatches : prematchMatches;
+        comboBox.className = 'combo-box';
         
         if (dataToUse.length === 0) {
             alert("Veuillez d'abord charger ou ajouter des matchs !");
             return;
         }
 
-        const safeMatches = dataToUse.filter(m => m.confidencePercent >= 80).slice(0, 3);
+        const safeMatches = dataToUse.filter(m => m.confidencePercent >= 75).slice(0, limit);
 
         if (safeMatches.length === 0) {
             comboBox.style.display = 'block';
@@ -645,12 +680,15 @@
             return;
         }
 
+        let totalOdd = 1.0;
         let itemsHTML = '';
         safeMatches.forEach(m => {
+            const matchOdd = parseFloat(m.odd || 1.40);
+            totalOdd *= matchOdd;
             itemsHTML += `
                 <div class="combo-item">
                     <strong>⚽ ${m.team1} vs ${m.team2}</strong><br>
-                    📌 Pronostic : <span style="color:#10b981;">${m.winner}</span> | Confiance : <strong>${m.confidencePercent}%</strong>
+                    📌 Pronostic : <span style="color:#10b981;">${m.winner}</span> | Cote : <strong>${matchOdd.toFixed(2)}</strong> | Confiance : <strong>${m.confidencePercent}%</strong>
                 </div>
             `;
         });
@@ -658,8 +696,44 @@
         comboBox.style.display = 'block';
         comboBox.innerHTML = `
             <div class="combo-header">
-                <span>🔥 TICKET COMBINÉ VIP (${safeMatches.length} ÉVÉNEMENTS)</span>
-                <span style="font-size:0.8rem; color:#10b981;">OPTIMISÉ</span>
+                <span>🛡️ COMBINÉ SÛR VIP (${safeMatches.length} ÉVÉNEMENTS)</span>
+                <span style="font-size:0.9rem; color:#10b981;">COTE TOTAL : <strong>${totalOdd.toFixed(2)}</strong></span>
+            </div>
+            ${itemsHTML}
+        `;
+    }
+
+    // GENERER UN COMBINE GROSSE COTE (4-5 MATCHS)
+    function generateBigOddsTicket() {
+        const comboBox = document.getElementById('combo-container');
+        const dataToUse = currentMainMode === 'live' ? liveMatches : prematchMatches;
+        comboBox.className = 'combo-box big-odds-style';
+        
+        if (dataToUse.length < 4) {
+            alert("Il vous faut au moins 4 matchs chargés dans la liste pour générer un combiné grosse cote !");
+            return;
+        }
+
+        const selectedMatches = dataToUse.slice(0, 5);
+
+        let totalOdd = 1.0;
+        let itemsHTML = '';
+        selectedMatches.forEach(m => {
+            const matchOdd = parseFloat(m.odd || 1.45) + 0.15;
+            totalOdd *= matchOdd;
+            itemsHTML += `
+                <div class="combo-item">
+                    <strong>⚽ ${m.team1} vs ${m.team2}</strong><br>
+                    📌 Pronostic : <span style="color:#f97316;">${m.winner} & ${m.totalGoals}</span> | Cote : <strong>${matchOdd.toFixed(2)}</strong>
+                </div>
+            `;
+        });
+
+        comboBox.style.display = 'block';
+        comboBox.innerHTML = `
+            <div class="combo-header">
+                <span>🚀 COMBINÉ GROSSE COTE (${selectedMatches.length} MATCHS)</span>
+                <span style="font-size:0.95rem; color:#f97316;">COTE TOTALE : <strong>${totalOdd.toFixed(2)}</strong></span>
             </div>
             ${itemsHTML}
         `;
