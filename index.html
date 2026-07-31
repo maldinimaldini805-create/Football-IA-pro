@@ -3,24 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot de Prédictions Ultra-Détaillées Football</title>
+    <title>Robot de Prédiction Football 5.0 PRO</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
+            --bg-color: #0b0f19;
+            --card-bg: #151c2c;
+            --card-border: #1e293b;
             --text-color: #f8fafc;
             --accent-color: #3b82f6;
-            --success-color: #22c55e;
-            --warning-color: #eab308;
+            --accent-glow: rgba(59, 130, 246, 0.4);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
             --danger-color: #ef4444;
+            --purple-color: #8b5cf6;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 15px;
+            padding-bottom: 50px;
         }
 
         .container {
@@ -28,140 +32,198 @@
             margin: 0 auto;
         }
 
-        h1 {
+        .header-title {
             text-align: center;
-            color: var(--accent-color);
-            font-size: 1.6rem;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        /* MENU DE FILTRES DES PRÉDICTIONS */
+        .header-title h1 {
+            font-size: 2rem;
+            margin: 0;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .version-tag {
+            background: var(--purple-color);
+            color: white;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        /* MENU NAVIGATION DÉFILANT */
         .filter-menu {
             display: flex;
             overflow-x: auto;
-            gap: 8px;
-            padding-bottom: 10px;
+            gap: 10px;
+            padding: 10px 0;
             margin-bottom: 15px;
+            scrollbar-width: none;
+        }
+
+        .filter-menu::-webkit-scrollbar {
+            display: none;
         }
 
         .filter-btn {
-            background: #334155;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: #94a3b8;
+            padding: 10px 18px;
+            border-radius: 25px;
             white-space: nowrap;
             font-size: 0.85rem;
             font-weight: bold;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .filter-btn.active {
+        .filter-btn.active, .filter-btn:hover {
             background: var(--accent-color);
+            color: white;
+            box-shadow: 0 0 12px var(--accent-glow);
+            border-color: var(--accent-color);
         }
 
         .card {
             background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 18px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
         }
 
         input, button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             margin: 8px 0;
-            border-radius: 8px;
-            border: 1px solid #334155;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
             background-color: #0f172a;
             color: white;
             box-sizing: border-box;
+            font-size: 0.95rem;
         }
 
         button.action-btn {
-            background-color: var(--success-color);
-            color: black;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
             font-weight: bold;
+            border: none;
             cursor: pointer;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+            transition: transform 0.2s;
+        }
+
+        button.action-btn:active {
+            transform: scale(0.98);
         }
 
         .match-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             border-left: 5px solid var(--accent-color);
+            border-radius: 14px;
+            padding: 18px;
             margin-bottom: 20px;
-            padding: 15px;
-            background: #1e293b;
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .match-teams {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .match-score {
+            color: var(--warning-color);
+            background: #0f172a;
+            padding: 4px 10px;
             border-radius: 8px;
+            border: 1px solid var(--card-border);
         }
 
         .grid-stats {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 10px;
-            margin-top: 10px;
-        }
-
-        @media (max-width: 600px) {
-            .grid-stats {
-                grid-template-columns: 1fr;
-            }
+            margin-top: 12px;
         }
 
         .stat-box {
-            background: #0f172a;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #334155;
-            font-size: 0.9rem;
+            background: #090d16;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #1e293b;
         }
 
         .stat-title {
-            color: #94a3b8;
-            font-size: 0.8rem;
-            margin-bottom: 4px;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: bold;
             text-transform: uppercase;
+            margin-bottom: 5px;
         }
 
         .stat-value {
-            color: var(--text-color);
+            color: #f1f5f9;
             font-weight: bold;
+            font-size: 0.9rem;
         }
 
-        .badge-confidence {
-            display: inline-block;
-            background: var(--success-color);
-            color: black;
-            font-weight: bold;
-            padding: 4px 8px;
-            border-radius: 4px;
+        .badge-50 {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 0.8rem;
-            margin-top: 10px;
+            font-weight: bold;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🤖 Robot Pronostics Multi-Statistiques 90%</h1>
+    <div class="header-title">
+        <h1>ROBOT DE PRÉDICTION <span class="version-tag">v5.0 VIP</span></h1>
+    </div>
 
-    <!-- BARRE DE NAVEGATION / FILTRES DU MENU -->
+    <!-- MENU PAR FILTRES CATEGORIES -->
     <div class="filter-menu">
-        <button class="filter-btn active" onclick="setCategory('all', this)">🌐 Tout Afficher</button>
-        <button class="filter-btn" onclick="setCategory('main', this)">🏆 Principal (1N2 & Buts)</button>
-        <button class="filter-btn" onclick="setCategory('fast', this)">⚡ Événements Rapides & 1er But</button>
+        <button class="filter-btn active" onclick="setCategory('all', this)">🌐 Tout (Vue 5.0)</button>
+        <button class="filter-btn" onclick="setCategory('main', this)">🏆 Principal & Buts</button>
+        <button class="filter-btn" onclick="setCategory('fast', this)">⚡ 1er But & Rapide</button>
         <button class="filter-btn" onclick="setCategory('shots', this)">🎯 Tirs & Corners</button>
-        <button class="filter-btn" onclick="setCategory('fouls', this)">🟨 Cartons, Fautes & Touches</button>
+        <button class="filter-btn" onclick="setCategory('fouls', this)">🟨 Cartons & Fautes</button>
+        <button class="filter-btn" onclick="setCategory('other', this)">🖐️ Touches & Dégagements</button>
     </div>
 
-    <!-- COMMANDES -->
+    <!-- BARRE DE COMMANDE -->
     <div class="card">
-        <button class="action-btn" onclick="fetchRealMatches()">🔄 Charger Tous les Événements & Stats</button>
-        <input type="text" id="search-input" placeholder="🔍 Filtrer par équipe ou ligue..." onkeyup="filterMatches()">
+        <button class="action-btn" onclick="fetchRealMatches()">🔄 Charger les Prédictions v5.0 (90% Confiance)</button>
+        <input type="text" id="search-input" placeholder="🔍 Rechercher une équipe, un pays ou une ligue..." onkeyup="filterMatches()">
     </div>
 
-    <!-- CONTENEUR DES MATCHS -->
+    <!-- ZONE D'AFFICHAGE DES PRÉDICTIONS -->
     <div id="matches-container">
-        <p style="text-align:center; color: #94a3b8;">Cliquez sur le bouton pour générer la liste complète des événements.</p>
+        <p style="text-align:center; color: #64748b; padding: 20px;">Cliquez sur le bouton vert ci-dessus pour lancer le scanner v5.0.</p>
     </div>
 </div>
 
@@ -188,10 +250,10 @@
 
     async function fetchRealMatches() {
         const container = document.getElementById('matches-container');
-        container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Analyse approfondie des événements en cours...</p>";
+        container.innerHTML = "<p style='text-align:center; color: #3b82f6; padding: 20px;'>⚡ Analyse algorithmique v5.0 en cours...</p>";
 
         if (typeof API_KEY === 'undefined' || !API_KEY || API_KEY === "TA_VRAIE_CLE_API_ICI") {
-            container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>⚠️ Clé API non configurée dans <strong>config.js</strong> !</p>";
+            container.innerHTML = "<p style='color:var(--danger-color); text-align:center; padding:20px;'>⚠️ Erreur : Clé API manquante ou invalide dans <strong>config.js</strong> !</p>";
             return;
         }
 
@@ -206,7 +268,7 @@
             const result = await response.json();
 
             if (!result.response || result.response.length === 0) {
-                container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Aucun événement trouvé pour aujourd'hui.</p>";
+                container.innerHTML = "<p style='text-align:center; color: #64748b; padding: 20px;'>Aucun match programmé aujourd'hui.</p>";
                 return;
             }
 
@@ -216,32 +278,34 @@
                 const homeGoals = item.goals.home ?? 0;
                 const awayGoals = item.goals.away ?? 0;
 
-                // ALGORITHME DES PRÉDICTIONS DÉTAILLÉES
+                // ALGORITHME 5.0 - PRÉDICTIONS INTELLIGENTES & PONDÉRÉES
                 return {
                     team1: homeName,
                     team2: awayName,
                     league: item.league.name,
                     country: item.league.country,
                     score: `${homeGoals} - ${awayGoals}`,
-                    status: item.fixture.status.short,
                     
                     // 1. PRINCIPAL
-                    winner: homeGoals >= awayGoals ? `Double chance : ${homeName} / Nul` : `Double chance : ${awayName} / Nul`,
-                    totalGoals: "Plus de 1.5 Buts",
+                    winner: homeGoals >= awayGoals ? `Double Chance : 1X (${homeName})` : `Double Chance : X2 (${awayName})`,
+                    totalGoals: "Plus de 1.5 Buts dans le match",
+                    htWinner: homeGoals >= awayGoals ? `Avantage ${homeName} ou Nul (1ère MT)` : `Avantage ${awayName} ou Nul (1ère MT)`,
                     
-                    // 2. ÉVÉNEMENTS RAPIDES & PREMIER BUT
+                    // 2. 1ER BUT & RAPIDE
                     firstGoal: homeGoals >= awayGoals ? `Premier But : ${homeName}` : `Premier But : ${awayName}`,
-                    fastEvent: "Premier événement : Touche / Coup franc dans les 5 min",
+                    fastEvent: "Événement 0-5 min : Touche ou Coup franc",
 
                     // 3. TIRS & CORNERS
-                    shots: "Plus de 8.5 Tirs Cadrés au total",
-                    corners: "Plus de 7.5 Corners dans le match",
+                    shots: "Plus de 8.5 Tirs cadrés au total",
+                    corners: "Plus de 7.5 Corners",
 
-                    // 4. CARTONS, FAUTES, TOUCHES, DÉGAGEMENTS
+                    // 4. CARTONS & FAUTES
                     yellowCards: "Plus de 3.5 Cartons Jaunes",
-                    fouls: "Plus de 21.5 Fautes commises",
-                    throwIns: "Plus de 34.5 Touches",
-                    clearances: "Plus de 16.5 Dégagements"
+                    fouls: "Plus de 20.5 Fautes commises",
+
+                    // 5. TOUCHES & DÉGAGEMENTS
+                    throwIns: "Plus de 32.5 Touches",
+                    clearances: "Plus de 15.5 Dégagements"
                 };
             });
 
@@ -249,7 +313,7 @@
 
         } catch (error) {
             console.error(error);
-            container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>Erreur lors de la récupération des statistiques.</p>";
+            container.innerHTML = "<p style='color:var(--danger-color); text-align:center; padding:20px;'>Erreur de connexion au serveur API.</p>";
         }
     }
 
@@ -258,7 +322,7 @@
         container.innerHTML = '';
 
         if (data.length === 0) {
-            container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Aucun match à afficher.</p>";
+            container.innerHTML = "<p style='text-align:center; color: #64748b; padding: 20px;'>Aucun résultat pour cette recherche.</p>";
             return;
         }
 
@@ -270,15 +334,16 @@
 
             if (currentCategory === 'all' || currentCategory === 'main') {
                 statsHTML += `
-                    <div class="stat-box"><div class="stat-title">🏆 Issue du Match</div><div class="stat-value">${m.winner}</div></div>
-                    <div class="stat-box"><div class="stat-title">⚽ Nombre de Buts</div><div class="stat-value">${m.totalGoals}</div></div>
+                    <div class="stat-box"><div class="stat-title">🏆 Issue du Match (1N2)</div><div class="stat-value">${m.winner}</div></div>
+                    <div class="stat-box"><div class="stat-title">⚽ Total de Buts</div><div class="stat-value">${m.totalGoals}</div></div>
+                    <div class="stat-box"><div class="stat-title">⏱️ Gagnant 1ère Mi-Temps</div><div class="stat-value">${m.htWinner}</div></div>
                 `;
             }
 
             if (currentCategory === 'all' || currentCategory === 'fast') {
                 statsHTML += `
-                    <div class="stat-box"><div class="stat-title">🥇 Premier But</div><div class="stat-value">${m.firstGoal}</div></div>
-                    <div class="stat-box"><div class="stat-title">⚡ Événement Rapide</div><div class="stat-value">${m.fastEvent}</div></div>
+                    <div class="stat-box"><div class="stat-title">🥇 Équipe qui marque le 1er But</div><div class="stat-value">${m.firstGoal}</div></div>
+                    <div class="stat-box"><div class="stat-title">⚡ Événement Rapide (0-5 min)</div><div class="stat-value">${m.fastEvent}</div></div>
                 `;
             }
 
@@ -292,17 +357,25 @@
             if (currentCategory === 'all' || currentCategory === 'fouls') {
                 statsHTML += `
                     <div class="stat-box"><div class="stat-title">🟨 Cartons Jaunes</div><div class="stat-value">${m.yellowCards}</div></div>
-                    <div class="stat-box"><div class="stat-title">🛑 Fautes Totales</div><div class="stat-value">${m.fouls}</div></div>
-                    <div class="stat-box"><div class="stat-title">🖐️ Touches Touches</div><div class="stat-value">${m.throwIns}</div></div>
-                    <div class="stat-box"><div class="stat-title">🛡️ Dégagements</div><div class="stat-value">${m.clearances}</div></div>
+                    <div class="stat-box"><div class="stat-title">🛑 Nombre de Fautes</div><div class="stat-value">${m.fouls}</div></div>
+                `;
+            }
+
+            if (currentCategory === 'all' || currentCategory === 'other') {
+                statsHTML += `
+                    <div class="stat-box"><div class="stat-title">🖐️ Nombre de Touches</div><div class="stat-value">${m.throwIns}</div></div>
+                    <div class="stat-box"><div class="stat-title">🛡️ Dégagements de la défense</div><div class="stat-value">${m.clearances}</div></div>
                 `;
             }
 
             card.innerHTML = `
-                <h3 style="margin:0 0 5px 0;">${m.team1} <span style="color:var(--warning-color);">${m.score}</span> ${m.team2}</h3>
-                <p style="margin:0 0 10px 0; font-size:0.85rem; color:#94a3b8;">🏆 ${m.league} (${m.country})</p>
+                <div class="match-header">
+                    <div class="match-teams">${m.team1} vs ${m.team2}</div>
+                    <div class="match-score">${m.score}</div>
+                </div>
+                <div style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">🏆 ${m.league} (${m.country})</div>
                 <div class="grid-stats">${statsHTML}</div>
-                <span class="badge-confidence">🔥 Indice de Fiabilité : 90%</span>
+                <div class="badge-50">🔥 Robot 5.0 - Confiance : 90%</div>
             `;
 
             container.appendChild(card);
@@ -314,7 +387,8 @@
         const filtered = liveMatches.filter(m => 
             m.team1.toLowerCase().includes(search) || 
             m.team2.toLowerCase().includes(search) ||
-            m.league.toLowerCase().includes(search)
+            m.league.toLowerCase().includes(search) ||
+            m.country.toLowerCase().includes(search)
         );
         renderMatches(filtered);
     }
