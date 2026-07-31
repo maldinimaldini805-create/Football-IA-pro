@@ -3,24 +3,34 @@
 <script>
     let liveMatches = [];
 
-    // Équipes FIFA pour le simulateur
     const fifaTeams = [
         "Real Madrid (eSports)", "Manchester City (eSports)", "Barcelona (eSports)", 
         "Bayern Munich (eSports)", "PSG (eSports)", "Liverpool (eSports)"
     ];
 
-    // Charger les matchs réels depuis l'API Football
+    // Obtenir la date d'aujourd'hui au format YYYY-MM-DD
+    function getTodayDate() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
     async function fetchRealMatches() {
         const container = document.getElementById('matches-container');
-        container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Récupération des matchs réels en cours...</p>";
+        container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Chargement de tous les événements du jour...</p>";
 
         if (typeof API_KEY === 'undefined' || API_KEY === "TA_VRAIE_CLE_API_ICI" || !API_KEY) {
             container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>⚠️ Erreur : Clé API non configurée dans <strong>config.js</strong> !</p>";
             return;
         }
 
+        const todayStr = getTodayDate();
+
         try {
-            const response = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
+            // On récupère TOUS les matchs du jour (en direct + à venir + terminés)
+            const response = await fetch(`https://v3.football.api-sports.io/fixtures?date=${todayStr}`, {
                 "method": "GET",
                 "headers": {
                     "x-apisports-key": API_KEY
@@ -35,36 +45,46 @@
             }
 
             if (!result.response || result.response.length === 0) {
-                container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Aucun match en direct disponible actuellement. Réessayez plus tard !</p>";
+                container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Aucun événement programmé pour aujourd'hui.</p>";
                 return;
             }
 
-            // Transformation et analyse des prédictions
             liveMatches = result.response.map(item => {
-                const homeGoals = item.goals.home || 0;
-                const awayGoals = item.goals.away || 0;
-                const totalGoals = homeGoals + awayGoals;
+                const homeGoals = item.goals.home ?? 0;
+                const awayGoals = item.goals.away ?? 0;
+                const statusShort = item.fixture.status.short;
                 const homeName = item.teams.home.name;
                 const awayName = item.teams.away.name;
 
-                // Logique de prédiction intelligente selon le score et le temps
-                let predictionAdvice = "";
-                let proba = 60;
+                // Format de l'heure du match
+                const matchDate = new Date(item.fixture.date);
+                const hours = String(matchDate.getHours()).padStart(2, '0');
+                const minutes = String(matchDate.getMinutes()).padStart(2, '0');
+                const timeFormatted = `${hours}:${minutes}`;
 
+                // Analyse et conseil du Robot
+                let predictionAdvice = "";
+                let proba = 65;
+                let statusText = "";
+
+                if (['1H', '2H', 'ET', 'P', 'LIVE'].includes(statusShort)) {
+                    statusText = `🔴 EN DIRECT (${item.fixture.status.elapsed}')`;
+                } else if (['FT', 'AET', 'PEN'].includes(statusShort)) {
+                    statusText = `✅ Terminé`;
+                } else {
+                    statusText = `📅 Prévu à ${timeFormatted}`;
+                }
+
+                // Génération de la prédiction
                 if (homeGoals > awayGoals) {
                     predictionAdvice = `Victoire ou Nul pour ${homeName}`;
-                    proba = Math.min(88, 65 + (homeGoals - awayGoals) * 10);
+                    proba = 78;
                 } else if (awayGoals > homeGoals) {
                     predictionAdvice = `Victoire ou Nul pour ${awayName}`;
-                    proba = Math.min(88, 65 + (awayGoals - homeGoals) * 10);
+                    proba = 78;
                 } else {
-                    if (totalGoals >= 2) {
-                        predictionAdvice = "Plus de 2.5 Buts dans le match";
-                        proba = 72;
-                    } else {
-                        predictionAdvice = "Moins de 3.5 Buts / Match Serré";
-                        proba = 68;
-                    }
+                    predictionAdvice = "Plus de 1.5 Buts dans le match";
+                    proba = 70;
                 }
 
                 return {
@@ -73,7 +93,7 @@
                     league: item.league.name,
                     country: item.league.country,
                     score: `${homeGoals} - ${awayGoals}`,
-                    time: `${item.fixture.status.elapsed || 0}'`,
+                    status: statusText,
                     proba: proba,
                     advice: predictionAdvice
                 };
@@ -83,7 +103,7 @@
 
         } catch (error) {
             console.error(error);
-            container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>Erreur de connexion à l'API. Vérifiez votre clé ou votre réseau.</p>";
+            container.innerHTML = "<p style='color:var(--danger-color); text-align:center;'>Erreur de connexion à l'API.</p>";
         }
     }
 
@@ -96,10 +116,10 @@
             card.className = 'match-card';
             card.innerHTML = `
                 <h3>${m.team1} <span style="color:var(--warning-color);">${m.score}</span> ${m.team2}</h3>
-                <p>🏆 ${m.league} (${m.country}) | Temps : <strong>${m.time}</strong></p>
-                <p>🎯 <strong>Conseil Robot :</strong> <span style="color:var(--accent-color); font-weight:bold;">${m.advice}</span></p>
+                <p>🏆 ${m.league} (${m.country}) | Statut : <strong>${m.status}</strong></p>
+                <p>🎯 <strong>Pronostic Robot :</strong> <span style="color:var(--accent-color); font-weight:bold;">${m.advice}</span></p>
                 <p>Indice de confiance : <strong>${m.proba}%</strong></p>
-                <span class="badge ${m.proba > 70 ? 'badge-green' : 'badge-yellow'}">${m.proba > 70 ? 'Pari Fort' : 'Pari Modéré'}</span>
+                <span class="badge ${m.proba >= 75 ? 'badge-green' : 'badge-yellow'}">${m.proba >= 75 ? 'Confiance Élevée' : 'Confiance Modérée'}</span>
             `;
             container.appendChild(card);
         });
