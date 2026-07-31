@@ -98,14 +98,7 @@
 <body>
 
 <div class="container">
-    <h1>Robot de Prédiction Football PRO & Live API</h1>
-
-    <!-- GÉNÉRATEUR DE PRÉDICTIONS FIFA -->
-    <div class="card" style="text-align: center;">
-        <h2>Robot de Pronostics FIFA / eSports</h2>
-        <button onclick="generateFifaCoupon()">Générer un Pronostic FIFA</button>
-        <div id="fifa-coupon-result"></div>
-    </div>
+    <h1>Robot de Prédiction Football PRO</h1>
 
     <!-- CALCULATRICE KELLY -->
     <div class="card">
@@ -121,30 +114,26 @@
         <div id="kelly-result"></div>
     </div>
 
-    <!-- RECHERCHE ET FILTRES DE MATCHS -->
+    <!-- RECHERCHE ET FILTRES DE MATCHS RÉELS -->
     <div class="card">
-        <h2>Événements & Matchs (API Football)</h2>
+        <h2>Événements & Matchs Réels (API Football)</h2>
         <button onclick="fetchRealMatches()" style="background-color: var(--success-color); color: black;">🔄 Rafraîchir les matchs API</button>
         <input type="text" id="search-input" placeholder="Rechercher une équipe ou une ligue..." onkeyup="filterMatches()">
     </div>
 
-    <!-- LISTE DES MATCHS EN DIRECT -->
+    <!-- LISTE DES MATCHS RÉELS ET PRÉDICTIONS -->
     <div id="matches-container">
         <p style="text-align:center; color: #94a3b8;">Chargement des matchs...</p>
     </div>
 </div>
 
-<!-- CHARGEMENT DE LA CLÉ API -->
+<!-- CHARGEMENT DE LA CLÉ API DEPUIS CONFIG.JS -->
 <script src="config.js"></script>
 
 <script>
     let liveMatches = [];
 
-    const fifaTeams = [
-        "Real Madrid (eSports)", "Manchester City (eSports)", "Barcelona (eSports)", 
-        "Bayern Munich (eSports)", "PSG (eSports)", "Liverpool (eSports)"
-    ];
-
+    // Obtenir la date d'aujourd'hui au format YYYY-MM-DD
     function getTodayDate() {
         const today = new Date();
         const yyyy = today.getFullYear();
@@ -153,6 +142,7 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
+    // Charger les événements réels du jour
     async function fetchRealMatches() {
         const container = document.getElementById('matches-container');
         container.innerHTML = "<p style='text-align:center; color: #94a3b8;'>Chargement de tous les événements du jour...</p>";
@@ -208,6 +198,7 @@
                     statusText = `📅 Prévu à ${timeFormatted}`;
                 }
 
+                // Logique d'analyse de prédiction
                 if (homeGoals > awayGoals) {
                     predictionAdvice = `Victoire ou Nul pour ${homeName}`;
                     proba = 78;
@@ -267,21 +258,6 @@
         renderMatches(filtered);
     }
 
-    function generateFifaCoupon() {
-        const resultDiv = document.getElementById('fifa-coupon-result');
-        const team1 = fifaTeams[Math.floor(Math.random() * fifaTeams.length)];
-        let team2 = fifaTeams[Math.floor(Math.random() * fifaTeams.length)];
-        while (team1 === team2) team2 = fifaTeams[Math.floor(Math.random() * fifaTeams.length)];
-
-        resultDiv.innerHTML = `
-            <div style="background: #0f172a; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: left;">
-                <h3 style="color: var(--success-color); margin-top:0;">🤖 Pronostic FIFA Virtuel</h3>
-                <p><strong>Match :</strong> ${team1} vs ${team2}<br>
-                   👉 <strong>Conseil :</strong> Plus de 2.5 Buts dans le match (82% de confiance)</p>
-            </div>
-        `;
-    }
-
     function calculateKelly() {
         const b = parseFloat(document.getElementById('bankroll').value);
         const o = parseFloat(document.getElementById('odd').value);
@@ -304,6 +280,7 @@
         }
     }
 
+    // Démarrage automatique
     fetchRealMatches();
 </script>
 
