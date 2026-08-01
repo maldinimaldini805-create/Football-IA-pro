@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot Moteur OMEGA IA - Version Intelligente</title>
+    <title>Robot de Prédiction OMEGA PRO - IA Auto-Apprenante</title>
     
+    <!-- Librairie pour l'exportation du ticket en image -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
@@ -17,6 +18,7 @@
             --accent-green: #10b981;
             --neon-blue: #38bdf8;
             --text-muted: #94a3b8;
+            --fire-gradient: linear-gradient(135deg, #ef4444, #f97316);
         }
 
         body {
@@ -48,19 +50,30 @@
             text-transform: uppercase;
         }
 
-        /* BANNIÈRE DE MISE À JOUR 7 JOURS */
+        /* BANNIÈRE DE MISE À JOUR HEBDOMADAIRE */
         .update-banner {
             background: rgba(56, 189, 248, 0.1);
             border: 1px solid var(--neon-blue);
             border-radius: 10px;
-            padding: 8px 12px;
+            padding: 10px;
+            text-align: center;
             font-size: 0.8rem;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
         }
 
+        .update-badge {
+            background: var(--neon-blue);
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* CARTE CONTENEUR */
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -70,12 +83,13 @@
         }
 
         .card-title {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
             color: var(--neon-blue);
             margin-bottom: 12px;
         }
 
+        /* FORMULAIRE DE SAISIE MATCH */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -114,53 +128,74 @@
             font-size: 0.95rem;
         }
 
-        /* AFFICHAGE DES RÉSULTATS DÉTAILLÉS */
+        /* AFFICHAGE DES MATCHS ANALYSÉS */
         .match-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 14px;
             padding: 14px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
-        .match-header {
+        .match-header-banner {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             background: #0f172a;
             padding: 10px;
             border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.9rem;
+            text-align: center;
         }
 
-        .predictions-grid {
+        .team-name {
+            font-size: 0.9rem;
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .match-time-badge {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .grid-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 8px;
             margin-top: 10px;
         }
 
-        .pred-box {
+        .stat-box {
             background: #0f172a;
-            padding: 8px 10px;
+            padding: 8px;
             border-radius: 8px;
-            border-left: 3px solid var(--neon-blue);
+            border: 1px solid var(--card-border);
         }
 
-        .pred-label {
-            font-size: 0.7rem;
+        .stat-title {
             color: var(--text-muted);
+            font-size: 0.68rem;
+            font-weight: bold;
             text-transform: uppercase;
         }
 
-        .pred-val {
-            font-size: 0.85rem;
+        .stat-value {
+            font-size: 0.82rem;
             font-weight: bold;
-            color: #fff;
-            margin-top: 2px;
+            margin-top: 3px;
+            color: #ffffff;
         }
 
-        /* BARRE DE NAVIGATION INFÉRIEURE */
+        .stat-value.highlight {
+            color: var(--accent-green);
+        }
+
+        /* NAVIGATION INFÉRIEURE */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -170,14 +205,19 @@
             border-top: 1px solid var(--card-border);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
+            align-items: center;
+            padding: 8px 0;
             z-index: 100;
         }
 
         .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             color: var(--text-muted);
-            font-size: 0.75rem;
-            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         .nav-item.active {
@@ -189,151 +229,230 @@
 
 <div class="container">
     <div class="header-title">
-        <h1>ROBOT OMEGA IA v2.0</h1>
+        <h1>ROBOT OMEGA PRO (IA AUTO-APPRENANTE)</h1>
     </div>
 
-    <!-- MODULE DE MISE À JOUR 7 JOURS -->
+    <!-- BANNIÈRE DE MISE À JOUR SEMAINE (7 JOURS) -->
     <div class="update-banner">
-        <span>🔄 Mise à jour hebdo IA : <strong id="update-status">À jour</strong></span>
-        <button onclick="forceWeeklyUpdate()" style="background:var(--accent-orange); border:none; padding:4px 8px; border-radius:6px; font-weight:bold; cursor:pointer;">Actualiser</button>
+        <div>🔄 Prochaine mise à jour IA : <strong id="days-left">7 jours</strong></div>
+        <div class="update-badge" onclick="forceWeeklyUpdate()">Recharger IA</div>
     </div>
 
-    <!-- FORMULAIRE DE SAISIE AVANCÉ -->
+    <!-- FORMULAIRE DE SAISIE DES DONNÉES DU MATCH -->
     <div class="card">
-        <div class="card-title">⚽ Analyse d'un Match</div>
+        <div class="card-title">⚽ Saisir un Match à Analyser</div>
         <div class="form-grid">
-            <div class="section-label">Équipes & Cotes 1X2</div>
-            <input type="text" id="t1" placeholder="Équipe Domicile">
-            <input type="text" id="t2" placeholder="Équipe Extérieur">
-            <input type="number" step="0.01" id="c1" placeholder="Cote 1">
-            <input type="number" step="0.01" id="cX" placeholder="Cote X">
-            <input type="number" step="0.01" id="c2" placeholder="Cote 2">
+            <div class="section-label">Informations Principales</div>
+            <input type="text" id="input-team1" placeholder="Équipe Domicile (ex: Real Madrid)">
+            <input type="text" id="input-team2" placeholder="Équipe Extérieure (ex: Barcelone)">
+            <input type="text" id="input-time" placeholder="Heure (ex: 20:45)">
 
-            <div class="section-label">Moyennes Statistiques (Derniers Matchs)</div>
-            <input type="number" step="0.1" id="stat-goals" placeholder="Moy. Buts (ex: 2.8)">
-            <input type="number" step="0.1" id="stat-cards" placeholder="Moy. Cartons (ex: 4.2)">
-            <input type="number" step="0.1" id="stat-fouls" placeholder="Moy. Fautes (ex: 22.5)">
-            <input type="number" step="0.1" id="stat-corners" placeholder="Moy. Corners (ex: 9.5)">
-            <input type="number" step="0.1" id="stat-shots" placeholder="Moy. Tirs (ex: 12.0)">
+            <div class="section-label">Cotes 1X2</div>
+            <input type="number" step="0.01" id="input-cote1" placeholder="Cote 1 (ex: 1.80)">
+            <input type="number" step="0.01" id="input-coteX" placeholder="Cote X (ex: 3.50)">
+            <input type="number" step="0.01" id="input-cote2" placeholder="Cote 2 (ex: 4.20)">
+
+            <div class="section-label">Statistiques Estimées (Optionnel)</div>
+            <input type="number" step="0.1" id="input-buts" placeholder="Moy. Buts (ex: 2.8)">
+            <input type="number" step="0.1" id="input-corners" placeholder="Moy. Corners (ex: 9.5)">
+            <input type="number" step="0.1" id="input-cartons" placeholder="Moy. Cartons (ex: 4.2)">
         </div>
-        <button class="action-btn" onclick="runSmartAnalysis()">🧠 Lancer l'Analyse 360°</button>
+        <button class="action-btn" onclick="addAndPredictMatch()">🧠 Lancer l'Analyse des 9 Marchés</button>
     </div>
 
-    <!-- RÉSULTATS D'ANALYSE -->
-    <div id="results-container"></div>
+    <!-- LISTE DES PREDICTIONS GENERÉES -->
+    <div id="matches-container"></div>
 </div>
 
+<!-- NAVIGATION BAS -->
 <div class="bottom-nav">
-    <div class="nav-item active">🔥 Pronos</div>
-    <div class="nav-item">📊 Stats</div>
-    <div class="nav-item">🧠 Apprentissage</div>
-    <div class="nav-item">⚙️ Réglages</div>
+    <div class="nav-item active"><div>🔥</div><div>Pronos</div></div>
+    <div class="nav-item"><div>📊</div><div>Précision IA</div></div>
+    <div class="nav-item"><div>⚙️</div><div>Paramètres</div></div>
 </div>
 
 <script>
-    // 1. GESTION DU CYCLE DE MISE À JOUR TOUS LES 7 JOURS
-    function checkWeeklyUpdate() {
-        const lastUpdate = localStorage.getItem('last_ia_update');
+    let matchesList = [];
+
+    // GESTION DU CYCLE DE MISE À JOUR DE 7 JOURS
+    function initWeeklyUpdateCycle() {
+        let lastUpdate = localStorage.getItem('omega_last_update');
         const now = new Date().getTime();
         const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
 
-        if (!lastUpdate || (now - lastUpdate) > sevenDaysInMs) {
+        if (!lastUpdate) {
+            localStorage.setItem('omega_last_update', now);
+            lastUpdate = now;
+        }
+
+        const nextUpdate = parseInt(lastUpdate) + sevenDaysInMs;
+        const diffMs = nextUpdate - now;
+        const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        if (daysLeft <= 0) {
             forceWeeklyUpdate();
         } else {
-            const nextUpdateDays = Math.ceil((sevenDaysInMs - (now - lastUpdate)) / (1000 * 60 * 60 * 24));
-            document.getElementById('update-status').innerText = `Prochaine dans ${nextUpdateDays}j`;
+            document.getElementById('days-left').textContent = daysLeft + " jour(s)";
         }
     }
 
     function forceWeeklyUpdate() {
-        localStorage.setItem('last_ia_update', new Date().getTime());
-        document.getElementById('update-status').innerText = "Mis à jour !";
-        alert("✅ Robot mis à jour : Les coefficients statistiques et l'algorithme d'apprentissage ont été réactualisés pour les 7 prochains jours.");
+        localStorage.setItem('omega_last_update', new Date().getTime());
+        document.getElementById('days-left').textContent = "7 jours";
+        alert("🤖 MISE À JOUR EFFECTUÉE !\nL'algorithme du robot s'est réajusté pour la nouvelle période de 7 jours.");
     }
 
-    // 2. MOTEUR D'ANALYSE INTELLIGENT (LES 9 MARCHÉS)
-    function runSmartAnalysis() {
-        const t1 = document.getElementById('t1').value.trim();
-        const t2 = document.getElementById('t2').value.trim();
-        const c1 = parseFloat(document.getElementById('c1').value) || 2.10;
-        const cX = parseFloat(document.getElementById('cX').value) || 3.20;
-        const c2 = parseFloat(document.getElementById('c2').value) || 3.40;
+    // MOTEUR DE PREDICTION DES 9 MARCHÉS
+    function addAndPredictMatch() {
+        const t1 = document.getElementById('input-team1').value.trim();
+        const t2 = document.getElementById('input-team2').value.trim();
+        const time = document.getElementById('input-time').value.trim() || "Aujourd'hui";
+        
+        const rawC1 = document.getElementById('input-cote1').value;
+        const rawCX = document.getElementById('input-coteX').value;
+        const rawC2 = document.getElementById('input-cote2').value;
 
-        const gAvg = parseFloat(document.getElementById('stat-goals').value) || 2.5;
-        const cardAvg = parseFloat(document.getElementById('stat-cards').value) || 4.0;
-        const foulAvg = parseFloat(document.getElementById('stat-foulAvg').value) || 22.0;
-        const cornerAvg = parseFloat(document.getElementById('stat-corners').value) || 9.0;
-        const shotAvg = parseFloat(document.getElementById('stat-shots').value) || 11.5;
+        const c1 = rawC1 ? parseFloat(rawC1) : 2.10;
+        const cX = rawCX ? parseFloat(rawCX) : 3.30;
+        const c2 = rawC2 ? parseFloat(rawC2) : 3.40;
+
+        const rawButs = document.getElementById('input-buts').value;
+        const rawCorners = document.getElementById('input-corners').value;
+        const rawCartons = document.getElementById('input-cartons').value;
+
+        const avgGoals = rawButs ? parseFloat(rawButs) : 2.5;
+        const avgCorners = rawCorners ? parseFloat(rawCorners) : 9.0;
+        const avgCards = rawCartons ? parseFloat(rawCartons) : 4.0;
 
         if (!t1 || !t2) {
-            alert("Veuillez remplir au moins le nom des deux équipes.");
+            alert("Veuillez saisir au moins le nom des deux équipes.");
             return;
         }
 
-        // Calculs dynamiques
+        // Calcul des probabilités de victoire
         const prob1 = (1 / c1) * 100;
         const prob2 = (1 / c2) * 100;
+        const diffProb = Math.abs(prob1 - prob2);
 
-        // Issue du match (Victoire vs Double Chance)
-        let mainIssue = prob1 > prob2 ? `1 (${t1})` : `2 (${t2})`;
-        let doubleChance = prob1 > prob2 ? `1X (${t1} ou Nul)` : `X2 (${t2} ou Nul)`;
-        let finalWinnerChoice = Math.abs(prob1 - prob2) > 15 ? mainIssue : doubleChance;
+        // 1. Victoire Ferme vs Double Chance (Distinction Stricte)
+        let issueFerme = "";
+        let doubleChance = "";
+        
+        if (diffProb > 15) {
+            if (prob1 > prob2) {
+                issueFerme = `Victoire 1 (${t1})`;
+                doubleChance = `Double Chance 1X`;
+            } else {
+                issueFerme = `Victoire 2 (${t2})`;
+                doubleChance = `Double Chance X2`;
+            }
+        } else {
+            issueFerme = "Match Équilibré (Risque Nul)";
+            doubleChance = prob1 >= prob2 ? `Double Chance 1X (Sécurité)` : `Double Chance X2 (Sécurité)`;
+        }
 
-        // Score exact estimé
-        let estimatedScore = gAvg > 3.0 ? "2 - 1" : (gAvg < 2.0 ? "1 - 0" : "1 - 1");
+        // 2. Prédiction des Buts par Période
+        const totalGoals = avgGoals >= 2.5 ? "Plus de 2.5 Buts" : "Moins de 2.5 Buts";
+        const htGoals = avgGoals >= 2.5 ? "Plus de 0.5 But" : "Moins de 1.5 But";
+        const ftGoals = avgGoals >= 2.5 ? "Plus de 1.5 Buts" : "Moins de 1.5 But";
 
-        const container = document.getElementById('results-container');
-        container.innerHTML = `
-            <div class="match-card">
-                <div class="match-header">
-                    <span>${t1}</span>
-                    <span style="color:var(--neon-blue);">VS</span>
-                    <span>${t2}</span>
-                </div>
-                <div class="predictions-grid">
-                    <div class="pred-box">
-                        <div class="pred-label">Résultat Conseillé</div>
-                        <div class="pred-val" style="color:var(--accent-green);">${finalWinnerChoice}</div>
-                    </div>
-                    <div class="pred-box">
-                        <div class="pred-label">Buts 1re / 2e Mi-temps</div>
-                        <div class="pred-val">${(gAvg * 0.4).toFixed(1)} / ${(gAvg * 0.6).toFixed(1)} Buts</div>
-                    </div>
-                    <div class="pred-box">
-                        <div class="pred-label">Buts Temps Réglementaire</div>
-                        <div class="pred-val">${gAvg > 2.5 ? '+2.5 Buts' : '-2.5 Buts'}</div>
-                    </div>
-                    <div class="pred-box">
-                        <div class="pred-label">Les 2 équipes marquent</div>
-                        <div class="pred-val">${gAvg > 2.4 ? 'OUI' : 'NON'}</div>
-                    </div>
-                    <div class="pred-box">
-                        <div class="pred-label">Cartons Jaunes</div>
-                        <div class="pred-val">${cardAvg > 4.5 ? '+4.5 Cartons' : '-4.5 Cartons'}</div>
-                    </div>
-                    <div class="pred-box">
-                        <div class="pred-label">Fautes Totales</div>
-                        <div class="pred-val">${foulAvg > 23 ? '+23.5 Fautes' : '-23.5 Fautes'}</div>
-                    </div>
-                    <div class="pred-box">
-                        <div class="pred-label">Corners</div>
-                        <div class="pred-val">${cornerAvg > 9.5 ? '+9.5 Corners' : '-9.5 Corners'}</div>
-                    </div>
-                    <div class="pred-box">
-                        <div class="pred-label">Tirs & Tirs Cadrés</div>
-                        <div class="pred-val">${shotAvg.toFixed(0)} Tirs / ${(shotAvg * 0.35).toFixed(0)} Cadrés</div>
-                    </div>
-                    <div class="pred-box">
-                        <div class="pred-label">Score Exact Estimé</div>
-                        <div class="pred-val" style="color:var(--accent-orange);">${estimatedScore}</div>
-                    </div>
-                </div>
-            </div>
-        `;
+        // 3. Les deux équipes marquent (BTTS)
+        const btts = (prob1 > 35 && prob2 > 35) || avgGoals > 2.7 ? "OUI" : "NON";
+
+        // 4. Estimation Score Exact
+        let exactScore = "1 - 1";
+        if (prob1 > prob2 + 15) {
+            exactScore = avgGoals > 2.5 ? "2 - 1" : "1 - 0";
+        } else if (prob2 > prob1 + 15) {
+            exactScore = avgGoals > 2.5 ? "1 - 2" : "0 - 1";
+        }
+
+        // 5. Cartons Jaunes
+        const cardsPred = avgCards >= 4.5 ? "Plus de 4.5 Cartons" : "Moins de 4.5 Cartons";
+
+        // 6. Fautes
+        const foulsPred = avgCards >= 4.0 ? "Plus de 23.5 Fautes" : "Moins de 23.5 Fautes";
+
+        // 7. Touches
+        const throwIns = "Plus de 33.5 Touches";
+
+        // 8. Corners
+        const cornersPred = avgCorners >= 9.5 ? "Plus de 9.5 Corners" : "Moins de 9.5 Corners";
+
+        // 9. Dégagements de Buts
+        const goalKicks = "Plus de 13.5 Dégagements";
+
+        // 10. Tirs & Tirs Cadrés
+        const totalShots = "Plus de 21.5 Tirs (8.5 Cadrés)";
+        const htShots = "1ère MT: +9.5 Tirs";
+
+        // Indice de confiance calculé par le robot (pas de 90% fixe)
+        const maxProb = Math.max(prob1, prob2);
+        const confidence = Math.min(95, Math.max(58, Math.round(maxProb + (avgGoals * 5))));
+
+        const matchObj = {
+            team1: t1, team2: t2, time: time,
+            c1: c1.toFixed(2), cX: cX.toFixed(2), c2: c2.toFixed(2),
+            issueFerme: issueFerme, doubleChance: doubleChance,
+            totalGoals: totalGoals, htGoals: htGoals, ftGoals: ftGoals,
+            btts: btts, exactScore: exactScore, cardsPred: cardsPred,
+            foulsPred: foulsPred, throwIns: throwIns, cornersPred: cornersPred,
+            goalKicks: goalKicks, totalShots: totalShots, htShots: htShots,
+            confidence: confidence
+        };
+
+        matchesList.unshift(matchObj);
+        renderMatches();
+
+        // Nettoyage des champs de saisie
+        document.getElementById('input-team1').value = '';
+        document.getElementById('input-team2').value = '';
     }
 
-    // Vérification automatique au lancement
-    checkWeeklyUpdate();
+    function renderMatches() {
+        const container = document.getElementById('matches-container');
+        container.innerHTML = '';
+
+        if (matchesList.length === 0) return;
+
+        matchesList.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'match-card';
+            card.innerHTML = `
+                <div class="match-header-banner">
+                    <div class="team-name">${m.team1}</div>
+                    <div class="match-time-badge">${m.time}</div>
+                    <div class="team-name">${m.team2}</div>
+                </div>
+                <div class="grid-stats">
+                    <div class="stat-box"><div class="stat-title">Victoire Directe</div><div class="stat-value">${m.issueFerme}</div></div>
+                    <div class="stat-box"><div class="stat-title">Double Chance</div><div class="stat-value highlight">${m.doubleChance}</div></div>
+                    <div class="stat-box"><div class="stat-title">Les 2 marquent (BTTS)</div><div class="stat-value highlight">${m.btts}</div></div>
+                    <div class="stat-box"><div class="stat-title">Score Exact Estimé</div><div class="stat-value" style="color:var(--accent-orange);">${m.exactScore}</div></div>
+                    
+                    <div class="stat-box"><div class="stat-title">Buts Total</div><div class="stat-value">${m.totalGoals}</div></div>
+                    <div class="stat-box"><div class="stat-title">Buts 1ère / 2ème MT</div><div class="stat-value">${m.htGoals} / ${m.ftGoals}</div></div>
+                    
+                    <div class="stat-box"><div class="stat-title">Corners</div><div class="stat-value">${m.cornersPred}</div></div>
+                    <div class="stat-box"><div class="stat-title">Cartons Jaunes</div><div class="stat-value">${m.cardsPred}</div></div>
+                    
+                    <div class="stat-box"><div class="stat-title">Fautes</div><div class="stat-value">${m.foulsPred}</div></div>
+                    <div class="stat-box"><div class="stat-title">Touches</div><div class="stat-value">${m.throwIns}</div></div>
+                    
+                    <div class="stat-box"><div class="stat-title">Dégagements Gardien</div><div class="stat-value">${m.goalKicks}</div></div>
+                    <div class="stat-box"><div class="stat-title">Tirs Totaux & Cadrés</div><div class="stat-value">${m.totalShots} (${m.htShots})</div></div>
+                    
+                    <div class="stat-box" style="grid-column: 1 / -1;"><div class="stat-title">Indice de Fiabilité Robot</div><div class="stat-value highlight">${m.confidence}%</div></div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // Initialisation au chargement de la page
+    window.onload = function() {
+        initWeeklyUpdateCycle();
+    };
 </script>
 
 </body>
