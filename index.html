@@ -1,1 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot de Prédiction - Nouvelle Base</title>
 
+    <!-- Exportation Ticket -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-color: #f8fafc;
+            --accent-orange: #f59e0b;
+            --accent-green: #10b981;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 12px;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header-title {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--accent-orange);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* NAVIGATION BAS */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #0f172a;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+
+        .nav-item {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--accent-orange);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-title">⚡ ROBOT NOUVELLE GÉNÉRATION</div>
+
+    <div class="card">
+        <p style="text-align: center; color: var(--text-muted);">
+            Projet réinitialisé avec succès. Prêt pour les nouvelles fonctionnalités !
+        </p>
+    </div>
+</div>
+
+<!-- BARRE DE NAVIGATION -->
+<div class="bottom-nav">
+    <div class="nav-item active">🔥 Populaire</div>
+    <div class="nav-item">⭐ Favoris</div>
+    <div class="nav-item">🎟️ Coupon</div>
+    <div class="nav-item">🕒 Historique</div>
+    <div class="nav-item">⣿ Menu</div>
+</div>
+
+</body>
+</html>
