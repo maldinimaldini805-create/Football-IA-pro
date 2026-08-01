@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot de Prédiction - Nouvelle Base</title>
+    <title>Robot OMEGA PRO</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
 
-    <!-- Exportation Ticket -->
+    <!-- Librairie pour l'exportation du ticket en image -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
@@ -16,7 +19,9 @@
             --text-color: #f8fafc;
             --accent-orange: #f59e0b;
             --accent-green: #10b981;
+            --neon-blue: #38bdf8;
             --text-muted: #94a3b8;
+            --fire-gradient: linear-gradient(135deg, #ef4444, #f97316);
         }
 
         body {
@@ -29,27 +34,281 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
         }
 
         .header-title {
             text-align: center;
-            font-size: 1.3rem;
-            font-weight: bold;
             margin-bottom: 15px;
-            color: var(--accent-orange);
         }
 
-        .card {
+        .header-title h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            background: linear-gradient(90deg, #10b981, #38bdf8, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        /* ONGLETS PRINCIPAUX (DIRECT / AVANT-MATCH) */
+        .top-tabs {
+            display: flex;
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 12px;
+        }
+
+        .top-tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .top-tab-btn.active {
+            background: var(--accent-orange);
+            color: #000000;
+        }
+
+        /* FILTRES TEMPORELS */
+        .time-filters {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+
+        .time-filter-btn {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            cursor: pointer;
         }
 
-        /* NAVIGATION BAS */
+        .time-filter-btn.active {
+            background: var(--accent-orange);
+            color: #000;
+            border-color: var(--accent-orange);
+        }
+
+        /* CARTE CONTENEUR */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--neon-blue);
+            margin-bottom: 12px;
+        }
+
+        /* FORMULAIRE DE SAISIE MATCH */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: bold;
+            margin-top: 6px;
+            grid-column: 1 / -1;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background-color: #0f172a;
+            color: white;
+            box-sizing: border-box;
+            font-size: 0.85rem;
+        }
+
+        button.action-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* GENERATEUR DE COMBINÉS */
+        .combo-buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        button.combo-btn {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button.big-odds-btn {
+            background: var(--fire-gradient);
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* AFFICHAGE DES MATCHS ANALYSÉS */
+        .match-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .match-header-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .team-name {
+            font-size: 0.95rem;
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .match-time-badge {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .odds-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .odd-box {
+            flex: 1;
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--card-border);
+            text-align: center;
+        }
+
+        .odd-title {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .odd-value {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--accent-green);
+        }
+
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .stat-box {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+
+        .stat-title {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+
+        /* ZONE DU COMBINÉ */
+        .combo-box {
+            background: linear-gradient(135deg, #064e3b, #0f172a);
+            border: 2px solid #10b981;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .combo-item {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid #10b981;
+        }
+
+        .export-btn {
+            background: #1f2937;
+            border: 1px solid #374151;
+            padding: 10px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* NAVIGATION INFÉRIEURE */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -59,41 +318,278 @@
             border-top: 1px solid var(--card-border);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
+            align-items: center;
+            padding: 8px 0;
+            z-index: 100;
         }
 
         .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             color: var(--text-muted);
-            font-size: 0.75rem;
-            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 600;
             cursor: pointer;
         }
 
         .nav-item.active {
             color: var(--accent-orange);
         }
+
+        .coupon-btn-container {
+            position: relative;
+            top: -12px;
+        }
+
+        .coupon-fab {
+            background: var(--accent-orange);
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
+            font-size: 1.2rem;
+            color: #000;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-title">⚡ ROBOT NOUVELLE GÉNÉRATION</div>
+    <div class="header-title">
+        <h1>ROBOT OMEGA PRO</h1>
+    </div>
 
+    <!-- ONGLETS DIRECT / AVANT-MATCH -->
+    <div class="top-tabs">
+        <button class="top-tab-btn" onclick="switchMainTab('live', this)">EN DIRECT</button>
+        <button class="top-tab-btn active" onclick="switchMainTab('prematch', this)">Avant-match</button>
+    </div>
+
+    <!-- FILTRES DE TEMPS -->
+    <div class="time-filters">
+        <button class="time-filter-btn active" onclick="filterTime('all', this)">Tout</button>
+        <button class="time-filter-btn" onclick="filterTime('15', this)">15 Drive</button>
+        <button class="time-filter-btn" onclick="filterTime('30', this)">30 minutes</button>
+        <button class="time-filter-btn" onclick="filterTime('60', this)">1 heure</button>
+    </div>
+
+    <!-- FORMULAIRE DE SAISIE -->
+    <div class="card" id="form-section">
+        <div class="card-title">⚽ Saisir un Match</div>
+        <div class="form-grid">
+            <div class="section-label">Équipes & Horaire</div>
+            <input type="text" id="input-team1" placeholder="Domicile (ex: Real Madrid)">
+            <input type="text" id="input-team2" placeholder="Extérieur (ex: Barcelona)">
+            <input type="text" id="input-time" placeholder="Heure (ex: 20:00)">
+
+            <div class="section-label">Cotes 1X2</div>
+            <input type="number" step="0.01" id="input-cote1" placeholder="Cote 1 (ex: 1.80)">
+            <input type="number" step="0.01" id="input-coteX" placeholder="Cote X (ex: 3.50)">
+            <input type="number" step="0.01" id="input-cote2" placeholder="Cote 2 (ex: 4.20)">
+
+            <div class="section-label">Forme / Pts par Match (Optionnel)</div>
+            <input type="number" step="0.1" id="input-pts1" placeholder="Pts 1 (ex: 2.1)">
+            <input type="number" step="0.1" id="input-pts2" placeholder="Pts 2 (ex: 1.1)">
+        </div>
+        <button class="action-btn" onclick="addMatchAndAnalyze()">🧠 Analyser & Enregistrer</button>
+    </div>
+
+    <!-- GENERATEUR DE COMBINÉS -->
     <div class="card">
-        <p style="text-align: center; color: var(--text-muted);">
-            Projet réinitialisé avec succès. Prêt pour les nouvelles fonctionnalités !
-        </p>
+        <div class="card-title">🎯 Générateur de Combinés</div>
+        <div class="combo-buttons-grid">
+            <button class="combo-btn" onclick="generateCombo(2)">🛡️ Combiné Sécurisé (2 Matchs)</button>
+            <button class="big-odds-btn" onclick="generateCombo(4)">🚀 Combiné Étendu (4 Matchs)</button>
+        </div>
+    </div>
+
+    <!-- TICKET AFFICHE -->
+    <div id="combo-container" class="combo-box"></div>
+
+    <!-- LISTE DES MATCHS -->
+    <div id="matches-container"></div>
+</div>
+
+<!-- BARRE DE NAVIGATION INFÉRIEURE -->
+<div class="bottom-nav">
+    <div class="nav-item active">
+        <div>🔥</div>
+        <div>Populaire</div>
+    </div>
+    <div class="nav-item">
+        <div>⭐</div>
+        <div>Favoris</div>
+    </div>
+    <div class="coupon-btn-container" onclick="scrollToCombo()">
+        <div class="coupon-fab">🎟️</div>
+    </div>
+    <div class="nav-item">
+        <div>🕒</div>
+        <div>Historique</div>
+    </div>
+    <div class="nav-item">
+        <div>⣿</div>
+        <div>Menu</div>
     </div>
 </div>
 
-<!-- BARRE DE NAVIGATION -->
-<div class="bottom-nav">
-    <div class="nav-item active">🔥 Populaire</div>
-    <div class="nav-item">⭐ Favoris</div>
-    <div class="nav-item">🎟️ Coupon</div>
-    <div class="nav-item">🕒 Historique</div>
-    <div class="nav-item">⣿ Menu</div>
-</div>
+<script>
+    let matchesList = [];
+
+    function addMatchAndAnalyze() {
+        const t1 = document.getElementById('input-team1').value.trim();
+        const t2 = document.getElementById('input-team2').value.trim();
+        const time = document.getElementById('input-time').value.trim() || "Aujourd'hui";
+        const c1 = parseFloat(document.getElementById('input-cote1').value) || 2.00;
+        const cX = parseFloat(document.getElementById('input-coteX').value) || 3.20;
+        const c2 = parseFloat(document.getElementById('input-cote2').value) || 3.50;
+        const pts1 = parseFloat(document.getElementById('input-pts1').value) || 1.5;
+        const pts2 = parseFloat(document.getElementById('input-pts2').value) || 1.2;
+
+        if (!t1 || !t2) {
+            alert("Saisissez le nom des deux équipes.");
+            return;
+        }
+
+        const prob1 = (1 / c1) * 100;
+        const prob2 = (1 / c2) * 100;
+        const maxProb = Math.max(prob1, prob2);
+
+        const calculatedConfidence = parseFloat((maxProb + (pts1 > pts2 ? 8 : -5)).toFixed(1));
+
+        let straightWinner = "";
+        let doubleChance = "";
+
+        if (prob1 > prob2) {
+            straightWinner = `Victoire Ferme : 1 (${t1})`;
+            doubleChance = `Double Chance : 1X (${t1} ou Nul)`;
+        } else {
+            straightWinner = `Victoire Ferme : 2 (${t2})`;
+            doubleChance = `Double Chance : X2 (${t2} ou Nul)`;
+        }
+
+        const matchObj = {
+            team1: t1,
+            team2: t2,
+            time: time,
+            c1: c1.toFixed(2),
+            cX: cX.toFixed(2),
+            c2: c2.toFixed(2),
+            confidence: Math.min(98, Math.max(55, calculatedConfidence)),
+            straightWinner: straightWinner,
+            doubleChance: doubleChance,
+            goalsOption: c1 < 1.80 || c2 < 1.80 ? "Plus de 1.5 Buts" : "Moins de 3.5 Buts",
+            bestOdd: Math.min(c1, c2) < 1.60 ? Math.min(c1, c2) : 1.35
+        };
+
+        matchesList.unshift(matchObj);
+        renderMatches();
+
+        document.getElementById('input-team1').value = '';
+        document.getElementById('input-team2').value = '';
+    }
+
+    function renderMatches() {
+        const container = document.getElementById('matches-container');
+        container.innerHTML = '';
+
+        if (matchesList.length === 0) return;
+
+        matchesList.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'match-card';
+            card.innerHTML = `
+                <div class="match-header-banner">
+                    <div class="team-name">${m.team1}</div>
+                    <div class="match-time-badge">${m.time}</div>
+                    <div class="team-name">${m.team2}</div>
+                </div>
+                <div class="odds-row">
+                    <div class="odd-box"><div class="odd-title">1</div><div class="odd-value">${m.c1}</div></div>
+                    <div class="odd-box"><div class="odd-title">X</div><div class="odd-value">${m.cX}</div></div>
+                    <div class="odd-box"><div class="odd-title">2</div><div class="odd-value">${m.c2}</div></div>
+                </div>
+                <div class="grid-stats">
+                    <div class="stat-box"><div class="stat-title">Victoire Directe</div><div class="stat-value">${m.straightWinner}</div></div>
+                    <div class="stat-box"><div class="stat-title">Double Chance</div><div class="stat-value">${m.doubleChance}</div></div>
+                    <div class="stat-box"><div class="stat-title">Buts</div><div class="stat-value">${m.goalsOption}</div></div>
+                    <div class="stat-box"><div class="stat-title">Confiance Robot</div><div class="stat-value" style="color:var(--accent-green);">${m.confidence}%</div></div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function generateCombo(count) {
+        const comboBox = document.getElementById('combo-container');
+
+        if (matchesList.length === 0) {
+            alert("Ajoutez au moins un match avant de générer un combiné !");
+            return;
+        }
+
+        const selected = matchesList.slice(0, count);
+        let totalOdd = 1.0;
+        let itemsHTML = '';
+
+        selected.forEach(m => {
+            const matchOdd = parseFloat(m.bestOdd);
+            totalOdd *= matchOdd;
+            itemsHTML += `
+                <div class="combo-item">
+                    <strong>⚽ ${m.team1} vs ${m.team2} (${m.time})</strong><br>
+                    📌 Sélection : <span style="color:#10b981;">${m.doubleChance}</span><br>
+                    📊 Indice : <strong>${m.confidence}%</strong>
+                </div>
+            `;
+        });
+
+        comboBox.style.display = 'block';
+        comboBox.innerHTML = `
+            <div id="ticket-capture">
+                <div style="font-weight:bold; color:#34d399; margin-bottom:10px; display:flex; justify-content:space-between;">
+                    <span>⚡ COMBINÉ (${selected.length} MATCHS)</span>
+                    <span>COTE TOTALE : <strong>${totalOdd.toFixed(2)}</strong></span>
+                </div>
+                ${itemsHTML}
+            </div>
+            <button class="export-btn" onclick="downloadTicketImage()">📸 Télécharger le Ticket</button>
+        `;
+
+        scrollToCombo();
+    }
+
+    function downloadTicketImage() {
+        const element = document.getElementById('ticket-capture');
+        html2canvas(element, { backgroundColor: '#0f172a' }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'combine-omega.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+
+    function scrollToCombo() {
+        const comboBox = document.getElementById('combo-container');
+        if (comboBox.style.display === 'block') {
+            comboBox.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    function switchMainTab(tab, btn) {
+        document.querySelectorAll('.top-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    function filterTime(filter, btn) {
+        document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+</script>
 
 </body>
 </html>
