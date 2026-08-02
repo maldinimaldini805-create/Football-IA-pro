@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot OMEGA PRO v1000.9 - Mode LIVE & Scénarios</title>
+    <title>Robot OMEGA PRO v1000.9 - Scénarios Dynamiques</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -190,6 +190,9 @@
             font-size: 0.9rem;
             font-weight: bold;
             flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .match-time-badge {
@@ -200,6 +203,7 @@
             border-radius: 6px;
             font-weight: bold;
             font-size: 0.8rem;
+            white-space: nowrap;
         }
 
         .match-time-badge.live {
@@ -307,9 +311,9 @@
             <input type="text" id="input-team2" placeholder="Extérieur (ex: Marseille)">
 
             <!-- CHAMPS SPÉCIFIQUES AU LIVE -->
-            <div class="section-label id-live-fields" style="display:none; color:var(--accent-red);">🔴 Paramètres En Direct (v1000.9)</div>
-            <input type="number" id="input-minute" placeholder="Minute du match (ex: 55)" style="display:none;" class="id-live-fields">
-            <input type="text" id="input-score" placeholder="Score actuel (ex: 1-0)" style="display:none;" class="id-live-fields">
+            <div class="section-label id-live-fields" style="display:none; color:var(--accent-red);">🔴 Paramètres En Direct</div>
+            <input type="number" id="input-minute" placeholder="Minute exacte du match (ex: 25, 65)" style="display:none;" class="id-live-fields">
+            <input type="text" id="input-score" placeholder="Score actuel (ex: 0-0, 1-0)" style="display:none;" class="id-live-fields">
             <select id="input-redcard" style="display:none;" class="id-live-fields">
                 <option value="none">Aucun Carton Rouge</option>
                 <option value="home">Carton Rouge Équipe 1</option>
@@ -389,6 +393,56 @@
         alert("🤖 MISE À JOUR EFFECTUÉE !\nL'algorithme IA v1000.9 s'est réajusté pour la nouvelle période de 7 jours.");
     }
 
+    function generateScenario(isLive, min, score, t1, t2, prob1, prob2, avgGoals, redCard) {
+        if (!isLive) {
+            // SCÉNARIOS AVANT-MATCH (Strictement pour les matchs non démarrés)
+            if (prob1 > prob2 + 15) {
+                return `📋 **Scénario Avant-Match** : Match pas encore commencé. ${t1} aborde ce match en favori et cherchera à faire le break rapidement. ${t2} devrait opter pour un bloc bas et exploiter les contres rapides.`;
+            } else if (prob2 > prob1 + 15) {
+                return `📋 **Scénario Avant-Match** : Match pas encore commencé. ${t2} part avec un avantage tactique net. On s'attend à une forte pression offensive de leur part dès l'entame, poussant ${t1} à défendre en nombre.`;
+            } else if (avgGoals >= 3.0) {
+                return `📋 **Scénario Avant-Match** : Match pas encore commencé. Duel très offensif en perspective entre ${t1} et ${t2}. Les deux attaques sont efficaces, ce qui promet un match ouvert avec de nombreuses occasions des deux côtés.`;
+            } else {
+                return `📋 **Scénario Avant-Match** : Match pas encore commencé. Les deux équipes présentent un niveau très équilibré. Observez une première mi-temps d'observation, très fermée tactiquement.`;
+            }
+        }
+
+        // SCÉNARIOS EN DIRECT (Adaptés selon la minute réelle du match)
+        const minute = parseInt(min) || 0;
+        const [hG, aG] = score.split('-').map(x => parseInt(x) || 0);
+
+        if (redCard === 'home') {
+            return `⚡ **Scénario Live (${minute}')** : Carton rouge contre ${t1} ! En infériorité numérique, ${t1} va se regrouper en défense. ${t2} va accentuer la possession et multiplier les centres et tirs.`;
+        }
+        if (redCard === 'away') {
+            return `⚡ **Scénario Live (${minute}')** : Expulsion chez ${t2} ! ${t1} se retrouve en supériorité numérique et prend le contrôle total du milieu de terrain pour faire sauter le verrou.`;
+        }
+
+        if (minute < 20) {
+            return `⚡ **Scénario Live (${minute}') [Score: ${score}]** : Début de match prudent. Les deux formations s'observent au milieu du terrain. Le jeu est fluide avec une recherche d'automatismes.`;
+        } else if (minute >= 20 && minute < 45) {
+            if (hG === 0 && aG === 0) {
+                return `⚡ **Scénario Live (${minute}') [Score: 0-0]** : Le match s'intensifie avant la pause. ${prob1 >= prob2 ? t1 : t2} monte son bloc d'un cran. Une ouverture du score reste possible avant la mi-temps.`;
+            } else {
+                return `⚡ **Scénario Live (${minute}') [Score: ${score}]** : Le jeu s'est débloqué. L'équipe menée réagit fort pour recoller au score avant la pause, créant des espaces exploitables en contre.`;
+            }
+        } else if (minute >= 45 && minute <= 60) {
+            if (hG === 0 && aG === 0) {
+                return `⚡ **Scénario Live (${minute}') [Score: 0-0]** : Entame de seconde période. Les ajustements tactiques du vestiaire apportent de la fraîcheur. Le rythme s'accélère progressivement.`;
+            } else {
+                return `⚡ **Scénario Live (${minute}') [Score: ${score}]** : Reprise de la 2ème mi-temps. Pression constante sur les deux cages. L'intensité des duels augmente significativement.`;
+            }
+        } else if (minute > 60 && minute <= 80) {
+            if (hG === aG) {
+                return `⚡ **Scénario Live (${minute}') [Score: ${score}]** : Temps fort décisif ! L'égalité persists, les entraîneurs injectent du sang neuf en attaque. Le match peut basculer sur un détail ou un coup arrêté.`;
+            } else {
+                return `⚡ **Scénario Live (${minute}') [Score: ${score}]** : Pression maximale de l'équipe menée qui jette toutes ses forces dans la bataille, exposant son arrière-garde aux contre-attaques.`;
+            }
+        } else { // 80+ min
+            return `⚡ **Scénario Live (${minute}') [Fin de match]** : Fin de match sous haute tension. Gestion du résultat pour l'équipe en tête ou assaut final désespéré. Attention aux cartons et fautes tactiques.`;
+        }
+    }
+
     function addAndPredictMatch() {
         const t1 = document.getElementById('input-team1').value.trim();
         const t2 = document.getElementById('input-team2').value.trim();
@@ -414,18 +468,19 @@
             return;
         }
 
+        const isLive = (currentMode === 'live');
         let timeBadge = "Avant-Match";
-        let liveScoreStr = "";
+        let liveScoreStr = "0-0";
+        let minStr = "0";
         let redCard = document.getElementById('input-redcard').value;
 
-        if (currentMode === 'live') {
-            const min = document.getElementById('input-minute').value || "45";
-            const score = document.getElementById('input-score').value || "0-0";
-            timeBadge = `🔴 LIVE ${min}' (${score})`;
-            liveScoreStr = score;
+        if (isLive) {
+            minStr = document.getElementById('input-minute').value || "1";
+            liveScoreStr = document.getElementById('input-score').value || "0-0";
+            timeBadge = `🔴 LIVE ${minStr}' (${liveScoreStr})`;
         }
 
-        // Calcul dynamique des probabilités v1000.9
+        // Probabilités dynamiques
         const prob1 = (1 / c1) * 100;
         const prob2 = (1 / c2) * 100;
         const diffProb = Math.abs(prob1 - prob2);
@@ -447,7 +502,7 @@
             doubleChance = prob1 >= prob2 ? `Double Chance 1X` : `Double Chance X2`;
         }
 
-        // 2. Score Exact ET Total Buts (Cohérence stricte v1000.9)
+        // 2. Score Exact ET Total Buts
         let exactScore = "1 - 1";
         let totalGoals = "Moins de 2.5 Buts";
         let htGoals = "Moins de 0.5 But";
@@ -476,16 +531,16 @@
 
         // 3. Cartons & Fautes
         let cardsPred = avgCards >= 4.5 ? "Plus de 4.5 Cartons" : "Moins de 4.5 Cartons";
-        if (redCard !== 'none') cardsPred += " (Carton Rouge en cours)";
+        if (redCard !== 'none') cardsPred += " (Carton Rouge)";
 
         const foulsPred = avgCards >= 4.0 ? "Plus de 23.5 Fautes" : "Moins de 23.5 Fautes";
 
-        // 4. Touches & Dégagements
+        // 4. Touches & Dégagements & Corners
         const throwIns = "Plus de 33.5 Touches";
         const goalKicks = "Plus de 13.5 Dégagements";
         const cornersPred = avgCorners >= 9.5 ? "Plus de 9.5 Corners" : "Moins de 9.5 Corners";
 
-        // 5. Tirs (Somme 1MT + 2MT = Total)
+        // 5. Tirs
         let totalShotsVal = avgGoals >= 2.7 ? 24.5 : 20.5;
         let totalShotsTarget = Math.floor(totalShotsVal);
         let htShotsVal = Math.round(totalShotsTarget * 0.45);
@@ -494,29 +549,15 @@
 
         const shotsDisplay = `+${totalShotsVal} Tirs (+${shotsCadresVal} Cadrés) | 1MT: +${htShotsVal} | 2MT: +${ftShotsVal}`;
 
-        // 6. SCÉNARIO TACTIQUE IA v1000.9
-        let scenarioText = "";
-        if (currentMode === 'live') {
-            scenarioText = `⚡ **Scénario Live v1000.9** : À la minute actuelle (${liveScoreStr}), ${t1} montre une pression constante. `;
-            if (redCard === 'home') scenarioText += `L'expulsion subie par ${t1} va pousser ${t2} à monopoliser le ballon et accentuer les tirs en seconde période.`;
-            else if (redCard === 'away') scenarioText += `En supériorité numérique, ${t1} devrait dominer la possession et créer plus d'occasions franches.`;
-            else scenarioText += `Le match reste ouvert, nous prévoyons au moins 1 but supplémentaire avant le coup de sifflet final.`;
-        } else {
-            if (prob1 > prob2 + 10) {
-                scenarioText = `📝 **Scénario Estimé v1000.9** : ${t1} devrait prendre le contrôle du jeu et ouvrir le score en 1ère mi-temps. ${t2} tentera de réagir en 2ème période avec plus de prises de risque.`;
-            } else if (prob2 > prob1 + 10) {
-                scenarioText = `📝 **Scénario Estimé v1000.9** : ${t2} imposera un rythme élevé dès l'entame et tentera de marquer rapidement. ${t1} jouera en contre-attaque.`;
-            } else {
-                scenarioText = `📝 **Scénario Estimé v1000.9** : Match tactique et serré. La première mi-temps s'annonce prudente avec peu d'espaces, l'intensité physique augmentera en 2ème mi-temps.`;
-            }
-        }
+        // 6. SCÉNARIO DYNAMIQUE ADAPTATION UNIQUE
+        const scenarioText = generateScenario(isLive, minStr, liveScoreStr, t1, t2, prob1, prob2, avgGoals, redCard);
 
-        // Calcul propre du pourcentage de fiabilité (pas de % fixe)
+        // Calcul Fiabilité
         const maxProb = Math.max(prob1, prob2);
         const confidence = Math.min(98, Math.max(55, Math.round(maxProb + (avgGoals * 4))));
 
         const matchObj = {
-            team1: t1, team2: t2, timeBadge: timeBadge, isLive: currentMode === 'live',
+            team1: t1, team2: t2, timeBadge: timeBadge, isLive: isLive,
             c1: c1.toFixed(2), cX: cX.toFixed(2), c2: c2.toFixed(2),
             issueFerme: issueFerme, doubleChance: doubleChance,
             totalGoals: totalGoals, htGoals: htGoals, ftGoals: ftGoals,
@@ -549,7 +590,6 @@
                     <div class="team-name">${m.team2}</div>
                 </div>
 
-                <!-- SCÉNARIO DE JEU -->
                 <div class="scenario-box">
                     ${m.scenarioText}
                 </div>
