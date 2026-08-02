@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot OMEGA PRO v1000.9 - Générateur de Combiné</title>
+    <title>Robot OMEGA PRO - Générateur de Combiné</title>
     
     <style>
         :root {
@@ -14,7 +14,6 @@
             --accent-orange: #f59e0b;
             --accent-green: #10b981;
             --neon-blue: #38bdf8;
-            --accent-red: #ef4444;
             --text-muted: #94a3b8;
         }
 
@@ -34,7 +33,7 @@
 
         .header-title {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .header-title h1 {
@@ -55,12 +54,43 @@
             margin-bottom: 16px;
         }
 
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            background-color: #0f172a;
+            border: 1px solid var(--card-border);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+        }
+
+        .btn-add {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
         .match-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 14px;
             padding: 14px;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -81,12 +111,6 @@
             font-weight: bold;
             font-size: 0.95rem;
             color: #ffffff;
-        }
-
-        .match-info {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 4px;
         }
 
         button.action-btn {
@@ -136,35 +160,20 @@
         <span style="color:var(--accent-green); font-size: 0.8rem;">GÉNÉRATEUR DE COMBINÉS</span>
     </div>
 
+    <!-- Formulaire d'ajout d'équipe -->
+    <div class="card">
+        <h3 style="margin-top:0; color:var(--neon-blue);">➕ Ajouter un match à la liste</h3>
+        <div class="input-group">
+            <input type="text" id="nom-match" placeholder="Ex: Paris SG vs Marseille">
+            <button class="btn-add" onclick="ajouterMatch()">Ajouter le match</button>
+        </div>
+    </div>
+
     <!-- Liste des Matchs disponibles -->
     <div class="card">
         <h3 style="margin-top:0; color:var(--neon-blue);">⚽ Coche les matchs pour le combiné</h3>
         <div id="matches-list">
-            
-            <div class="match-card">
-                <input type="checkbox" class="match-checkbox" value="Real Madrid vs FC Barcelone" id="m1">
-                <div class="match-details">
-                    <label for="m1" class="team-title">Real Madrid vs FC Barcelone</label>
-                    <div class="match-info">Cotes: 2.10 | 3.30 | 3.40</div>
-                </div>
-            </div>
-
-            <div class="match-card">
-                <input type="checkbox" class="match-checkbox" value="Arsenal vs Chelsea" id="m2">
-                <div class="match-details">
-                    <label for="m2" class="team-title">Arsenal vs Chelsea</label>
-                    <div class="match-info">Cotes: 1.85 | 3.50 | 4.20</div>
-                </div>
-            </div>
-
-            <div class="match-card">
-                <input type="checkbox" class="match-checkbox" value="Bayern vs Dortmund" id="m3">
-                <div class="match-details">
-                    <label for="m3" class="team-title">Bayern Munich vs Borussia Dortmund</label>
-                    <div class="match-info">Cotes: 1.60 | 4.00 | 5.00</div>
-                </div>
-            </div>
-
+            <!-- Les matchs ajoutés apparaîtront ici -->
         </div>
 
         <button class="action-btn" onclick="genererTicketCombine()">🎯 Générer le Ticket Combiné par le Robot</button>
@@ -178,6 +187,34 @@
 </div>
 
 <script>
+    let compteurMatch = 0;
+
+    function ajouterMatch() {
+        const inputMatch = document.getElementById('nom-match');
+        const nom = inputMatch.value.trim();
+
+        if (nom === "") {
+            alert("Veuillez saisir le nom des équipes (Ex: Real Madrid vs Barcelone)");
+            return;
+        }
+
+        compteurMatch++;
+        const idMatch = 'match_' + compteurMatch;
+
+        const container = document.getElementById('matches-list');
+        const matchDiv = document.createElement('div');
+        matchDiv.className = 'match-card';
+        matchDiv.innerHTML = `
+            <input type="checkbox" class="match-checkbox" value="${nom}" id="${idMatch}">
+            <div class="match-details">
+                <label for="${idMatch}" class="team-title">${nom}</label>
+            </div>
+        `;
+
+        container.appendChild(matchDiv);
+        inputMatch.value = ""; // Réinitialiser le champ texte
+    }
+
     async function genererTicketCombine() {
         const checkboxes = document.querySelectorAll('.match-checkbox:checked');
         const matchsSelectionnes = [];
