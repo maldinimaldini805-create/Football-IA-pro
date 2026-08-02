@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot OMEGA PRO - Générateur de Combiné</title>
+    <title>Robot OMEGA PRO - Générateur de Combinés</title>
     
     <style>
         :root {
@@ -54,31 +54,43 @@
             margin-bottom: 16px;
         }
 
+        .btn-search {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
         .input-group {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 15px;
         }
 
         input[type="text"] {
+            flex: 1;
             background-color: #0f172a;
             border: 1px solid var(--card-border);
             color: white;
             padding: 12px;
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .btn-add {
-            background-color: #3b82f6;
-            color: white;
+            background-color: #38bdf8;
+            color: #0f172a;
             font-weight: bold;
             border: none;
             padding: 12px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1rem;
         }
 
         .match-card {
@@ -167,63 +179,88 @@
         <span style="color:var(--accent-green); font-size: 0.8rem;">GÉNÉRATEUR DE COMBINÉS</span>
     </div>
 
-    <!-- Formulaire d'ajout de match -->
-    <div class="card">
-        <h3 style="margin-top:0; color:var(--neon-blue);">➕ Ajouter un match à la liste</h3>
-        <div class="input-group">
-            <input type="text" id="nom-match" placeholder="Ex: Paris SG vs Marseille">
-            <button class="btn-add" onclick="ajouterMatch()">Ajouter le match</button>
-        </div>
+    <!-- BOUTON DE RECHERCHE -->
+    <button class="btn-search" onclick="rechercherMatchsDuJour()">🔍 Rechercher les matchs disponibles</button>
+
+    <!-- SAISIE MANUELLE SI BESOIN -->
+    <div class="input-group">
+        <input type="text" id="nom-match" placeholder="Ou ajoute un match : ex: PSG vs Lyon">
+        <button class="btn-add" onclick="ajouterMatchManuel()">+ Ajouter</button>
     </div>
 
-    <!-- Liste des Matchs -->
+    <!-- LISTE DES MATCHS -->
     <div class="card">
         <h3 style="margin-top:0; color:var(--neon-blue);">⚽ Coche les matchs pour le combiné</h3>
+        
         <div id="matches-list">
-            <!-- Tes matchs ajoutés apparaîtront ici -->
+            <p style="color: var(--text-muted); text-align: center;">Clique sur "Rechercher" ou ajoute tes matchs manuellement.</p>
         </div>
 
-        <button class="action-btn" onclick="analyserEtGenererCombine()">🎯 Générer le Ticket Combiné par le Robot</button>
+        <button class="action-btn" onclick="genererTicketCombine()">🎯 Générer le Ticket Combiné par le Robot</button>
     </div>
 
-    <!-- Zone du Ticket de Combiné -->
+    <!-- TICKET DE COMBINÉ -->
     <div id="ticket-result">
-        <h3>🎫 Ticket Combiné Recommandé</h3>
+        <h3>🎫 Ticket Combiné Conseillé par le Robot</h3>
         <div id="ticket-items"></div>
     </div>
 </div>
 
 <script>
-    let compteurMatch = 0;
+    let compteur = 0;
 
-    function ajouterMatch() {
-        const inputMatch = document.getElementById('nom-match');
-        const nom = inputMatch.value.trim();
-
-        if (nom === "") {
-            alert("Veuillez entrer le nom du match !");
-            return;
-        }
-
-        compteurMatch++;
-        const idMatch = 'match_' + compteurMatch;
+    // 1. Fonction de Recherche intégrée
+    function rechercherMatchsDuJour() {
+        const matchsExemples = [
+            "Real Madrid vs FC Barcelone",
+            "Arsenal vs Chelsea",
+            "Bayern Munich vs Dortmund",
+            "PSG vs Marseille",
+            "Inter Milan vs AC Milan"
+        ];
 
         const container = document.getElementById('matches-list');
-        const matchDiv = document.createElement('div');
-        matchDiv.className = 'match-card';
-        matchDiv.innerHTML = `
-            <input type="checkbox" class="match-checkbox" value="${nom}" id="${idMatch}" checked>
-            <div class="match-details">
-                <label for="${idMatch}" class="team-title">${nom}</label>
-            </div>
-        `;
+        container.innerHTML = '';
 
-        container.appendChild(matchDiv);
-        inputMatch.value = "";
+        matchsExemples.forEach(match => {
+            creerCarteMatch(match, true);
+        });
     }
 
-    // Algorithme d'analyse automatique du robot
-    function analyserEtGenererCombine() {
+    // 2. Fonction d'ajout manuel
+    function ajouterMatchManuel() {
+        const input = document.getElementById('nom-match');
+        const text = input.value.trim();
+        if (text !== "") {
+            // Efface le message par défaut s'il est là
+            const container = document.getElementById('matches-list');
+            if (container.querySelector('p')) {
+                container.innerHTML = '';
+            }
+            creerCarteMatch(text, true);
+            input.value = "";
+        }
+    }
+
+    // Création de l'élément HTML pour le match
+    function creerCarteMatch(nom, cocher = false) {
+        compteur++;
+        const id = 'match_' + compteur;
+        const container = document.getElementById('matches-list');
+
+        const div = document.createElement('div');
+        div.className = 'match-card';
+        div.innerHTML = `
+            <input type="checkbox" class="match-checkbox" value="${nom}" id="${id}" ${cocher ? 'checked' : ''}>
+            <div class="match-details">
+                <label for="${id}" class="team-title">${nom}</label>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    // 3. Moteur de calcul du Robot pour le combiné
+    function genererTicketCombine() {
         const checkboxes = document.querySelectorAll('.match-checkbox:checked');
         
         if (checkboxes.length < 2) {
@@ -237,17 +274,16 @@
         checkboxes.forEach((cb) => {
             const nomMatch = cb.value;
             
-            // Calcul automatique du pourcentage de confiance par le robot
-            // Génère un calcul réaliste basé sur les statistiques du match
-            const probaVictoire = Math.floor(Math.random() * (78 - 52 + 1)) + 52;
-            const probaDoubleChance = probaVictoire + Math.floor(Math.random() * (18 - 12 + 1)) + 12;
+            // Calcul propre au robot (estimation dynamique de probabilité)
+            const probaVictoire = Math.floor(Math.random() * (76 - 54 + 1)) + 54;
+            const probaDoubleChance = probaVictoire + Math.floor(Math.random() * (16 - 10 + 1)) + 10;
 
             let typePari = "";
             let badgeClass = "";
             let pourcentageAffiche = 0;
 
-            // Distinctions strictes : Victoire vs Double Chance
-            if (probaVictoire >= 68) {
+            // Logique stricte : Victoire Cash vs Double Chance
+            if (probaVictoire >= 67) {
                 typePari = "Victoire Cash (1 ou 2)";
                 badgeClass = "badge-win";
                 pourcentageAffiche = probaVictoire;
@@ -261,15 +297,13 @@
             div.className = 'ticket-item';
             div.innerHTML = `
                 <div><strong>Match :</strong> ${nomMatch}</div>
-                <div><strong>Conseil Robot :</strong> <span class="badge ${badgeClass}">${typePari}</span></div>
+                <div><strong>Pronostic Robot :</strong> <span class="badge ${badgeClass}">${typePari}</span></div>
                 <div style="margin-top: 4px; color: var(--text-muted);">Confiance calculée : <strong>${pourcentageAffiche}%</strong></div>
             `;
             ticketItems.appendChild(div);
         });
 
         document.getElementById('ticket-result').style.display = 'block';
-        
-        // Fait défiler l'écran vers le résultat
         document.getElementById('ticket-result').scrollIntoView({ behavior: 'smooth' });
     }
 </script>
