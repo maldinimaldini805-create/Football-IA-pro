@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot OMEGA PRO - Mode LIVE & Scénarios</title>
+    <title>Robot OMEGA PRO v1000.9 - Mode LIVE & Scénarios</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -47,6 +47,18 @@
             -webkit-text-fill-color: transparent;
             font-weight: 900;
             text-transform: uppercase;
+        }
+
+        .version-tag {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-top: 4px;
+            font-weight: bold;
         }
 
         /* ONGLETS AVANT-MATCH / LIVE */
@@ -271,7 +283,8 @@
 
 <div class="container">
     <div class="header-title">
-        <h1>ROBOT OMEGA PRO (LIVE & TACTIQUE)</h1>
+        <h1>ROBOT OMEGA PRO</h1>
+        <span class="version-tag">VERSION v1000.9 ULTIMATE</span>
     </div>
 
     <!-- SELECTION DU MODE -->
@@ -281,7 +294,7 @@
     </div>
 
     <div class="update-banner">
-        <div>🔄 Mise à jour IA : <strong id="days-left">7 jours</strong></div>
+        <div>🔄 Moteur IA v1000.9 : <strong id="days-left">7 jours</strong></div>
         <div class="update-badge" onclick="forceWeeklyUpdate()">Recharger IA</div>
     </div>
 
@@ -294,7 +307,7 @@
             <input type="text" id="input-team2" placeholder="Extérieur (ex: Marseille)">
 
             <!-- CHAMPS SPÉCIFIQUES AU LIVE -->
-            <div class="section-label id-live-fields" style="display:none; color:var(--accent-red);">🔴 Paramètres En Direct</div>
+            <div class="section-label id-live-fields" style="display:none; color:var(--accent-red);">🔴 Paramètres En Direct (v1000.9)</div>
             <input type="number" id="input-minute" placeholder="Minute du match (ex: 55)" style="display:none;" class="id-live-fields">
             <input type="text" id="input-score" placeholder="Score actuel (ex: 1-0)" style="display:none;" class="id-live-fields">
             <select id="input-redcard" style="display:none;" class="id-live-fields">
@@ -313,7 +326,7 @@
             <input type="number" step="0.1" id="input-corners" placeholder="Moy. Corners (ex: 9.5)">
             <input type="number" step="0.1" id="input-cartons" placeholder="Moy. Cartons (ex: 4.2)">
         </div>
-        <button class="action-btn" onclick="addAndPredictMatch()">🧠 Calculer les Prédictions & Le Scénario</button>
+        <button class="action-btn" onclick="addAndPredictMatch()">🧠 Calculer les Prédictions & Le Scénario v1000.9</button>
     </div>
 
     <div id="matches-container"></div>
@@ -340,12 +353,12 @@
             btnPre.className = 'mode-tab-btn';
             btnLive.className = 'mode-tab-btn live-active';
             liveFields.forEach(el => el.style.display = 'block');
-            formTitle.textContent = "🔴 Saisir un Match EN DIRECT (LIVE)";
+            formTitle.textContent = "🔴 Saisir un Match EN DIRECT (LIVE v1000.9)";
         } else {
             btnPre.className = 'mode-tab-btn active';
             btnLive.className = 'mode-tab-btn';
             liveFields.forEach(el => el.style.display = 'none');
-            formTitle.textContent = "⚽ Saisir un Match (Avant-Match)";
+            formTitle.textContent = "⚽ Saisir un Match (Avant-Match v1000.9)";
         }
     }
 
@@ -373,7 +386,7 @@
     function forceWeeklyUpdate() {
         localStorage.setItem('omega_last_update', new Date().getTime());
         document.getElementById('days-left').textContent = "7 jours";
-        alert("🤖 MISE À JOUR EFFECTUÉE !\nL'algorithme du robot s'est réajusté pour la nouvelle période de 7 jours.");
+        alert("🤖 MISE À JOUR EFFECTUÉE !\nL'algorithme IA v1000.9 s'est réajusté pour la nouvelle période de 7 jours.");
     }
 
     function addAndPredictMatch() {
@@ -412,11 +425,12 @@
             liveScoreStr = score;
         }
 
+        // Calcul dynamique des probabilités v1000.9
         const prob1 = (1 / c1) * 100;
         const prob2 = (1 / c2) * 100;
         const diffProb = Math.abs(prob1 - prob2);
 
-        // 1. Victoire vs Double Chance
+        // 1. Victoire Directe vs Double Chance
         let issueFerme = "";
         let doubleChance = "";
         
@@ -433,10 +447,10 @@
             doubleChance = prob1 >= prob2 ? `Double Chance 1X` : `Double Chance X2`;
         }
 
-        // 2. Score Exact ET Total Buts
+        // 2. Score Exact ET Total Buts (Cohérence stricte v1000.9)
         let exactScore = "1 - 1";
         let totalGoals = "Moins de 2.5 Buts";
-        let htGoals = "Moins de 1.5 But";
+        let htGoals = "Moins de 0.5 But";
         let ftGoals = "Moins de 1.5 But";
         let btts = "NON";
 
@@ -471,7 +485,7 @@
         const goalKicks = "Plus de 13.5 Dégagements";
         const cornersPred = avgCorners >= 9.5 ? "Plus de 9.5 Corners" : "Moins de 9.5 Corners";
 
-        // 5. Tirs
+        // 5. Tirs (Somme 1MT + 2MT = Total)
         let totalShotsVal = avgGoals >= 2.7 ? 24.5 : 20.5;
         let totalShotsTarget = Math.floor(totalShotsVal);
         let htShotsVal = Math.round(totalShotsTarget * 0.45);
@@ -480,25 +494,26 @@
 
         const shotsDisplay = `+${totalShotsVal} Tirs (+${shotsCadresVal} Cadrés) | 1MT: +${htShotsVal} | 2MT: +${ftShotsVal}`;
 
-        // 6. GÉNÉRATEUR DE SCÉNARIO TACTIQUE
+        // 6. SCÉNARIO TACTIQUE IA v1000.9
         let scenarioText = "";
         if (currentMode === 'live') {
-            scenarioText = `⚡ **Scénario Live** : À la minute actuelle (${liveScoreStr}), ${t1} montre une pression constante. `;
+            scenarioText = `⚡ **Scénario Live v1000.9** : À la minute actuelle (${liveScoreStr}), ${t1} montre une pression constante. `;
             if (redCard === 'home') scenarioText += `L'expulsion subie par ${t1} va pousser ${t2} à monopoliser le ballon et accentuer les tirs en seconde période.`;
             else if (redCard === 'away') scenarioText += `En supériorité numérique, ${t1} devrait dominer la possession et créer plus d'occasions franches.`;
             else scenarioText += `Le match reste ouvert, nous prévoyons au moins 1 but supplémentaire avant le coup de sifflet final.`;
         } else {
             if (prob1 > prob2 + 10) {
-                scenarioText = `📝 **Scénario Estimé** : ${t1} devrait prendre le contrôle du jeu et ouvrir le score en 1ère mi-temps. ${t2} tentera de réagir en 2ème période avec plus de prises de risque.`;
+                scenarioText = `📝 **Scénario Estimé v1000.9** : ${t1} devrait prendre le contrôle du jeu et ouvrir le score en 1ère mi-temps. ${t2} tentera de réagir en 2ème période avec plus de prises de risque.`;
             } else if (prob2 > prob1 + 10) {
-                scenarioText = `📝 **Scénario Estimé** : ${t2} imposera un rythme élevé dès l'entame et tentera de marquer rapidement. ${t1} jouera en contre-attaque.`;
+                scenarioText = `📝 **Scénario Estimé v1000.9** : ${t2} imposera un rythme élevé dès l'entame et tentera de marquer rapidement. ${t1} jouera en contre-attaque.`;
             } else {
-                scenarioText = `📝 **Scénario Estimé** : Match tactique et serré. La première mi-temps s'annonce prudente avec peu d'espaces, l'intensité physique augmentera en 2ème mi-temps.`;
+                scenarioText = `📝 **Scénario Estimé v1000.9** : Match tactique et serré. La première mi-temps s'annonce prudente avec peu d'espaces, l'intensité physique augmentera en 2ème mi-temps.`;
             }
         }
 
+        // Calcul propre du pourcentage de fiabilité (pas de % fixe)
         const maxProb = Math.max(prob1, prob2);
-        const confidence = Math.min(95, Math.max(58, Math.round(maxProb + (avgGoals * 4))));
+        const confidence = Math.min(98, Math.max(55, Math.round(maxProb + (avgGoals * 4))));
 
         const matchObj = {
             team1: t1, team2: t2, timeBadge: timeBadge, isLive: currentMode === 'live',
@@ -557,7 +572,7 @@
                     <div class="stat-box"><div class="stat-title">Dégagements Gardien</div><div class="stat-value">${m.goalKicks}</div></div>
                     <div class="stat-box" style="grid-column: 1 / -1;"><div class="stat-title">Tirs & Tirs Cadrés</div><div class="stat-value" style="color:var(--neon-blue);">${m.shotsDisplay}</div></div>
                     
-                    <div class="stat-box" style="grid-column: 1 / -1;"><div class="stat-title">Indice de Fiabilité Robot</div><div class="stat-value highlight">${m.confidence}%</div></div>
+                    <div class="stat-box" style="grid-column: 1 / -1;"><div class="stat-title">Indice de Fiabilité Robot (v1000.9)</div><div class="stat-value highlight">${m.confidence}%</div></div>
                 </div>
             `;
             container.appendChild(card);
