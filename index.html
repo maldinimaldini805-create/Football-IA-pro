@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot OMEGA PRO - Générateur de Combiné</title>
+    <title>Robot OMEGA PRO - Recherche & Combinés</title>
     
     <style>
         :root {
@@ -54,35 +54,17 @@
             margin-bottom: 16px;
         }
 
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        input[type="text"] {
-            background-color: #0f172a;
-            border: 1px solid var(--card-border);
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--neon-blue);
-        }
-
-        .btn-add {
-            background-color: #3b82f6;
+        .btn-search {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
             font-weight: bold;
             border: none;
-            padding: 10px 14px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 10px;
             cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            margin-bottom: 15px;
         }
 
         .match-card {
@@ -111,6 +93,12 @@
             font-weight: bold;
             font-size: 0.95rem;
             color: #ffffff;
+        }
+
+        .match-info {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
         }
 
         button.action-btn {
@@ -160,20 +148,15 @@
         <span style="color:var(--accent-green); font-size: 0.8rem;">GÉNÉRATEUR DE COMBINÉS</span>
     </div>
 
-    <!-- Formulaire d'ajout d'équipe -->
-    <div class="card">
-        <h3 style="margin-top:0; color:var(--neon-blue);">➕ Ajouter un match à la liste</h3>
-        <div class="input-group">
-            <input type="text" id="nom-match" placeholder="Ex: Paris SG vs Marseille">
-            <button class="btn-add" onclick="ajouterMatch()">Ajouter le match</button>
-        </div>
-    </div>
+    <!-- BOUTON DE RECHERCHE DES MATCHS -->
+    <button class="btn-search" onclick="rechercherMatchs()">🔍 Rechercher les matchs disponibles</button>
 
-    <!-- Liste des Matchs disponibles -->
+    <!-- Liste des Matchs trouvés -->
     <div class="card">
         <h3 style="margin-top:0; color:var(--neon-blue);">⚽ Coche les matchs pour le combiné</h3>
+        
         <div id="matches-list">
-            <!-- Les matchs ajoutés apparaîtront ici -->
+            <p style="color: var(--text-muted); text-align: center;">Clique sur "Rechercher les matchs" ci-dessus pour charger la liste.</p>
         </div>
 
         <button class="action-btn" onclick="genererTicketCombine()">🎯 Générer le Ticket Combiné par le Robot</button>
@@ -187,34 +170,44 @@
 </div>
 
 <script>
-    let compteurMatch = 0;
-
-    function ajouterMatch() {
-        const inputMatch = document.getElementById('nom-match');
-        const nom = inputMatch.value.trim();
-
-        if (nom === "") {
-            alert("Veuillez saisir le nom des équipes (Ex: Real Madrid vs Barcelone)");
-            return;
-        }
-
-        compteurMatch++;
-        const idMatch = 'match_' + compteurMatch;
-
+    // Fonction pour rechercher et charger les matchs depuis Python
+    async function rechercherMatchs() {
         const container = document.getElementById('matches-list');
-        const matchDiv = document.createElement('div');
-        matchDiv.className = 'match-card';
-        matchDiv.innerHTML = `
-            <input type="checkbox" class="match-checkbox" value="${nom}" id="${idMatch}">
-            <div class="match-details">
-                <label for="${idMatch}" class="team-title">${nom}</label>
-            </div>
-        `;
+        container.innerHTML = '<p style="text-align:center; color: var(--neon-blue);">Chargement des matchs en cours...</p>';
 
-        container.appendChild(matchDiv);
-        inputMatch.value = ""; // Réinitialiser le champ texte
+        try {
+            const response = await fetch('/api/matchs');
+            const data = await response.json();
+
+            container.innerHTML = ''; // Effacer le message de chargement
+
+            if (data.matchs.length === 0) {
+                container.innerHTML = '<p style="text-align:center;">Aucun match trouvé pour le moment.</p>';
+                return;
+            }
+
+            // Afficher chaque match avec sa case à cocher
+            data.matchs.forEach((m, index) => {
+                const idMatch = 'match_' + index;
+                const matchDiv = document.createElement('div');
+                matchDiv.className = 'match-card';
+                matchDiv.innerHTML = `
+                    <input type="checkbox" class="match-checkbox" value="${m.equipes}" id="${idMatch}">
+                    <div class="match-details">
+                        <label for="${idMatch}" class="team-title">${m.equipes}</label>
+                        <div class="match-info">Cotes: ${m.cote_1} | ${m.cote_N} | ${m.cote_2}</div>
+                    </div>
+                `;
+                container.appendChild(matchDiv);
+            });
+
+        } catch (erreur) {
+            console.error("Erreur de recherche:", erreur);
+            container.innerHTML = '<p style="text-align:center; color: red;">Erreur lors de la recherche des matchs.</p>';
+        }
     }
 
+    // Fonction pour demander au robot d'analyser les matchs cochés et créer le combiné
     async function genererTicketCombine() {
         const checkboxes = document.querySelectorAll('.match-checkbox:checked');
         const matchsSelectionnes = [];
@@ -224,7 +217,7 @@
         });
 
         if (matchsSelectionnes.length < 2) {
-            alert("Veuillez cocher au moins 2 matchs pour que le robot génère un combiné !");
+            alert("Veuillez cocher au moins 2 matchs pour faire une combinaison !");
             return;
         }
 
@@ -241,7 +234,7 @@
                 afficherTicket(data.combine);
             }
         } catch (erreur) {
-            console.error("Erreur de connexion avec le robot Python:", erreur);
+            console.error("Erreur avec le robot Python:", erreur);
         }
     }
 
@@ -256,7 +249,7 @@
             div.innerHTML = `
                 <div><strong>Match :</strong> ${item.match}</div>
                 <div><strong>Choix Robot :</strong> <span style="color:var(--accent-green);">${item.choix}</span></div>
-                <div><strong>Confiance calculée :</strong> ${item.pourcentage}%</div>
+                <div><strong>Probabilité calculée :</strong> ${item.pourcentage}%</div>
             `;
             list.appendChild(div);
         });
